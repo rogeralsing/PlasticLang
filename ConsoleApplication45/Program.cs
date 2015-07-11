@@ -38,10 +38,10 @@ namespace PlasticLangLabb1
                     .Or(number)
                     .Or(quotedString);
 
-            var multiplyOperator = Parse.String("*").Token().Return(new MultiplyBinary() as BinaryOperator);
-            var divideOperator = Parse.String("/").Token().Return(new DivideBinary() as BinaryOperator);
-            var addOperator = Parse.String("+").Token().Return(new AddBinary() as BinaryOperator);
-            var subtractOperator = Parse.String("-").Token().Return(new SubtractBnary() as BinaryOperator);
+            var multiplyOperator = Parse.String("*").Return(new MultiplyBinary() as BinaryOperator);
+            var divideOperator = Parse.String("/").Return(new DivideBinary() as BinaryOperator);
+            var addOperator = Parse.String("+").Return(new AddBinary() as BinaryOperator);
+            var subtractOperator = Parse.String("-").Return(new SubtractBnary() as BinaryOperator);
 
             var innerTerm = Parse.ChainOperator(addOperator.Or(subtractOperator), literal,
                 (o, l, r) => new BinaryExpression(l, o, r));
@@ -58,11 +58,23 @@ namespace PlasticLangLabb1
                 select exp;
 
             var statement =
-                from exp in expression
+                from exp in expression.Once()
                 from _ in Parse.Char(';')
                 select exp;
 
-            var res = statement.Parse("  555 + \"abcd\" + \r\n leif rolf olle;");
+            var statements = statement.Many();
+
+            var body =
+                from ws1 in Parse.WhiteSpace.Many()
+                from lBrace in Parse.Char('{')
+                from ws2 in Parse.WhiteSpace.Many()
+                from innerStatements in statements
+                from ws3 in Parse.WhiteSpace.Many()
+                from rBrace in Parse.Char('}')
+                from ws4 in Parse.WhiteSpace.Many()
+                select innerStatements;
+
+            var res = body.Parse(" { 555 + \"abcd\" + \r\n leif rolf olle; a * b;  } ");
         }
     }
 }

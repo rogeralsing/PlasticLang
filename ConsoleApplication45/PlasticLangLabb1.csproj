@@ -48,7 +48,6 @@
     <Compile Include="BinaryOperator.cs" />
     <Compile Include="Identifier.cs" />
     <Compile Include="Identifiers.cs" />
-    <Compile Include="Identifiers_2.cs" />
     <Compile Include="Number.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
