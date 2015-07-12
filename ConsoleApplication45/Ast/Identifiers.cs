@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace PlasticLangLabb1
+namespace PlasticLangLabb1.Ast
 {
-    internal class Identifiers : IExpression
+    public class Identifiers : IExpression
     {
         public Identifiers(IEnumerable<IExpression> ids)
         {

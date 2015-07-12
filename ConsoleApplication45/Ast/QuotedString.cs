@@ -1,6 +1,6 @@
-﻿namespace PlasticLangLabb1
+﻿namespace PlasticLangLabb1.Ast
 {
-    internal class QuotedString : IExpression
+    public class QuotedString : IExpression
     {
         public QuotedString(string value)
         {

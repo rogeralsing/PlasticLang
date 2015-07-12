@@ -1,4 +1,4 @@
-﻿namespace PlasticLangLabb1
+﻿namespace PlasticLangLabb1.Ast
 {
     public abstract class BinaryOperator
     {

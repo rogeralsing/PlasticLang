@@ -1,6 +1,6 @@
-﻿namespace PlasticLangLabb1
+﻿namespace PlasticLangLabb1.Ast
 {
-    internal class Identifier : IExpression
+    public class Identifier : IExpression
     {
         public Identifier(string name)
         {

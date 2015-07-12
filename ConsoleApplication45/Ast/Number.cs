@@ -1,12 +1,12 @@
 ﻿using System.Globalization;
 
-namespace PlasticLangLabb1
+namespace PlasticLangLabb1.Ast
 {
     public interface IExpression
     {
     }
 
-    internal class Number : IExpression
+    public class Number : IExpression
     {
         public Number(string numb)
         {

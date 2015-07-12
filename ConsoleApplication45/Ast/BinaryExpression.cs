@@ -1,6 +1,6 @@
-﻿namespace PlasticLangLabb1
+﻿namespace PlasticLangLabb1.Ast
 {
-    internal class BinaryExpression : IExpression
+    public class BinaryExpression : IExpression
     {
         private IExpression left;
         private BinaryOperator op;
