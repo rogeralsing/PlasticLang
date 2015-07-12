@@ -7,7 +7,7 @@ using Sprache;
 
 namespace PlasticLangLabb1
 {
-    internal class PlasticParser
+    public class PlasticParser
     {
         private static Parser<string> TokenWithWS(string token)
         {
