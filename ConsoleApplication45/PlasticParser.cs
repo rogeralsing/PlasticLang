@@ -64,7 +64,7 @@ namespace PlasticLangLabb1
             select new QuotedString(new string(str.ToArray()));
 
         public static readonly Parser<IExpression> Literal =
-            Identifiers.Select(x => x as IExpression)
+           Identifiers.Select(x => x as IExpression)
                 .Or(Number)
                 .Or(QuotedString);
 
@@ -124,7 +124,7 @@ namespace PlasticLangLabb1
                 .DelimitedBy(Comma)
                 .Optional()
                 .Contained(LParen, RParen)
-                .Select(o => o.IsDefined ? o.Get() : Enumerable.Empty<Identifier>())
+                .Select(o => o.GetOrDefault())
                 .Or(Identifier.Once());
 
         public static readonly Parser<IExpression> LambdaDeclaration =
@@ -133,9 +133,30 @@ namespace PlasticLangLabb1
             from body in Parse.Ref(() => LambdaBody)
             select new LambdaDeclaration(args, body);
 
-        private static readonly Parser<IExpression> Invocation =
+        public static readonly Parser<IEnumerable<IExpression>> InvocationArgs =
+            Parse.Ref(() => Expression)
+                .DelimitedBy(Comma)
+                .Optional()
+                .Contained(LParen, RParen)
+                .Select(o => o.IsDefined ? o.Get() : Enumerable.Empty<Identifier>())
+                .Or(Identifier.Once());
+        
+        //this is the iffy part
+        //`abc def ghi` should be an `Identifiers`
+        //`abc def ghi ()` should be an `Invocation`
+        //`abc def ghi {}` should be an `Invocation`
+        //`abc def ghi (){}` should be an `Invocation`
+        //`abc def ghi (){} jkl ()` should be an `Invocation`
+        //`abc def ghi (){} jkl ()` should be an `Invocation`
+        private static readonly Parser<Invocaton> Invocation =
             from identifiers in Identifiers
-            from body in Body
-            select new Invocaton(identifiers, null, body);
+            from args in InvocationArgs.Optional()
+            from body in Body.Optional()
+            select new Invocaton(identifiers, args.GetOrDefault(), body.GetOrDefault());
+
+        private static readonly Parser<IExpression> Invocations =
+            from invocations in Invocation.AtLeastOnce()
+            select new Invocations(invocations);
+
     }
 }

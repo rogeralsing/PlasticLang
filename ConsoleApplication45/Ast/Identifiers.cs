@@ -5,9 +5,9 @@ namespace PlasticLangLabb1.Ast
 {
     public class Identifiers : IExpression
     {
-        public Identifiers(IEnumerable<IExpression> ids)
+        public Identifiers(IEnumerable<Identifier> ids)
         {
-            Values = ids.Cast<Identifier>().ToArray();
+            Values = ids.ToArray();
         }
 
         public Identifier[] Values { get; private set; }

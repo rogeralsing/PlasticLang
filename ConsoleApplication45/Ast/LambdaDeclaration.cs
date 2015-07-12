@@ -7,7 +7,7 @@ namespace PlasticLangLabb1.Ast
     {
         public LambdaDeclaration(IEnumerable<Identifier> args, IExpression body)
         {
-            Args = args.ToArray();
+            Args = (args ?? new Identifier[0]).ToArray();
 
             Body = body;
         }
