@@ -26,7 +26,7 @@ namespace PlasticLangLabb1
 {
     abc;
     let x = e == 2;
-    let b = (x) => x;
+    let b = x => x;
 }
 
 

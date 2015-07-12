@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Design;
+﻿using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Security.Policy;
 using PlasticLangLabb1.Ast;
@@ -120,10 +121,18 @@ namespace PlasticLangLabb1
 
         //private static readonly Parser<Args> Args = Parse.. 
 
-        public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Body).Or(Parse.Ref(() => Expression)); 
+        public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Body).Or(Parse.Ref(() => Expression));
+
+        public static readonly Parser<IEnumerable<Identifier>> LambdaArgs = 
+            Identifier
+            .DelimitedBy(Comma)
+            .Optional()
+            .Contained(LParen, RParen)
+            .Select(o => o.IsDefined?o.Get():Enumerable.Empty<Identifier>())
+            .Or(Identifier.Once());
 
         public static readonly Parser<IExpression> LambdaDeclaration =
-            from args in Identifier.DelimitedBy(Comma).Optional().Contained(LParen,RParen)
+            from args in LambdaArgs
             from arrow in LambdaArrow
             from body in Parse.Ref(() => LambdaBody)
             select new LambdaDeclaration(args, body);
