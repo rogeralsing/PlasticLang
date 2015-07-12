@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.Design;
-
-namespace PlasticLangLabb1.Ast
+﻿namespace PlasticLangLabb1.Ast
 {
     public class Invocaton : IExpression
     {
@@ -13,9 +10,7 @@ namespace PlasticLangLabb1.Ast
         }
 
         public Identifiers Identifiers { get; set; }
-
         public Statements Body { get; set; }
-
         public IExpression Args { get; set; }
     }
 }

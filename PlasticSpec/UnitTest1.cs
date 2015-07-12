@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PlasticLangLabb1;
 using Sprache;
 
@@ -11,7 +10,7 @@ namespace PlasticSpec
         [TestMethod]
         public void Can_parse_integer_number()
         {
-            var number = PlasticParser.Expression.Parse("  123  ");            
+            var number = PlasticParser.Expression.Parse("  123  ");
         }
 
         [TestMethod]
@@ -59,7 +58,25 @@ namespace PlasticSpec
         [TestMethod]
         public void Can_parse_assignment()
         {
-            var division = PlasticParser.Expression.Parse("  let a=2  ");
+            var assignment = PlasticParser.Expression.Parse("  let a=2  ");
+        }
+
+        [TestMethod]
+        public void Can_parse_assignment_assignment()
+        {
+            var assignment = PlasticParser.Expression.Parse("  let a=b=c  ");
+        }
+
+        [TestMethod]
+        public void Can_parse_multi_assignment()
+        {
+            var assignment = PlasticParser.Expression.Parse("  let a, b, c=2 ");
+        }
+
+        [TestMethod]
+        public void Can_parse_assignment_lambda()
+        {
+            var assignment = PlasticParser.Expression.Parse("  let a = () => b  ");
         }
 
         [TestMethod]
@@ -68,5 +85,7 @@ namespace PlasticSpec
             var lambda1 = PlasticParser.Expression.Parse("  (x) => {y;} ");
             var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
         }
+
+
     }
 }

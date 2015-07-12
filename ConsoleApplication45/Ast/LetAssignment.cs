@@ -1,15 +1,18 @@
-﻿namespace PlasticLangLabb1.Ast
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace PlasticLangLabb1.Ast
 {
     public class LetAssignment : IExpression
     {
-        public LetAssignment(Identifier cell, IExpression expression)
+
+        public LetAssignment(IEnumerable<Identifier> cells, IExpression expression)
         {
-            Cell = cell;
-            Expression = expression;
+            this.Cells = cells.ToArray();
+            this.Expression = expression;
         }
 
-        public Identifier Cell { get; set; }
-
+        public Identifier[] Cells { get; set; }
         public IExpression Expression { get; set; }
     }
 }

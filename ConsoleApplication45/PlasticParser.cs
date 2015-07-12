@@ -17,6 +17,11 @@ namespace PlasticLangLabb1
             return parser;
         }
 
+        public static Parser<BinaryOperator> BinOp(string op, BinaryOperator node)
+        {
+            return Parse.String(op).Return(node);
+        }
+
         public static readonly Parser<string> LambdaArrow = TokenWithWS("=>");
         public static readonly Parser<string> LParen = TokenWithWS("(");
         public static readonly Parser<string> RParen = TokenWithWS(")");
@@ -32,9 +37,9 @@ namespace PlasticLangLabb1
             select q;
 
         public static readonly Parser<char> RQoute =
-                    from q in Parse.Char('"')
-                    from ws in WS
-                    select q;
+            from q in Parse.Char('"')
+            from ws in WS
+            select q;
 
         public static readonly Parser<Identifier> Identifier =
             from leading in WS
@@ -65,7 +70,7 @@ namespace PlasticLangLabb1
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => ParenExpression)
-          //      .Or(Parse.Ref(() => Invocation))
+                //      .Or(Parse.Ref(() => Invocation))
                 .Or(Parse.Ref(() => Literal));
 
         public static readonly Parser<BinaryOperator> MultiplyOperator = BinOp("*", new MultiplyBinary());
@@ -73,11 +78,6 @@ namespace PlasticLangLabb1
         public static readonly Parser<BinaryOperator> AddOperator = BinOp("+", new AddBinary());
         public static readonly Parser<BinaryOperator> SubtractOperator = BinOp("-", new SubtractBnary());
         public static readonly Parser<BinaryOperator> EqualsOperator = BinOp("==", new EqualsBinary());
-
-        public static Parser<BinaryOperator> BinOp(string op, BinaryOperator node)
-        {
-            return Parse.String(op).Return(node);
-        }
 
         public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
             Value, (o, l, r) => new BinaryExpression(l, o, r));
@@ -90,21 +90,21 @@ namespace PlasticLangLabb1
 
         public static readonly Parser<IExpression> Assign =
             from x in TokenWithWS("let")
-            from cell in Identifier
+            from cells in Identifier.DelimitedBy(Comma)
             from assignOp in TokenWithWS("=")
             from expression in Parse.Ref(() => Expression)
-            select new LetAssignment(cell, expression);
+            select new LetAssignment(cells, expression);
 
-        public static readonly Parser<IExpression> Expression = 
+        public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
-            .Or(Parse.Ref(() => Assign))
-            .Or(Parse.Ref(() => Compare));
+                .Or(Parse.Ref(() => Assign))
+                .Or(Parse.Ref(() => Compare));
 
         public static readonly Parser<IExpression> ParenExpression =
             Parse.Ref(() => Parse.Ref(() => Expression)).Contained(LParen, RParen);
-        
+
         public static readonly Parser<IExpression> TerminatedStatement =
-            from exp in Parse.Ref(() => Expression) 
+            from exp in Parse.Ref(() => Expression)
             from _ in Parse.Char(';')
             select exp;
 
@@ -117,18 +117,15 @@ namespace PlasticLangLabb1
             select new Statements(statements);
 
         public static readonly Parser<Statements> Body = Parse.Ref(() => Statements).Contained(LBrace, RBrace);
-
-        //private static readonly Parser<Args> Args = Parse.. 
-
         public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Body).Or(Parse.Ref(() => Expression));
 
-        public static readonly Parser<IEnumerable<Identifier>> LambdaArgs = 
+        public static readonly Parser<IEnumerable<Identifier>> LambdaArgs =
             Identifier
-            .DelimitedBy(Comma)
-            .Optional()
-            .Contained(LParen, RParen)
-            .Select(o => o.IsDefined?o.Get():Enumerable.Empty<Identifier>())
-            .Or(Identifier.Once());
+                .DelimitedBy(Comma)
+                .Optional()
+                .Contained(LParen, RParen)
+                .Select(o => o.IsDefined ? o.Get() : Enumerable.Empty<Identifier>())
+                .Or(Identifier.Once());
 
         public static readonly Parser<IExpression> LambdaDeclaration =
             from args in LambdaArgs
@@ -137,7 +134,7 @@ namespace PlasticLangLabb1
             select new LambdaDeclaration(args, body);
 
         private static readonly Parser<IExpression> Invocation =
-            from identifiers in Identifiers            
+            from identifiers in Identifiers
             from body in Body
             select new Invocaton(identifiers, null, body);
     }
