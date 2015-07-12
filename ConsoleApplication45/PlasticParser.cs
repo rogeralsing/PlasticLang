@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.Design;
 using System.Linq;
+using System.Security.Policy;
 using PlasticLangLabb1.Ast;
 using Sprache;
 
@@ -71,6 +72,7 @@ namespace PlasticLangLabb1
         public static readonly Parser<BinaryOperator> DivideOperator = BinOp("/", new DivideBinary());
         public static readonly Parser<BinaryOperator> AddOperator = BinOp("+", new AddBinary());
         public static readonly Parser<BinaryOperator> SubtractOperator = BinOp("-", new SubtractBnary());
+        public static readonly Parser<BinaryOperator> EqualsOperator = BinOp("==", new EqualsBinary());
 
         public static Parser<BinaryOperator> BinOp(string op, BinaryOperator node)
         {
@@ -78,22 +80,37 @@ namespace PlasticLangLabb1
         }
 
         public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
-            Value,
-            (o, l, r) => new BinaryExpression(l, o, r));
+            Value, (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> Term = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
-            InnerTerm,
-            (o, l, r) => new BinaryExpression(l, o, r));
+            InnerTerm, (o, l, r) => new BinaryExpression(l, o, r));
 
-        public static readonly Parser<IExpression> Expression = Parse.Ref(() => LambdaDeclaration).Or(Parse.Ref(() => Term));
+        public static readonly Parser<IExpression> Compare = Parse.ChainOperator(EqualsOperator,
+            Term, (o, l, r) => new BinaryExpression(l, o, r));
+
+        public static readonly Parser<IExpression> Assign =
+            from x in TokenWithWS("let")
+            from cell in Identifier
+            from assignOp in TokenWithWS("=")
+            from expression in Parse.Ref(() => Expression)
+            select new LetAssignment(cell, expression);
+
+        public static readonly Parser<IExpression> Expression = 
+            Parse.Ref(() => LambdaDeclaration)
+            .Or(Parse.Ref(() => Assign))
+            .Or(Parse.Ref(() => Compare));
 
         public static readonly Parser<IExpression> ParenExpression =
             Parse.Ref(() => Parse.Ref(() => Expression)).Contained(LParen, RParen);
         
-        public static readonly Parser<IExpression> Statement =
+        public static readonly Parser<IExpression> TerminatedStatement =
             from exp in Parse.Ref(() => Expression) 
             from _ in Parse.Char(';')
             select exp;
+
+        public static readonly Parser<IExpression> Statement =
+            Parse.Ref(() => Body)
+                .Or(Parse.Ref(() => TerminatedStatement));
 
         public static readonly Parser<Statements> Statements =
             from statements in Statement.Many()
@@ -103,10 +120,12 @@ namespace PlasticLangLabb1
 
         //private static readonly Parser<Args> Args = Parse.. 
 
+        public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Body).Or(Parse.Ref(() => Expression)); 
+
         public static readonly Parser<IExpression> LambdaDeclaration =
-            from args in Identifier.DelimitedBy(Comma).Contained(LParen,RParen)
+            from args in Identifier.DelimitedBy(Comma).Optional().Contained(LParen,RParen)
             from arrow in LambdaArrow
-            from body in Parse.Ref(() => Body)
+            from body in Parse.Ref(() => LambdaBody)
             select new LambdaDeclaration(args, body);
 
         private static readonly Parser<IExpression> Invocation =

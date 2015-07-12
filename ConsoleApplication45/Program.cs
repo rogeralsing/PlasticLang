@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using PlasticLangLabb1.Ast;
-using Sprache;
+﻿using Sprache;
 
 namespace PlasticLangLabb1
 {
@@ -10,8 +8,10 @@ namespace PlasticLangLabb1
         {
             var x = PlasticParser.Expression.Parse("(axy) => { abc; }");
 
-            var res = PlasticParser.Body.Parse(@"
-{ 
+            var res = PlasticParser.Statements.Parse(@"
+
+
+((x) => { 
     (123) + 555; 
 
     abc;
@@ -20,8 +20,17 @@ namespace PlasticLangLabb1
 
     (abc + 123 * xyz def) - 77;
 
-    (axy) => { abc; };
-}");
+    () => { abc; };
+});
+
+{
+    abc;
+    let x = e == 2;
+    let b = (x) => x;
+}
+
+
+");
         }
     }
 }

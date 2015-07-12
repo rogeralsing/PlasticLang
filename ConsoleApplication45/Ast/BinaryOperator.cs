@@ -19,4 +19,8 @@
     public class DivideBinary : BinaryOperator
     {
     }
+
+    public class EqualsBinary : BinaryOperator
+    {
+    }
 }

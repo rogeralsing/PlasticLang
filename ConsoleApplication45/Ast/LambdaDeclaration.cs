@@ -9,14 +9,14 @@ namespace PlasticLangLabb1.Ast
 {
     public class LambdaDeclaration : IExpression
     {
-        public LambdaDeclaration(IEnumerable<Identifier> args, Statements body)
+        public LambdaDeclaration(Sprache.IOption<IEnumerable<Identifier>> args, IExpression body)
         {
-            Args = args.ToArray();
+            Args = args.IsDefined ? args.Get().ToArray() : new Identifier[0];
+
             Body = body;
         }
 
-        public Statements Body { get; set; }
-
+        public IExpression Body { get; set; }
         public Identifier[] Args { get; set; }
     }
 }
