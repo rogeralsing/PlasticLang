@@ -2,14 +2,14 @@
 {
     public class Invocaton : IExpression
     {
-        public Invocaton(Identifiers identifiers, IExpression args, Statements body)
+        public Invocaton(IExpression exp, IExpression args, Statements body)
         {
-            Identifiers = identifiers;
+            Expression = exp;
             Args = args;
             Body = body;
         }
 
-        public Identifiers Identifiers { get; set; }
+        public IExpression Expression { get; set; }
         public Statements Body { get; set; }
         public IExpression Args { get; set; }
     }
