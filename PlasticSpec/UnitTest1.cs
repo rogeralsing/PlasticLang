@@ -26,6 +26,12 @@ namespace PlasticSpec
         }
 
         [TestMethod]
+        public void Can_parse_identifiers()
+        {
+            var identifier = PlasticParser.Expression.Parse("  abc def ghi jkl ");
+        }
+
+        [TestMethod]
         public void Can_parse_string()
         {
             var str = PlasticParser.Expression.Parse("  \"hej hopp 12334 !%¤%¤ \"  ");
