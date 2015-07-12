@@ -29,7 +29,7 @@ namespace PlasticSpec
         [TestMethod]
         public void Can_parse_string()
         {
-            var str = PlasticParser.Expression.Parse("  \"hejhopp\"  ");
+            var str = PlasticParser.Expression.Parse("  \"hej hopp 12334 !%¤%¤ \"  ");
         }
 
         [TestMethod]

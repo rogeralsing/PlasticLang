@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
-using System.Security.Policy;
 using PlasticLangLabb1.Ast;
 using Sprache;
 
@@ -26,22 +24,23 @@ namespace PlasticLangLabb1
         public static readonly Parser<string> RBrace = TokenWithWS("}");
         public static readonly Parser<string> Comma = TokenWithWS(",");
         public static readonly Parser<string> SemiColon = TokenWithWS(";");
+        public static readonly Parser<IEnumerable<char>> WS = Parse.WhiteSpace.Many();
 
         public static readonly Parser<char> LQoute =
-            from ws in Parse.WhiteSpace
+            from ws in WS
             from q in Parse.Char('"')
             select q;
 
         public static readonly Parser<char> RQoute =
                     from q in Parse.Char('"')
-                    from ws in Parse.WhiteSpace
+                    from ws in WS
                     select q;
 
         public static readonly Parser<Identifier> Identifier =
-            from leading in Parse.WhiteSpace.Many()
+            from leading in WS
             from first in Parse.Letter.Once()
             from rest in Parse.LetterOrDigit.Many()
-            from trailing in Parse.WhiteSpace.Many()
+            from trailing in WS
             let token = new string(first.Concat(rest).ToArray())
             select new Identifier(token);
 
@@ -50,13 +49,13 @@ namespace PlasticLangLabb1
             select new Identifiers(ids);
 
         public static readonly Parser<Number> Number =
-            from leading in Parse.WhiteSpace.Many()
+            from leading in WS
             from numb in Parse.DecimalInvariant
-            from trailing in Parse.WhiteSpace.Many()
+            from trailing in WS
             select new Number(numb);
 
         public static readonly Parser<QuotedString> QuotedString =
-            from str in Parse.Letter.Many().Contained(LQoute, RQoute)
+            from str in Parse.CharExcept('"').Many().Contained(LQoute, RQoute)
             select new QuotedString(new string(str.ToArray()));
 
         public static readonly Parser<IExpression> Literal =
