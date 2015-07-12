@@ -49,10 +49,10 @@
     <Compile Include="Ast\Identifier.cs" />
     <Compile Include="Ast\Identifiers.cs" />
     <Compile Include="Ast\Invocaton.cs" />
+    <Compile Include="Ast\LambdaDeclaration.cs" />
     <Compile Include="Ast\Number.cs" />
     <Compile Include="Ast\Statements.cs" />
     <Compile Include="PlasticParser.cs" />
-    <Compile Include="PlasticPrimitives.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Ast\QuotedString.cs" />

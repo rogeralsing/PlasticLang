@@ -8,9 +8,20 @@ namespace PlasticLangLabb1
     {
         private static void Main(string[] args)
         {
-           
+            var x = PlasticParser.Expression.Parse("(axy) => { abc; }");
 
-            var res = PlasticParser.Expression.Parse(" (123) + 555");
+            var res = PlasticParser.Body.Parse(@"
+{ 
+    (123) + 555; 
+
+    abc;
+
+    123;
+
+    (abc + 123 * xyz def) - 77;
+
+    (axy) => { abc; };
+}");
         }
     }
 }
