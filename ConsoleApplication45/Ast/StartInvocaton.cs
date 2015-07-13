@@ -29,6 +29,7 @@ namespace PlasticLangLabb1.Ast
             var macro = target as PlasticMacro;
             var expressions = target as IEnumerable<IExpression>;
             var expression = target as IExpression;
+            var array = target as object[];
             if (expressions != null)
             {
                 return InvokeMulti(context, expressions);
@@ -49,6 +50,11 @@ namespace PlasticLangLabb1.Ast
                 return expression.Eval(context);
             }
 
+            if (array != null)
+            {
+                var index = (int)(decimal)Args.First().Eval(context);
+                return array[index];
+            }
             throw new NotImplementedException();
         }
 

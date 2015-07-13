@@ -21,6 +21,8 @@ print('a = ' + a)
 
 let arr  = ['hello','this','is','an','array']
 
+print (arr(1))
+
 let closureprint = x => print(x + a)
 closureprint('foo')
 
@@ -34,7 +36,7 @@ let for = (init, guard, step, body) #>
                 }
           }
 
-each(element; arr)
+each(element, arr)
 {
     print(element)
 }
