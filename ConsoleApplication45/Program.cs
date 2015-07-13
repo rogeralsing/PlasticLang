@@ -16,7 +16,7 @@ print('a = ' + a)
 
 let arr  = ['hello','this','is','an','array']
 
-print ('arr length is ' + arr.'Length' )
+print ('arr length is ' + (arr.'Length' + 100) )
 print ('str length is ' + 'some string'.Length)
 
 let closureprint = x => print(x + a)
@@ -56,7 +56,7 @@ while (a < 20)
      a++
 }
 
-(x => print('lambda fun ' + x), x => print('lambda fun2 ' + x))('yay')
+(x => print('lambda fun ' + x))('yay')
 
 if (true, print('hello'));
 ";
