@@ -8,9 +8,9 @@ namespace PlasticLangLabb1
         {
             var x = PlasticParser.Expression.Parse("(axy) => { abc; }");
 
-            var res = PlasticParser.Statements.Parse(@"
+            var res = PlasticParser.Body.Parse(@"
 
-
+{
 ((x) => { 
     (123) + 555; 
 
@@ -29,7 +29,7 @@ namespace PlasticLangLabb1
     let b = x => x == y * 2;
 }
 
-
+}
 ");
         }
     }

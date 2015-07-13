@@ -73,15 +73,8 @@ namespace PlasticLangLabb1
             select exp;
 
         public static readonly Parser<IExpression> Statement =
-            Parse.String("***").Text().Token().Select(t => new Identifier(t))
-                .Or(Parse.Ref(() => TerminatedStatement));
-              //  .Or(Parse.Ref(() => InvocationStatement));
-
-        //.Or(Parse.Ref(() => InvocationWithBody));
-
-        public static readonly Parser<Statements> Statements =
-            from statements in Statement.Many()
-            select new Statements(statements);
+            Parse.Ref(() => TerminatedStatement);
+            //    .Or(Parse.Ref(() => InvocationStatement));               
 
         public static readonly Parser<Statements> Body =
             from lbrace in Parse.Char('{').Token()
@@ -112,17 +105,12 @@ namespace PlasticLangLabb1
                 .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
                 .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<Identifier>()));
 
-        //this is the iffy part
-        //`abc def ghi` should be an `Identifiers`
-        //`abc def ghi ()` should be an `Invocation`
-        //`abc def ghi {}` should be an `Invocation`
-        //`abc def ghi (){}` should be an `Invocation`
-        //`abc def ghi (){} jkl ()` should be an `Invocation`
-        //`abc def ghi (){} jkl ()` should be an `Invocation`
+
+        public static readonly Parser<IExpression> TupleOrBody = TupleValue.Or(Parse.Ref(() => Body));
 
         public static readonly Parser<IExpression> InvocationOrValue =
             from head in Parse.Ref(() => Value)
-            from args in TupleValue.Or(Parse.Ref(() => Body)).Many()
+            from args in TupleOrBody.Many()
             select args.Any()
                 ? new Invocaton(head, args)
                 : head;
