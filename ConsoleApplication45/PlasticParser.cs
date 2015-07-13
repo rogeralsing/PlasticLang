@@ -101,7 +101,7 @@ namespace PlasticLangLabb1
             from args in LambdaArgs
             from arrow in Parse.String("=>").Token()
             from body in Parse.Ref(() => LambdaBody)
-            select new LambdaDeclaration(args, body);
+            select new FunctionDeclaration(args, body);
 
         public static readonly Parser<IExpression> TupleValue =
             Parse.Ref(() => Expression)

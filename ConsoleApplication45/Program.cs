@@ -9,16 +9,17 @@ namespace PlasticLangLabb1
     {
         private static void Main(string[] args)
         {
-            var x = PlasticParser.Expression.Parse("(axy) => { abc; }");
-
             var res = PlasticParser.Statements.Parse(@"
 let a = 1;
 let b = 3;
 let c = a + b;
-
-print(c);
+let printhello = (x) => print(x + a);
+let a = a + 1;
 print(""c = "" + c);
+print(""a = "" + a);
+printhello(""foo"");
 
+(x => print(""lambda fun "" + x), x => print(""lambda fun2 "" + x))(""yay"");
 ");
             var context = new PlasticContext();
             PlasticInterop print = a =>

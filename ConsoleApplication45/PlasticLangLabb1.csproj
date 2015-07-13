@@ -49,7 +49,7 @@
     <Compile Include="Ast\Identifier.cs" />
     <Compile Include="Ast\Identifiers.cs" />
     <Compile Include="Ast\Invocaton.cs" />
-    <Compile Include="Ast\LambdaDeclaration.cs" />
+    <Compile Include="Ast\FunctionDeclaration.cs" />
     <Compile Include="Ast\Number.cs" />
     <Compile Include="Ast\PlasticFunction.cs" />
     <Compile Include="Ast\Statements.cs" />
