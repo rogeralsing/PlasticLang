@@ -21,6 +21,9 @@ print('a = ' + a)
 let closureprint = x => print(x + a)
 closureprint('foo')
 
+
+
+
 let for = (init, guard, step, body) #>
           {
                 init()
@@ -31,9 +34,24 @@ let for = (init, guard, step, body) #>
                 }
           }
 
-for (a = 0, a < 10, a = a +1) 
+for (a = 0; a < 10; a = a +1) 
 {
     print (a);
+}
+
+let repeat = (times, body) #> {
+                let i = times();
+                while(i >= 0)
+                {
+                    body()
+                    i--
+                }
+             };
+
+
+repeat(3)
+{
+    print('repeat..')
 }
 
 if (a == 1)
@@ -52,10 +70,12 @@ else
 while (a < 20)
 {
      print ('daisy me rollin`')
-     a = a+1
+     a++
 }
 
 (x => print('lambda fun ' + x), x => print('lambda fun2 ' + x))('yay')
+
+if (true, print('hello'));
 ");
             object exit = new object();            
             var context = new PlasticContext();
@@ -128,7 +148,6 @@ while (a < 20)
             context["else"] = @else;
             context["true"] = true;
             context["false"] = false;
-            context["false"] = false;
             context["exit"] = exit;
 
             res.Eval(context);
@@ -136,3 +155,14 @@ while (a < 20)
         }
     }
 }
+
+
+/*
+
+let arr = [0, 'hello']
+let obj = [a:0, b:'hello']
+obj['a'] 
+
+match (obj; [a[c],b]; print (c))
+
+*/

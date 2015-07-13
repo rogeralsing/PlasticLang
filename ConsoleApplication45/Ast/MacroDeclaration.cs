@@ -29,7 +29,7 @@ namespace PlasticLangLabb1.Ast
                     i++;
                 }
 
-                var res = Body.Eval(ctx);
+                var res = Body.Eval(callingContext);
                 return res;
             };
             return op;

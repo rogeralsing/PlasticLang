@@ -36,8 +36,20 @@ namespace PlasticLangLabb1
                 .Or(Number)
                 .Or(QuotedString);
 
+        public static readonly Parser<IExpression> IdentifierInc =
+            from identifier in Identifier
+            from plusplus in Parse.String("++").Token()
+            select new IdentifierInc(identifier);
+
+        public static readonly Parser<IExpression> IdentifierDec =
+            from identifier in Identifier
+            from plusplus in Parse.String("--").Token()
+            select new IdentifierDec(identifier);
+
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
+                .Or(Parse.Ref(() => IdentifierInc))
+                .Or(Parse.Ref(() => IdentifierDec))
                 .Or(Parse.Ref(() => Literal));
 
         public static readonly Parser<BinaryOperator> MultiplyOperator = BinOp("*", new MultiplyBinary());
@@ -57,8 +69,14 @@ namespace PlasticLangLabb1
         public static readonly Parser<IExpression> Term = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
             InnerTerm, (o, l, r) => new BinaryExpression(l, o, r));
 
-        public static readonly Parser<IExpression> Compare = Parse.ChainOperator(EqualsOperator.Or(NotEqualsOperator).Or(GreaterThanOperator).Or(GreateerOrEqualOperator).Or(LessThanOperator).Or(LessOrEqualOperator),
-            Term, (o, l, r) => new BinaryExpression(l, o, r));
+        public static readonly Parser<IExpression> Compare =
+            Parse.ChainOperator(
+                EqualsOperator.Or(NotEqualsOperator)
+                    .Or(GreateerOrEqualOperator)
+                    .Or(GreaterThanOperator)
+                    .Or(LessOrEqualOperator)
+                    .Or(LessThanOperator),
+                Term, (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> LetAssign =
             from x in Parse.String("let").Token()
@@ -124,7 +142,7 @@ namespace PlasticLangLabb1
 
         public static readonly Parser<TupleValue> TupleValue =
             Parse.Ref(() => Expression)
-                .DelimitedBy(Parse.Char(',').Token())
+                .DelimitedBy(Parse.Char(',').Or(Parse.Char(';')).Token())
                 .Optional()
                 .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
                 .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
@@ -135,7 +153,7 @@ namespace PlasticLangLabb1
             from args in TupleValue.Optional()
             from body in Body.Optional()
             select args.IsDefined || body.IsDefined
-                ? new StartInvocaton(head, args.GetOrDefault(),body.GetOrDefault())
+                ? new StartInvocaton(head, args.GetOrDefault(), body.GetOrDefault())
                 : head;
 
 
