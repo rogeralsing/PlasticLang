@@ -108,25 +108,22 @@ namespace PlasticLangLabb1
             from body in Parse.Ref(() => LambdaBody)
             select new FunctionDeclaration(args, body);
 
-        public static readonly Parser<IExpression> TupleValue =
+        public static readonly Parser<TupleValue> TupleValue =
             Parse.Ref(() => Expression)
                 .DelimitedBy(Parse.Char(',').Token())
                 .Optional()
                 .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
                 .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
 
-        public static readonly Parser<IExpression> TupleOrBody = TupleValue.Or(Parse.Ref(() => Body));
 
         public static readonly Parser<IExpression> InvocationOrValue =
             from head in Parse.Ref(() => Value)
-            from args in TupleOrBody.Many()
-            select args.Any()
-                ? new Invocaton(head, args)
+            from args in TupleValue.Optional()
+            from body in Body.Optional()
+            select args.IsDefined || body.IsDefined
+                ? new StartInvocaton(head, args.GetOrDefault(),body.GetOrDefault())
                 : head;
 
-        public static readonly Parser<IExpression> InvocationStatement =
-            from head in InvocationOrValue
-            from b in Parse.Ref(() => Body)
-            select new Invocaton(head, new[] {b});
+
     }
 }

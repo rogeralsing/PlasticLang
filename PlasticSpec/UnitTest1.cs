@@ -39,14 +39,14 @@ namespace PlasticSpec
         public void Can_parse_invocation()
         {
             var invocation = PlasticParser.Statement.Parse("  abc def ghi jkl ()  { print(x); } (x) ;  ");
-            Assert.IsTrue(invocation is Invocaton);
+            Assert.IsTrue(invocation is StartInvocaton);
         }
 
         [TestMethod]
         public void Can_parse_terminating_invocation()
         {
             var invocation = PlasticParser.Statement.Parse("  abc def ghi jkl ()  { print(x); } ");
-            Assert.IsTrue(invocation is Invocaton);
+            Assert.IsTrue(invocation is StartInvocaton);
         }
 
         [TestMethod]

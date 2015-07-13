@@ -19,6 +19,11 @@ print('c = ' + c);
 print('a = ' + a);
 printhello('foo');
 
+if (a == 2)
+{
+    print ('inside if');
+};
+
 (x => print('lambda fun ' + x), x => print('lambda fun2 ' + x))('yay');
 ");
             var context = new PlasticContext();
@@ -29,17 +34,38 @@ printhello('foo');
                 return v;
             };
 
-            PlasticFunction @while = a =>
+            PlasticMacro @while = (c,a) =>
             {
                 object result = null;
                 var cond = a[0];
                 var body = a[1];
+
+                while ((bool)cond.Eval(c))
+                {
+                    result = body.Eval(c);
+                }
+
+                return result;
+            };
+
+            PlasticMacro @if = (c,a) =>
+            {
+                object result = null;
+                var cond = a[0];
+                var body = a[1];
+
+                if ((bool) cond.Eval(c))
+                {
+                    result = body.Eval(c);
+                    return result;
+                }
 
                 return result;
             };
 
             context["print"] = print;
             context["while"] = @while;
+            context["if"] = @if;
             res.Eval(context);
             Console.ReadLine();
         }
