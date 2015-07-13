@@ -1,4 +1,6 @@
-﻿namespace PlasticLangLabb1.Ast
+﻿using System;
+
+namespace PlasticLangLabb1.Ast
 {
     public abstract class BinaryOperator
     {
@@ -82,6 +84,33 @@
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
             return ((dynamic)left.Eval(context)) <= ((dynamic)right.Eval(context));
+        }
+    }
+
+    public class DotBinary : BinaryOperator
+    {
+        public override object Eval(PlasticContext context, IExpression left, IExpression right)
+        {
+            var l = left.Eval(context);
+            
+            
+            var arr = l as object[];
+            if (arr != null)
+            {
+                
+                if (right is Number)
+                {
+                    var r = right.Eval(context);
+                    var index = (int) (decimal) r;
+                    return arr[index];
+                }
+            }
+
+            var id = right as Identifier;
+            var res = l.GetType().GetProperty(id.Name).GetValue(l);
+            return res;
+           
+            throw new NotSupportedException();
         }
     }
 }

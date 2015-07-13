@@ -63,9 +63,13 @@ namespace PlasticLangLabb1
         public static readonly Parser<BinaryOperator> GreateerOrEqualOperator = BinOp(">=", new GreaterOrEqualBinary());
         public static readonly Parser<BinaryOperator> LessThanOperator = BinOp("<", new LessThanBinary());
         public static readonly Parser<BinaryOperator> LessOrEqualOperator = BinOp("<=", new LessOrEqualBinary());
+        public static readonly Parser<BinaryOperator> DotOperator = BinOp(".", new DotBinary());
+
+        public static readonly Parser<IExpression> DotTerm = Parse.ChainOperator(DotOperator,
+            Parse.Ref(() => InvocationOrValue), (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
-            Parse.Ref(() => InvocationOrValue), (o, l, r) => new BinaryExpression(l, o, r));
+            Parse.Ref(() => DotTerm), (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> Term = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
             InnerTerm, (o, l, r) => new BinaryExpression(l, o, r));
