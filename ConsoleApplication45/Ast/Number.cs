@@ -23,6 +23,11 @@ namespace PlasticLangLabb1.Ast
             _parent = parentContext;
         }
 
+        public void Declare(string name, object value)
+        {
+            _cells[name] = value;
+        }
+
         public object this[string name]
         {
             get
@@ -33,7 +38,13 @@ namespace PlasticLangLabb1.Ast
 
                 return _cells[name];
             }
-            set { _cells[name] = value; }
+            set
+            {
+                if (!_cells.ContainsKey(name) && _parent != null)
+                    _parent[name] = value;
+                else
+                    _cells[name] = value;
+            }
         }
     }
 

@@ -49,6 +49,11 @@ namespace PlasticLangLabb1
         public static readonly Parser<BinaryOperator> AddOperator = BinOp("+", new AddBinary());
         public static readonly Parser<BinaryOperator> SubtractOperator = BinOp("-", new SubtractBnary());
         public static readonly Parser<BinaryOperator> EqualsOperator = BinOp("==", new EqualsBinary());
+        public static readonly Parser<BinaryOperator> NotEqualsOperator = BinOp("!=", new NotEqualsBinary());
+        public static readonly Parser<BinaryOperator> GreaterThanOperator = BinOp(">", new GreaterThanBinary());
+        public static readonly Parser<BinaryOperator> GreateerOrEqualOperator = BinOp(">=", new GreaterOrEqualBinary());
+        public static readonly Parser<BinaryOperator> LessThanOperator = BinOp("<", new LessThanBinary());
+        public static readonly Parser<BinaryOperator> LessOrEqualOperator = BinOp("<=", new LessOrEqualBinary());
 
         public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
             Parse.Ref(() => InvocationOrValue), (o, l, r) => new BinaryExpression(l, o, r));
@@ -56,25 +61,32 @@ namespace PlasticLangLabb1
         public static readonly Parser<IExpression> Term = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
             InnerTerm, (o, l, r) => new BinaryExpression(l, o, r));
 
-        public static readonly Parser<IExpression> Compare = Parse.ChainOperator(EqualsOperator,
+        public static readonly Parser<IExpression> Compare = Parse.ChainOperator(EqualsOperator.Or(NotEqualsOperator).Or(GreaterThanOperator).Or(GreateerOrEqualOperator).Or(LessThanOperator).Or(LessOrEqualOperator),
             Term, (o, l, r) => new BinaryExpression(l, o, r));
 
-        public static readonly Parser<IExpression> Assign =
+        public static readonly Parser<IExpression> LetAssign =
             from x in Parse.String("let").Token()
             from cells in Identifier.DelimitedBy(Parse.Char(',').Token())
             from assignOp in Parse.String("=").Token()
             from expression in Parse.Ref(() => Expression)
             select new LetAssignment(cells, expression);
 
+        public static readonly Parser<IExpression> Assign =
+            from cells in Identifier.DelimitedBy(Parse.Char(',').Token())
+            from assignOp in Parse.String("=").Token()
+            from expression in Parse.Ref(() => Expression)
+            select new Assignment(cells, expression);
+
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
                 .Or(Parse.Ref(() => Assign))
+                .Or(Parse.Ref(() => LetAssign))
                 .Or(Parse.Ref(() => Compare))
                 .Or(Parse.Ref(() => Body));
 
         public static readonly Parser<IExpression> TerminatedStatement =
             from exp in Parse.Ref(() => Expression)
-            from _ in Parse.Char(';').Token()
+            from _ in Parse.Char(';').Optional().Token()
             select exp;
 
         public static readonly Parser<IExpression> Statement =

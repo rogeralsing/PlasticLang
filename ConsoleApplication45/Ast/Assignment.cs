@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace PlasticLangLabb1.Ast
 {
-    public class LetAssignment : IExpression
+    public class Assignment : IExpression
     {
-        public LetAssignment(IEnumerable<Identifier> cells, IExpression expression)
+        public Assignment(IEnumerable<Identifier> cells, IExpression expression)
         {
             Cells = cells.ToArray();
             Expression = expression;
@@ -19,7 +19,7 @@ namespace PlasticLangLabb1.Ast
             var value = Expression.Eval(context);
             foreach (var cell in Cells)
             {
-                context.Declare(cell.Name,value);
+                context[cell.Name] = value;
             }
             return value;
         }

@@ -13,16 +13,23 @@ namespace PlasticLangLabb1
 let a = 1;
 let b = 3;
 let c = a + b;
-let printhello = (x) => print(x + a);
-let a = a + 1;
+a = a + 1;
 print('c = ' + c);
 print('a = ' + a);
-printhello('foo');
+
+let closureprint = (x) => print(x + a);
+closureprint('foo');
 
 if (a == 2)
 {
     print ('inside if');
-};
+}
+
+while (a < 20)
+{
+     print ('daisy me rollin`');
+      a = a+1;
+}
 
 (x => print('lambda fun ' + x), x => print('lambda fun2 ' + x))('yay');
 ");

@@ -64,8 +64,9 @@ namespace PlasticLangLabb1.Ast
 
         private object InvokeMacro(PlasticContext context, PlasticMacro macro)
         {
+            var ctx = new PlasticContext(context);
             IExpression[] args = Args;
-            return macro(context, args);
+            return macro(ctx, args);
         }
 
         private object Invoke(PlasticContext context, PlasticFunction function)
