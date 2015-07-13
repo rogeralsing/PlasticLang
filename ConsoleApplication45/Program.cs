@@ -25,6 +25,10 @@ if (a == 1)
 {
     print ('inside if')
 }
+elif (a == 3)
+{
+    print ('inside elif')
+}
 else
 {
     print ('inside else')
@@ -74,6 +78,23 @@ while (a < 20)
                 return exit;
             };
 
+            PlasticMacro @elif = (c, a) =>
+            {
+                var last = c["last"];
+                if (last != exit)
+                    return last;
+
+                var cond = a[0];
+                var body = a[1];
+
+                if ((bool)cond.Eval(c))
+                {
+                    return body.Eval(c);
+                }
+
+                return exit;
+            };
+
             PlasticMacro @else = (c, a) =>
             {
                 var last = c["last"];
@@ -88,6 +109,7 @@ while (a < 20)
             context["print"] = print;
             context["while"] = @while;
             context["if"] = @if;
+            context["elif"] = @elif;
             context["else"] = @else;
             context["true"] = true;
             context["false"] = false;
