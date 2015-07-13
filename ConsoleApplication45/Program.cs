@@ -3,6 +3,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using PlasticLangLabb1.Ast;
 using Sprache;
+using System.Collections;
 
 namespace PlasticLangLabb1
 {
@@ -18,11 +19,10 @@ a = a + 1
 print('c = ' + c)
 print('a = ' + a)
 
+let arr  = ['hello','this','is','an','array']
+
 let closureprint = x => print(x + a)
 closureprint('foo')
-
-
-
 
 let for = (init, guard, step, body) #>
           {
@@ -33,6 +33,11 @@ let for = (init, guard, step, body) #>
                     step()
                 }
           }
+
+each(element; arr)
+{
+    print(element)
+}
 
 for (a = 0; a < 10; a = a +1) 
 {
@@ -47,7 +52,6 @@ let repeat = (times, body) #> {
                     i--
                 }
              };
-
 
 repeat(3)
 {
@@ -141,8 +145,27 @@ if (true, print('hello'));
                 return body.Eval(c);
             };
 
+            PlasticMacro each = (c, a) =>
+            {
+                var v = a[0] as Identifier;
+                var body = a[2];
+
+                var enumerable = a[1].Eval(c) as IEnumerable;
+                if (enumerable == null)
+                    return exit;
+
+                object result = null;
+                foreach (var element in enumerable)
+                {
+                    c.Declare(v.Name,element);
+                    body.Eval(c);
+                }
+                return result;
+            };
+
             context["print"] = print;
             context["while"] = @while;
+            context["each"] = each;
             context["if"] = @if;
             context["elif"] = @elif;
             context["else"] = @else;

@@ -48,6 +48,7 @@ namespace PlasticLangLabb1
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
+                .Or(Parse.Ref(() => ArrayValue))
                 .Or(Parse.Ref(() => IdentifierInc))
                 .Or(Parse.Ref(() => IdentifierDec))
                 .Or(Parse.Ref(() => Literal));
@@ -146,6 +147,13 @@ namespace PlasticLangLabb1
                 .Optional()
                 .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
                 .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
+
+        public static readonly Parser<IExpression> ArrayValue =
+            Parse.Ref(() => Expression)
+                .DelimitedBy(Parse.Char(',').Or(Parse.Char(';')).Token())
+                .Optional()
+                .Contained(Parse.Char('[').Token(), Parse.Char(']').Token())
+                .Select(o => new ArrayValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
 
 
         public static readonly Parser<IExpression> InvocationOrValue =
