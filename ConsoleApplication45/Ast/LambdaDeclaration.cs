@@ -14,5 +14,10 @@ namespace PlasticLangLabb1.Ast
 
         public IExpression Body { get; set; }
         public Identifier[] Args { get; set; }
+
+        public object Eval(PlasticContext context)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

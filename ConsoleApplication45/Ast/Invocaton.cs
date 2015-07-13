@@ -16,5 +16,10 @@ namespace PlasticLangLabb1.Ast
 
         public IExpression[] Args { get; set; }
         public IExpression Head { get; set; }
+
+        public object Eval(PlasticContext context)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

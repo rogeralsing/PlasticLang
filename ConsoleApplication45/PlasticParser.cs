@@ -103,7 +103,7 @@ namespace PlasticLangLabb1
                 .DelimitedBy(Parse.Char(',').Token())
                 .Optional()
                 .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
-                .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<Identifier>()));
+                .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
 
 
         public static readonly Parser<IExpression> TupleOrBody = TupleValue.Or(Parse.Ref(() => Body));

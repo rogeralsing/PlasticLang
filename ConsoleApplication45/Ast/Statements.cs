@@ -4,12 +4,21 @@ namespace PlasticLangLabb1.Ast
 {
     public class Statements : IExpression
     {
-        private IEnumerable<IExpression> _statements;
+        private readonly IEnumerable<IExpression> _statements;
 
-        public Statements(IEnumerable<IExpression> _statements)
+        public Statements(IEnumerable<IExpression> statements)
         {
-            // TODO: Complete member initialization
-            this._statements = _statements;
+            _statements = statements;
+        }
+
+        public object Eval(PlasticContext context)
+        {
+            object result = null;
+            foreach (var statement in _statements)
+            {
+                result = statement.Eval(context);
+            }
+            return result;
         }
     }
 }

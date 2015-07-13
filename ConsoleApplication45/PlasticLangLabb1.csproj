@@ -48,7 +48,6 @@
     <Compile Include="Ast\BinaryOperator.cs" />
     <Compile Include="Ast\Identifier.cs" />
     <Compile Include="Ast\Identifiers.cs" />
-    <Compile Include="Ast\Invocations.cs" />
     <Compile Include="Ast\Invocaton.cs" />
     <Compile Include="Ast\LambdaDeclaration.cs" />
     <Compile Include="Ast\Number.cs" />

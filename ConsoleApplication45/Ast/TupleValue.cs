@@ -12,5 +12,10 @@ namespace PlasticLangLabb1.Ast
         }
 
         public IExpression[] Items { get; set; }
+
+        public object Eval(PlasticContext context)
+        {
+            return Items;
+        }
     }
 }

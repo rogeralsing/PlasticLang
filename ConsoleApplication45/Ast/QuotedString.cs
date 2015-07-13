@@ -8,5 +8,10 @@
         }
 
         public string Value { get; private set; }
+
+        public object Eval(PlasticContext context)
+        {
+           return Value;
+        }
     }
 }

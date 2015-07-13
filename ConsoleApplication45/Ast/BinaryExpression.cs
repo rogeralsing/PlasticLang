@@ -2,15 +2,20 @@
 {
     public class BinaryExpression : IExpression
     {
-        private IExpression left;
-        private BinaryOperator op;
-        private IExpression right;
+        private readonly IExpression _left;
+        private readonly BinaryOperator _op;
+        private readonly IExpression _right;
 
         public BinaryExpression(IExpression left, BinaryOperator op, IExpression right)
         {
-            this.left = left;
-            this.op = op;
-            this.right = right;
+            this._left = left;
+            this._op = op;
+            this._right = right;
+        }
+
+        public object Eval(PlasticContext context)
+        {
+            return _op.Eval(context, _left, _right);
         }
     }
 }
