@@ -7,72 +7,37 @@ namespace PlasticLangLabb1
 {
     public class PlasticParser
     {
-        private static Parser<string> TokenWithWS(string token)
-        {
-            var parser = from ws1 in Parse.WhiteSpace.Many()
-                from t in Parse.String(token)
-                from ws2 in Parse.WhiteSpace.Many()
-                select new string(t.ToArray());
-
-            return parser;
-        }
-
         public static Parser<BinaryOperator> BinOp(string op, BinaryOperator node)
         {
-            return Parse.String(op).Return(node);
+            return Parse.String(op).Token().Return(node);
         }
 
-        public static readonly Parser<string> LambdaArrow = TokenWithWS("=>");
-        public static readonly Parser<string> LParen = TokenWithWS("(");
-        public static readonly Parser<string> RParen = TokenWithWS(")");
-        public static readonly Parser<string> LBrace = TokenWithWS("{");
-        public static readonly Parser<string> RBrace = TokenWithWS("}");
-        public static readonly Parser<string> Comma = TokenWithWS(",");
-        public static readonly Parser<string> SemiColon = TokenWithWS(";");
-        public static readonly Parser<IEnumerable<char>> WS = Parse.WhiteSpace.Many();
-
-        public static readonly Parser<char> LQoute =
-            from ws in WS
-            from q in Parse.Char('"')
-            select q;
-
-        public static readonly Parser<char> RQoute =
-            from q in Parse.Char('"')
-            from ws in WS
-            select q;
-
         public static readonly Parser<Identifier> Identifier =
-            from leading in WS
-            from first in Parse.Letter.Once()
-            from rest in Parse.LetterOrDigit.Many()
-            from trailing in WS
-            let token = new string(first.Concat(rest).ToArray())
-            select new Identifier(token);
+            (from first in Parse.Letter.Once().Text()
+                from rest in Parse.LetterOrDigit.Many().Text()
+                select new Identifier(first + rest))
+                .Token();
 
         public static readonly Parser<Identifiers> Identifiers =
             from ids in Parse.Ref(() => Identifier).AtLeastOnce()
             select new Identifiers(ids);
 
         public static readonly Parser<Number> Number =
-            from leading in WS
-            from numb in Parse.DecimalInvariant
-            from trailing in WS
-            select new Number(numb);
+            (from numb in Parse.DecimalInvariant
+                select new Number(numb)).Token();
 
         public static readonly Parser<QuotedString> QuotedString =
-            from str in Parse.CharExcept('"').Many().Contained(LQoute, RQoute)
-            select new QuotedString(new string(str.ToArray()));
+            (from str in Parse.CharExcept('"').Many().Contained(Parse.Char('"'), Parse.Char('"'))
+                select new QuotedString(new string(str.ToArray()))).Token();
 
         public static readonly Parser<IExpression> Literal =
-           Identifiers.Select(x => x as IExpression)
+            Identifiers.Select(x => x as IExpression)
                 .Or(Number)
                 .Or(QuotedString);
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
                 .Or(Parse.Ref(() => Literal));
-
-
 
         public static readonly Parser<BinaryOperator> MultiplyOperator = BinOp("*", new MultiplyBinary());
         public static readonly Parser<BinaryOperator> DivideOperator = BinOp("/", new DivideBinary());
@@ -90,9 +55,9 @@ namespace PlasticLangLabb1
             Term, (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> Assign =
-            from x in TokenWithWS("let")
-            from cells in Identifier.DelimitedBy(Comma)
-            from assignOp in TokenWithWS("=")
+            from x in Parse.String("let").Token()
+            from cells in Identifier.DelimitedBy(Parse.Char(',').Token())
+            from assignOp in Parse.String("=").Token()
             from expression in Parse.Ref(() => Expression)
             select new LetAssignment(cells, expression);
 
@@ -104,47 +69,49 @@ namespace PlasticLangLabb1
 
         public static readonly Parser<IExpression> TerminatedStatement =
             from exp in Parse.Ref(() => Expression)
-            from _ in Parse.Char(';')
+            from _ in Parse.Char(';').Token()
             select exp;
 
         public static readonly Parser<IExpression> Statement =
-            Parse.Ref(() => TerminatedStatement);
-                //.Or(Parse.Ref(() => InvocationWithBody));
+            Parse.String("***").Text().Token().Select(t => new Identifier(t))
+                .Or(Parse.Ref(() => TerminatedStatement));
+              //  .Or(Parse.Ref(() => InvocationStatement));
+
+        //.Or(Parse.Ref(() => InvocationWithBody));
 
         public static readonly Parser<Statements> Statements =
             from statements in Statement.Many()
             select new Statements(statements);
 
         public static readonly Parser<Statements> Body =
-            from lbrace in LBrace
+            from lbrace in Parse.Char('{').Token()
             from statements in Statement.Many()
-            from rbrace in RBrace
+            from rbrace in Parse.Char('}').Token()
             select new Statements(statements);
 
         public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Expression);
 
         public static readonly Parser<IEnumerable<Identifier>> LambdaArgs =
             Identifier
-                .DelimitedBy(Comma)
+                .DelimitedBy(Parse.Char(',').Token())
                 .Optional()
-                .Contained(LParen, RParen)
+                .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
                 .Select(o => o.GetOrDefault())
                 .Or(Identifier.Once());
 
         public static readonly Parser<IExpression> LambdaDeclaration =
             from args in LambdaArgs
-            from arrow in LambdaArrow
+            from arrow in Parse.String("=>").Token()
             from body in Parse.Ref(() => LambdaBody)
             select new LambdaDeclaration(args, body);
 
         public static readonly Parser<IExpression> TupleValue =
             Parse.Ref(() => Expression)
-                .DelimitedBy(Comma)
+                .DelimitedBy(Parse.Char(',').Token())
                 .Optional()
-                .Contained(LParen, RParen)
+                .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
                 .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<Identifier>()));
-                
-        
+
         //this is the iffy part
         //`abc def ghi` should be an `Identifiers`
         //`abc def ghi ()` should be an `Invocation`
@@ -159,5 +126,10 @@ namespace PlasticLangLabb1
             select args.Any()
                 ? new Invocaton(head, args)
                 : head;
+
+        public static readonly Parser<IExpression> InvocationStatement =
+            from head in InvocationOrValue
+            from b in Parse.Ref(() => Body)
+            select new Invocaton(head, new[] {b});
     }
 }

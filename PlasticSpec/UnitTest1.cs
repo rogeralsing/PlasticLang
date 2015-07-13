@@ -43,6 +43,13 @@ namespace PlasticSpec
         }
 
         [TestMethod]
+        public void Can_parse_terminating_invocation()
+        {
+            var invocation = PlasticParser.Statement.Parse("  abc def ghi jkl ()  { print(x); } ");
+            Assert.IsTrue(invocation is Invocaton);
+        }
+
+        [TestMethod]
         public void Can_parse_string()
         {
             var str = PlasticParser.Expression.Parse("  \"hej hopp 12334 !%¤%¤ \"  ");
@@ -115,7 +122,21 @@ namespace PlasticSpec
         [TestMethod]
         public void Can_parse_body()
         {
-            var lambda1 = PlasticParser.Body.Parse(" {  y; }");
+            var lambda1 = PlasticParser.Body.Parse(" {***}");
+            //    var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
+        }
+
+        [TestMethod]
+        public void Can_parse_empty_statements()
+        {
+            var statement = PlasticParser.Statements.Parse("  ");
+            //    var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
+        }
+
+        [TestMethod]
+        public void Can_parse_statements()
+        {
+            var statement = PlasticParser.Statements.Parse(" *** ");
             //    var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
         }
     }
