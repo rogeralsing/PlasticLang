@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using PlasticLangLabb1.Ast;
 using Sprache;
@@ -26,9 +27,13 @@ namespace PlasticLangLabb1
             (from numb in Parse.DecimalInvariant
                 select new Number(numb)).Token();
 
-        public static readonly Parser<QuotedString> QuotedString =
-            (from str in Parse.CharExcept('"').Many().Contained(Parse.Char('"'), Parse.Char('"'))
+        public static readonly Parser<QuotedString> QuotedString = MakeString('"').Or(MakeString('\''));
+
+        private static Parser<QuotedString> MakeString(char quote)
+        {
+            return (from str in Parse.CharExcept(quote).Many().Contained(Parse.Char(quote), Parse.Char(quote))
                 select new QuotedString(new string(str.ToArray()))).Token();
+        }
 
         public static readonly Parser<IExpression> Literal =
             Identifiers.Select(x => x as IExpression)

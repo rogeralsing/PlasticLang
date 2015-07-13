@@ -6,9 +6,5 @@ using System.Threading.Tasks;
 
 namespace PlasticLangLabb1.Ast
 {
-    public delegate object PlasticInterop(object[] args);
-
-    public class PlasticFunction
-    {
-    }
+    public delegate object PlasticFunction(object[] args);
 }

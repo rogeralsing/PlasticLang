@@ -18,7 +18,7 @@ namespace PlasticLangLabb1.Ast
 
         public object Eval(PlasticContext context)
         {
-            PlasticInterop op = args =>
+            PlasticFunction op = args =>
             {
                 //create context for this invocation
                 var ctx = new PlasticContext(context);
