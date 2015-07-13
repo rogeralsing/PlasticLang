@@ -1,6 +1,6 @@
 ﻿namespace PlasticLangLabb1.Ast
 {
-    public class Identifier
+    public class Identifier : IExpression
     {
         public Identifier(string name)
         {
@@ -8,5 +8,10 @@
         }
 
         public string Name { get; set; }
+
+        public object Eval(PlasticContext context)
+        {
+            return context[Name];
+        }
     }
 }

@@ -19,10 +19,6 @@ namespace PlasticLangLabb1
                 select new Identifier(first + rest))
                 .Token();
 
-        public static readonly Parser<Identifiers> Identifiers =
-            from ids in Parse.Ref(() => Identifier).AtLeastOnce()
-            select new Identifiers(ids);
-
         public static readonly Parser<Number> Number =
             (from numb in Parse.DecimalInvariant
                 select new Number(numb)).Token();
@@ -36,7 +32,7 @@ namespace PlasticLangLabb1
         }
 
         public static readonly Parser<IExpression> Literal =
-            Identifiers.Select(x => x as IExpression)
+            Identifier.Select(x => x as IExpression)
                 .Or(Number)
                 .Or(QuotedString);
 

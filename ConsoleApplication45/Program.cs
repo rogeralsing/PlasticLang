@@ -17,7 +17,7 @@ a = a + 1;
 print('c = ' + c);
 print('a = ' + a);
 
-let closureprint = (x) => print(x + a);
+let closureprint = x => print(x + a);
 closureprint('foo');
 
 if (a == 2)
@@ -28,7 +28,7 @@ if (a == 2)
 while (a < 20)
 {
      print ('daisy me rollin`');
-      a = a+1;
+     a = a+1;
 }
 
 (x => print('lambda fun ' + x), x => print('lambda fun2 ' + x))('yay');
