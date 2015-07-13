@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using PlasticLangLabb1.Ast;
 using Sprache;
 
@@ -10,29 +11,34 @@ namespace PlasticLangLabb1
         private static void Main(string[] args)
         {
             var res = PlasticParser.Statements.Parse(@"
-let a = 1;
-let b = 3;
-let c = a + b;
-a = a + 1;
-print('c = ' + c);
-print('a = ' + a);
+let a = 1
+let b = 3
+let c = a + b
+a = a + 1
+print('c = ' + c)
+print('a = ' + a)
 
-let closureprint = x => print(x + a);
-closureprint('foo');
+let closureprint = x => print(x + a)
+closureprint('foo')
 
-if (a == 2)
+if (a == 1)
 {
-    print ('inside if');
+    print ('inside if')
+}
+else
+{
+    print ('inside else')
 }
 
 while (a < 20)
 {
-     print ('daisy me rollin`');
-     a = a+1;
+     print ('daisy me rollin`')
+     a = a+1
 }
 
-(x => print('lambda fun ' + x), x => print('lambda fun2 ' + x))('yay');
+(x => print('lambda fun ' + x), x => print('lambda fun2 ' + x))('yay')
 ");
+            object exit = new object();            
             var context = new PlasticContext();
             PlasticFunction print = a =>
             {
@@ -43,7 +49,7 @@ while (a < 20)
 
             PlasticMacro @while = (c,a) =>
             {
-                object result = null;
+                object result = exit;
                 var cond = a[0];
                 var body = a[1];
 
@@ -57,22 +63,37 @@ while (a < 20)
 
             PlasticMacro @if = (c,a) =>
             {
-                object result = null;
                 var cond = a[0];
                 var body = a[1];
 
                 if ((bool) cond.Eval(c))
                 {
-                    result = body.Eval(c);
-                    return result;
+                    return body.Eval(c);
                 }
 
-                return result;
+                return exit;
+            };
+
+            PlasticMacro @else = (c, a) =>
+            {
+                var last = c["last"];
+                if (last != exit)
+                    return last;
+
+                var body = a[0];
+
+                return body.Eval(c);
             };
 
             context["print"] = print;
             context["while"] = @while;
             context["if"] = @if;
+            context["else"] = @else;
+            context["true"] = true;
+            context["false"] = false;
+            context["false"] = false;
+            context["exit"] = exit;
+
             res.Eval(context);
             Console.ReadLine();
         }

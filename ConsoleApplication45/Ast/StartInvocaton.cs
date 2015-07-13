@@ -9,7 +9,7 @@ namespace PlasticLangLabb1.Ast
         public StartInvocaton(IExpression head, TupleValue args,IExpression body)
         {
             Head = head;
-            var tmp = args.Items;
+            var tmp = args != null ? args.Items : new IExpression[0];
             
             if (body != null)
             {
@@ -66,13 +66,17 @@ namespace PlasticLangLabb1.Ast
         {
             var ctx = new PlasticContext(context);
             IExpression[] args = Args;
-            return macro(ctx, args);
+            var res = macro(ctx, args);
+            context.Declare("last", res);
+            return res;
         }
 
         private object Invoke(PlasticContext context, PlasticFunction function)
         {
             object[] args = Args.Select(i => i.Eval(context)).ToArray();           
-            return function(args);
+            var res = function(args);
+            context.Declare("last", res);
+            return res;
         }
     }
 }

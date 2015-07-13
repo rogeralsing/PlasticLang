@@ -88,8 +88,6 @@ namespace PlasticLangLabb1
         public static readonly Parser<IExpression> Statement =
             Parse.Ref(() => TerminatedStatement);
 
-        //    .Or(Parse.Ref(() => InvocationStatement));               
-
         public static readonly Parser<Statements> Statements =
             from statements in Statement.Many()
             select new Statements(statements);
