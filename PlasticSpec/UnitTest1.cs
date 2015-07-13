@@ -38,7 +38,7 @@ namespace PlasticSpec
         [TestMethod]
         public void Can_parse_invocation()
         {
-            var invocation = PlasticParser.Expression.Parse("  abc def ghi jkl ()");
+            var invocation = PlasticParser.Statement.Parse("  abc def ghi jkl ()  { print(x); } (x) ;  ");
             Assert.IsTrue(invocation is Invocaton);
         }
 
@@ -112,6 +112,11 @@ namespace PlasticSpec
             var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
         }
 
-
+        [TestMethod]
+        public void Can_parse_body()
+        {
+            var lambda1 = PlasticParser.Body.Parse(" {  y; }");
+            //    var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
+        }
     }
 }

@@ -69,9 +69,10 @@ namespace PlasticLangLabb1
                 .Or(QuotedString);
 
         public static readonly Parser<IExpression> Value =
-            Parse.Ref(() => ParenExpression)
-                //      .Or(Parse.Ref(() => Invocation))
+            Parse.Ref(() => TupleValue)
                 .Or(Parse.Ref(() => Literal));
+
+
 
         public static readonly Parser<BinaryOperator> MultiplyOperator = BinOp("*", new MultiplyBinary());
         public static readonly Parser<BinaryOperator> DivideOperator = BinOp("/", new DivideBinary());
@@ -80,7 +81,7 @@ namespace PlasticLangLabb1
         public static readonly Parser<BinaryOperator> EqualsOperator = BinOp("==", new EqualsBinary());
 
         public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
-            Value, (o, l, r) => new BinaryExpression(l, o, r));
+            Parse.Ref(() => InvocationOrValue), (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> Term = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
             InnerTerm, (o, l, r) => new BinaryExpression(l, o, r));
@@ -98,10 +99,8 @@ namespace PlasticLangLabb1
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
                 .Or(Parse.Ref(() => Assign))
-                .Or(Parse.Ref(() => Compare));
-
-        public static readonly Parser<IExpression> ParenExpression =
-            Parse.Ref(() => Parse.Ref(() => Expression)).Contained(LParen, RParen);
+                .Or(Parse.Ref(() => Compare))
+                .Or(Parse.Ref(() => Body));
 
         public static readonly Parser<IExpression> TerminatedStatement =
             from exp in Parse.Ref(() => Expression)
@@ -109,15 +108,20 @@ namespace PlasticLangLabb1
             select exp;
 
         public static readonly Parser<IExpression> Statement =
-            Parse.Ref(() => Body)
-                .Or(Parse.Ref(() => TerminatedStatement));
+            Parse.Ref(() => TerminatedStatement);
+                //.Or(Parse.Ref(() => InvocationWithBody));
 
         public static readonly Parser<Statements> Statements =
             from statements in Statement.Many()
             select new Statements(statements);
 
-        public static readonly Parser<Statements> Body = Parse.Ref(() => Statements).Contained(LBrace, RBrace);
-        public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Body).Or(Parse.Ref(() => Expression));
+        public static readonly Parser<Statements> Body =
+            from lbrace in LBrace
+            from statements in Statement.Many()
+            from rbrace in RBrace
+            select new Statements(statements);
+
+        public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Expression);
 
         public static readonly Parser<IEnumerable<Identifier>> LambdaArgs =
             Identifier
@@ -133,13 +137,13 @@ namespace PlasticLangLabb1
             from body in Parse.Ref(() => LambdaBody)
             select new LambdaDeclaration(args, body);
 
-        public static readonly Parser<IEnumerable<IExpression>> InvocationArgs =
+        public static readonly Parser<IExpression> TupleValue =
             Parse.Ref(() => Expression)
                 .DelimitedBy(Comma)
                 .Optional()
                 .Contained(LParen, RParen)
-                .Select(o => o.IsDefined ? o.Get() : Enumerable.Empty<Identifier>())
-                .Or(Identifier.Once());
+                .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<Identifier>()));
+                
         
         //this is the iffy part
         //`abc def ghi` should be an `Identifiers`
@@ -148,15 +152,12 @@ namespace PlasticLangLabb1
         //`abc def ghi (){}` should be an `Invocation`
         //`abc def ghi (){} jkl ()` should be an `Invocation`
         //`abc def ghi (){} jkl ()` should be an `Invocation`
-        private static readonly Parser<Invocaton> Invocation =
-            from identifiers in Identifiers
-            from args in InvocationArgs.Optional()
-            from body in Body.Optional()
-            select new Invocaton(identifiers, args.GetOrDefault(), body.GetOrDefault());
 
-        private static readonly Parser<IExpression> Invocations =
-            from invocations in Invocation.AtLeastOnce()
-            select new Invocations(invocations);
-
+        public static readonly Parser<IExpression> InvocationOrValue =
+            from head in Parse.Ref(() => Value)
+            from args in TupleValue.Or(Parse.Ref(() => Body)).Many()
+            select args.Any()
+                ? new Invocaton(head, args)
+                : head;
     }
 }

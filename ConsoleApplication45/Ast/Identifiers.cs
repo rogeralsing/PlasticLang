@@ -7,6 +7,7 @@ namespace PlasticLangLabb1.Ast
     {
         public Identifiers(IEnumerable<Identifier> ids)
         {
+
             Values = ids.ToArray();
         }
 

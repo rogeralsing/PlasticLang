@@ -1,29 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 
 namespace PlasticLangLabb1.Ast
 {
     public class Invocaton : IExpression
     {
-        private Identifiers identifiers;
-        private IEnumerable<IExpression> enumerable;
-        private Statements statements;
 
-        public Invocaton(IEnumerable<IExpression> args, Statements body)
+        public Invocaton(IExpression head, IEnumerable<IExpression> args)
         {
+
+            Head = head;
             Args = args.ToArray();
-            Body = body;
         }
 
-        public Invocaton(Identifiers identifiers, IEnumerable<IExpression> enumerable, Statements statements)
-        {
-            // TODO: Complete member initialization
-            this.identifiers = identifiers;
-            this.enumerable = enumerable;
-            this.statements = statements;
-        }
-
-        public Statements Body { get; set; }
         public IExpression[] Args { get; set; }
+        public IExpression Head { get; set; }
     }
 }
