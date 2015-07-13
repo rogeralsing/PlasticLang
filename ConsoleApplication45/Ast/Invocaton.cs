@@ -1,15 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 
 namespace PlasticLangLabb1.Ast
 {
     public class Invocaton : IExpression
     {
-
         public Invocaton(IExpression head, IEnumerable<IExpression> args)
         {
-
             Head = head;
             Args = args.ToArray();
         }
@@ -19,7 +17,21 @@ namespace PlasticLangLabb1.Ast
 
         public object Eval(PlasticContext context)
         {
-            throw new System.NotImplementedException();
+            var target = Head.Eval(context);
+            var interop = target as PlasticInterop;
+            if (interop != null)
+            {
+                var first = Args.First();
+                object[] args = null;
+                if (first is TupleValue)
+                {
+                    args = (first as TupleValue).Items.Select(i => i.Eval(context)).ToArray();
+                }
+
+                return interop(args);
+            }
+
+            throw new NotImplementedException();
         }
     }
 }

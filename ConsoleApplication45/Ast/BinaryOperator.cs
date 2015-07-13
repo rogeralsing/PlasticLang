@@ -25,7 +25,7 @@
     {
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
-            return ((dynamic) left.Eval(context)) * ((dynamic) right.Eval(context));
+            return ((dynamic) left.Eval(context))*((dynamic) right.Eval(context));
         }
     }
 
@@ -33,7 +33,7 @@
     {
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
-            return ((dynamic) left.Eval(context)) / ((dynamic) right.Eval(context));
+            return ((dynamic) left.Eval(context))/((dynamic) right.Eval(context));
         }
     }
 

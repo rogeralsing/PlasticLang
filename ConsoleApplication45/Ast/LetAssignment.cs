@@ -5,11 +5,10 @@ namespace PlasticLangLabb1.Ast
 {
     public class LetAssignment : IExpression
     {
-
         public LetAssignment(IEnumerable<Identifier> cells, IExpression expression)
         {
-            this.Cells = cells.ToArray();
-            this.Expression = expression;
+            Cells = cells.ToArray();
+            Expression = expression;
         }
 
         public Identifier[] Cells { get; set; }

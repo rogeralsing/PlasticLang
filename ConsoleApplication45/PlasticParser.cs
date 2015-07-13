@@ -74,7 +74,12 @@ namespace PlasticLangLabb1
 
         public static readonly Parser<IExpression> Statement =
             Parse.Ref(() => TerminatedStatement);
-            //    .Or(Parse.Ref(() => InvocationStatement));               
+
+        //    .Or(Parse.Ref(() => InvocationStatement));               
+
+        public static readonly Parser<Statements> Statements =
+            from statements in Statement.Many()
+            select new Statements(statements);
 
         public static readonly Parser<Statements> Body =
             from lbrace in Parse.Char('{').Token()
@@ -104,7 +109,6 @@ namespace PlasticLangLabb1
                 .Optional()
                 .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
                 .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
-
 
         public static readonly Parser<IExpression> TupleOrBody = TupleValue.Or(Parse.Ref(() => Body));
 

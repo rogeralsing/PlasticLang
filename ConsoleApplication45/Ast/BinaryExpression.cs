@@ -8,9 +8,9 @@
 
         public BinaryExpression(IExpression left, BinaryOperator op, IExpression right)
         {
-            this._left = left;
-            this._op = op;
-            this._right = right;
+            _left = left;
+            _op = op;
+            _right = right;
         }
 
         public object Eval(PlasticContext context)

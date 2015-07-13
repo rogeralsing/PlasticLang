@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PlasticLangLabb1.Ast
@@ -17,7 +18,7 @@ namespace PlasticLangLabb1.Ast
 
         public object Eval(PlasticContext context)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }
