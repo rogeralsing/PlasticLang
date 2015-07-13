@@ -107,9 +107,18 @@ namespace PlasticLangLabb1.Ast
             }
 
             var id = right as Identifier;
-            var res = l.GetType().GetProperty(id.Name).GetValue(l);
-            return res;
-           
+            if (id != null)
+            {
+                var res = l.GetType().GetProperty(id.Name).GetValue(l);
+                return res;
+            }
+            var str = right as QuotedString;
+            if (str != null)
+            {
+                var res = l.GetType().GetProperty(str.Value).GetValue(l);
+                return res;
+            }
+
             throw new NotSupportedException();
         }
     }

@@ -16,7 +16,7 @@ print('a = ' + a)
 
 let arr  = ['hello','this','is','an','array']
 
-print ('arr length is ' + arr.Length )
+print ('arr length is ' + arr.'Length' )
 print ('str length is ' + 'some string'.Length)
 
 let closureprint = x => print(x + a)
