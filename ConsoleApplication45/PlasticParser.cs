@@ -75,6 +75,7 @@ namespace PlasticLangLabb1
 
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
+                .Or(Parse.Ref(() => MacroDeclaration))
                 .Or(Parse.Ref(() => Assign))
                 .Or(Parse.Ref(() => LetAssign))
                 .Or(Parse.Ref(() => Compare))
@@ -113,6 +114,13 @@ namespace PlasticLangLabb1
             from arrow in Parse.String("=>").Token()
             from body in Parse.Ref(() => LambdaBody)
             select new FunctionDeclaration(args, body);
+
+
+        public static readonly Parser<IExpression> MacroDeclaration =
+            from args in LambdaArgs
+            from arrow in Parse.String("#>").Token()
+            from body in Parse.Ref(() => LambdaBody)
+            select new MacroDeclaration(args, body);
 
         public static readonly Parser<TupleValue> TupleValue =
             Parse.Ref(() => Expression)

@@ -21,6 +21,21 @@ print('a = ' + a)
 let closureprint = x => print(x + a)
 closureprint('foo')
 
+let for = (init, guard, step, body) #>
+          {
+                init()
+                while(guard())
+                {
+                    body()
+                    step()
+                }
+          }
+
+for (a = 0, a < 10, a = a +1) 
+{
+    print (a);
+}
+
 if (a == 1)
 {
     print ('inside if')

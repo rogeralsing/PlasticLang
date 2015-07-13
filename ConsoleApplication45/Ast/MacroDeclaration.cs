@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace PlasticLangLabb1.Ast
 {
-    public class FunctionDeclaration : IExpression
+    public class MacroDeclaration : IExpression
     {
-        public FunctionDeclaration(IEnumerable<Identifier> args, IExpression body)
+        public MacroDeclaration(IEnumerable<Identifier> args, IExpression body)
         {
             Args = (args ?? new Identifier[0]).ToArray();
 
@@ -18,10 +17,10 @@ namespace PlasticLangLabb1.Ast
 
         public object Eval(PlasticContext context)
         {
-            PlasticFunction op = args =>
+            PlasticMacro op = (callingContext,args) =>
             {
                 //create context for this invocation
-                var ctx = new PlasticContext(context);
+                var ctx = new PlasticContext(callingContext);
                 int i = 0;
                 foreach (var arg in Args)
                 {

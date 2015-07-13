@@ -28,6 +28,7 @@ namespace PlasticLangLabb1.Ast
             var function = target as PlasticFunction;
             var macro = target as PlasticMacro;
             var expressions = target as IEnumerable<IExpression>;
+            var expression = target as IExpression;
             if (expressions != null)
             {
                 return InvokeMulti(context, expressions);
@@ -41,6 +42,11 @@ namespace PlasticLangLabb1.Ast
             if (macro != null)
             {
                 return InvokeMacro(context, macro);
+            }
+
+            if (expression != null)
+            {
+                return expression.Eval(context);
             }
 
             throw new NotImplementedException();

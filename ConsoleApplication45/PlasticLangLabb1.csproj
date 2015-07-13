@@ -48,6 +48,7 @@
     <Compile Include="Ast\BinaryExpression.cs" />
     <Compile Include="Ast\BinaryOperator.cs" />
     <Compile Include="Ast\Identifier.cs" />
+    <Compile Include="Ast\MacroDeclaration.cs" />
     <Compile Include="Ast\StartInvocaton.cs" />
     <Compile Include="Ast\FunctionDeclaration.cs" />
     <Compile Include="Ast\Number.cs" />
