@@ -143,7 +143,7 @@ namespace PlasticLangLabb1
             from args in LambdaArgs
             from arrow in Parse.String("#>").Token()
             from body in Parse.Ref(() => LambdaBody)
-            select new MacroDeclaration(args, body);
+            select new StartInvocaton(new Identifier("macro"), new TupleValue(args), body);
 
         public static readonly Parser<TupleValue> TupleValue =
             Parse.Ref(() => Expression)

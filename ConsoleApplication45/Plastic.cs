@@ -11,7 +11,7 @@ namespace PlasticLangLabb1
         public static void Run(string code)
         {
             var lib = @"
-let for = (init, guard, step, body) #>
+let for = macro (init, guard, step, body)
           {
                 init()
                 while(guard())
@@ -21,7 +21,8 @@ let for = (init, guard, step, body) #>
                 }
           }
 
-let repeat = (times, body) #> {
+let repeat = macro (times, body)
+             {
                 let i = times();
                 while(i >= 0)
                 {
@@ -112,6 +113,53 @@ let repeat = (times, body) #> {
                 return result;
             };
 
+            PlasticMacro macro = (c, a) =>
+            {
+                var Args = a.Take(a.Length - 1).Cast<Identifier>();
+                var Body = a.Last();
+
+                PlasticMacro op = (callingContext, args) =>
+                {
+                    //create context for this invocation
+                    var ctx = new PlasticContext(callingContext);
+                    int i = 0;
+                    foreach (var arg in Args)
+                    {
+                        //copy args from caller to this context
+                        ctx[arg.Name] = args[i];
+                        i++;
+                    }
+
+                    var m = Body.Eval(callingContext);
+                    return m;
+                };
+                return op;
+            };
+
+            PlasticMacro func = (c, a) =>
+            {
+                var Args = a.Take(a.Length - 1).Cast<Identifier>();
+                var Body = a.Last();
+
+                PlasticFunction op = args =>
+                {
+                    //create context for this invocation
+                    var ctx = new PlasticContext(context);
+                    int i = 0;
+                    foreach (var arg in Args)
+                    {
+                        //copy args from caller to this context
+                        ctx[arg.Name] = args[i];
+                        i++;
+                    }
+
+                    var x = Body.Eval(ctx);
+                    return x;
+                };
+                return op;
+            };
+
+
             context["print"] = print;
             context["while"] = @while;
             context["each"] = each;
@@ -121,6 +169,8 @@ let repeat = (times, body) #> {
             context["true"] = true;
             context["false"] = false;
             context["exit"] = exit;
+            context["macro"] = macro;
+            context["func"] = func;
 
             var libCode = PlasticParser.Statements.Parse(lib);
             libCode.Eval(context);

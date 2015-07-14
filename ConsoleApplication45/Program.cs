@@ -7,6 +7,7 @@ namespace PlasticLangLabb1
         private static void Main(string[] args)
         {
             var code = @"
+
 let a = 1
 let b = 3
 let c = a + b
@@ -27,7 +28,7 @@ each(element, arr)
     print(element)
 }
 
-for (a = 0; a < 10; a = a +1) 
+for (a = 0; a < 10; a ++) 
 {
     print (a);
 }
