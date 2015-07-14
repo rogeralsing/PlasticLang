@@ -83,11 +83,16 @@ namespace PlasticLangLabb1
                 Term, (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> LetAssign =
-            from x in Parse.String("let").Token()
-            from cells in Identifier.DelimitedBy(Parse.Char(',').Token())
-            from assignOp in Parse.String("=").Token()
-            from expression in Parse.Ref(() => Expression)
-            select new LetAssignment(cells, expression);
+            (from x in Parse.String("let").Token()
+                from cells in Identifier.DelimitedBy(Parse.Char(',').Token())
+                from assignOp in Parse.String("=").Token()
+                from expression in Parse.Ref(() => Expression)
+                select new LetAssignment(cells, expression))
+                .Or(
+                    from cells in Identifier.Once()
+                    from assignOp in Parse.String(":=").Token()
+                    from expression in Parse.Ref(() => Expression)
+                    select new LetAssignment(cells, expression));
 
         public static readonly Parser<IExpression> Assign =
             from cells in Identifier.DelimitedBy(Parse.Char(',').Token())

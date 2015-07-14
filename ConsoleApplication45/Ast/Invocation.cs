@@ -90,5 +90,10 @@ namespace PlasticLangLabb1.Ast
             context.Declare("last", res);
             return res;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0}({1})", Head, string.Join(",", Args.Select(a => a.ToString())));
+        }
     }
 }

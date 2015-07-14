@@ -1,4 +1,6 @@
-﻿namespace PlasticLangLabb1.Ast
+﻿using System.Diagnostics;
+
+namespace PlasticLangLabb1.Ast
 {
     public class QuotedString : IExpression
     {
@@ -12,6 +14,11 @@
         public object Eval(PlasticContext context)
         {
             return Value;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("\"{0}\"", Value);
         }
     }
 }

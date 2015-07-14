@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PlasticLangLabb1.Ast
@@ -18,6 +19,11 @@ namespace PlasticLangLabb1.Ast
                 return Items[0].Eval(context);
 
             return Items.Select(i => i.Eval(context)).ToArray();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("({0})", string.Join(",", Items.Select(i => i.ToString())));
         }
     }
 }

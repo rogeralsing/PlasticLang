@@ -50,7 +50,6 @@ namespace PlasticLangLabb1.Ast
     }
 
 
-    [DebuggerDisplay("{Value}")]
     public class Number : IExpression
     {
         public Number(string numb)
@@ -63,6 +62,11 @@ namespace PlasticLangLabb1.Ast
         public object Eval(PlasticContext context)
         {
             return Value;
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString(CultureInfo.InvariantCulture);
         }
     }
 }

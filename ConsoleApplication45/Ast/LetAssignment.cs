@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace PlasticLangLabb1.Ast
@@ -22,6 +23,11 @@ namespace PlasticLangLabb1.Ast
                 context.Declare(cell.Name,value);
             }
             return value;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("let {0} = {1}", string.Join(",", Cells.Select(i => i.Name)), Expression);
         }
     }
 }

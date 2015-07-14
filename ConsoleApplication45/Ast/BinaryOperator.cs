@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace PlasticLangLabb1.Ast
 {
@@ -13,6 +14,11 @@ namespace PlasticLangLabb1.Ast
         {
             return ((dynamic) left.Eval(context)) + ((dynamic) right.Eval(context));
         }
+
+        public override string ToString()
+        {
+            return "+";
+        }
     }
 
     public class SubtractBnary : BinaryOperator
@@ -20,6 +26,11 @@ namespace PlasticLangLabb1.Ast
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
             return ((dynamic) left.Eval(context)) - ((dynamic) right.Eval(context));
+        }
+
+        public override string ToString()
+        {
+            return "-";
         }
     }
 
@@ -29,6 +40,11 @@ namespace PlasticLangLabb1.Ast
         {
             return ((dynamic) left.Eval(context))*((dynamic) right.Eval(context));
         }
+
+        public override string ToString()
+        {
+            return "*";
+        }
     }
 
     public class DivideBinary : BinaryOperator
@@ -36,6 +52,11 @@ namespace PlasticLangLabb1.Ast
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
             return ((dynamic) left.Eval(context))/((dynamic) right.Eval(context));
+        }
+
+        public override string ToString()
+        {
+            return "/";
         }
     }
 
@@ -45,6 +66,11 @@ namespace PlasticLangLabb1.Ast
         {
             return ((dynamic) left.Eval(context)) == ((dynamic) right.Eval(context));
         }
+
+        public override string ToString()
+        {
+            return "==";
+        }
     }
 
     public class NotEqualsBinary : BinaryOperator
@@ -52,6 +78,11 @@ namespace PlasticLangLabb1.Ast
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
             return ((dynamic)left.Eval(context)) != ((dynamic)right.Eval(context));
+        }
+
+        public override string ToString()
+        {
+            return "!=";
         }
     }
 
@@ -61,6 +92,11 @@ namespace PlasticLangLabb1.Ast
         {
             return ((dynamic)left.Eval(context)) > ((dynamic)right.Eval(context));
         }
+
+        public override string ToString()
+        {
+            return ">";
+        }
     }
 
     public class GreaterOrEqualBinary : BinaryOperator
@@ -68,6 +104,11 @@ namespace PlasticLangLabb1.Ast
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
             return ((dynamic)left.Eval(context)) >= ((dynamic)right.Eval(context));
+        }
+
+        public override string ToString()
+        {
+            return ">=";
         }
     }
 
@@ -77,6 +118,11 @@ namespace PlasticLangLabb1.Ast
         {
             return ((dynamic)left.Eval(context)) < ((dynamic)right.Eval(context));
         }
+
+        public override string ToString()
+        {
+            return "<";
+        }
     }
 
     public class LessOrEqualBinary : BinaryOperator
@@ -85,7 +131,13 @@ namespace PlasticLangLabb1.Ast
         {
             return ((dynamic)left.Eval(context)) <= ((dynamic)right.Eval(context));
         }
+
+        public override string ToString()
+        {
+            return "<=";
+        }
     }
+
 
     public class DotBinary : BinaryOperator
     {
@@ -120,6 +172,11 @@ namespace PlasticLangLabb1.Ast
             }
 
             throw new NotSupportedException();
+        }
+
+        public override string ToString()
+        {
+            return ".";
         }
     }
 }

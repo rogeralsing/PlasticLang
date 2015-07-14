@@ -61,7 +61,7 @@ while (a < 20)
 
 if (true, print('hello'));
 
-let f = func(a,b,c) 
+f := func(a,b,c) 
 {
     print('abc '+a+' '+b+' '+c);
 }

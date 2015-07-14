@@ -1,4 +1,6 @@
-﻿namespace PlasticLangLabb1.Ast
+﻿using System.Diagnostics;
+
+namespace PlasticLangLabb1.Ast
 {
     public class BinaryExpression : IExpression
     {
@@ -16,6 +18,11 @@
         public object Eval(PlasticContext context)
         {
             return _op.Eval(context, _left, _right);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1} {2}", _left, _op, _right);
         }
     }
 }

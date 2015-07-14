@@ -12,25 +12,25 @@ namespace PlasticLangLabb1
         public static void Run(string code)
         {
             var lib = @"
-let for = macro (init, guard, step, body)
-          {
-                init()
-                while(guard())
-                {
-                    body()
-                    step()
-                }
-          }
+for := macro (init, guard, step, body)
+{
+    init()
+    while(guard())
+    {
+        body()
+        step()
+    }
+}
 
-let repeat = macro (times, body)
-             {
-                let i = times();
-                while(i >= 0)
-                {
-                    body()
-                    i--
-                }
-             };
+repeat := macro (times, body)
+{
+    let i = times();
+    while(i >= 0)
+    {
+        body()
+        i--
+    }
+}
 ";
             var exit = new object();
             var context = new PlasticContext();
