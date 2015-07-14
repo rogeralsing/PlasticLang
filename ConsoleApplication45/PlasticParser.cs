@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using PlasticLangLabb1.Ast;
 using Sprache;
+using BinaryExpression = PlasticLangLabb1.Ast.BinaryExpression;
 
 namespace PlasticLangLabb1
 {
@@ -136,8 +138,7 @@ namespace PlasticLangLabb1
             from args in LambdaArgs
             from arrow in Parse.String("=>").Token()
             from body in Parse.Ref(() => LambdaBody)
-            select new FunctionDeclaration(args, body);
-
+            select new StartInvocaton(new Identifier("func"), new TupleValue(args), body);
 
         public static readonly Parser<IExpression> MacroDeclaration =
             from args in LambdaArgs
