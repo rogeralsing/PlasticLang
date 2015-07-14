@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 using PlasticLangLabb1.Ast;
 using Sprache;
-using BinaryExpression = PlasticLangLabb1.Ast.BinaryExpression;
 
 namespace PlasticLangLabb1
 {
@@ -138,13 +135,13 @@ namespace PlasticLangLabb1
             from args in LambdaArgs
             from arrow in Parse.String("=>").Token()
             from body in Parse.Ref(() => LambdaBody)
-            select new StartInvocaton(new Identifier("func"), new TupleValue(args), body);
+            select new Invocation(new Identifier("func"), new TupleValue(args), body);
 
         public static readonly Parser<IExpression> MacroDeclaration =
             from args in LambdaArgs
             from arrow in Parse.String("#>").Token()
             from body in Parse.Ref(() => LambdaBody)
-            select new StartInvocaton(new Identifier("macro"), new TupleValue(args), body);
+            select new Invocation(new Identifier("macro"), new TupleValue(args), body);
 
         public static readonly Parser<TupleValue> TupleValue =
             Parse.Ref(() => Expression)
@@ -161,13 +158,28 @@ namespace PlasticLangLabb1
                 .Select(o => new ArrayValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
 
 
+        public static readonly Parser<ArgsAndBody> ArgsAndBody =
+            (from args in TupleValue
+                from body in Body.Optional()
+                select new ArgsAndBody(args, body.GetOrDefault()))
+                .Or(
+                    from body in Body
+                    select new ArgsAndBody(null, body));
+
         public static readonly Parser<IExpression> InvocationOrValue =
             from head in Parse.Ref(() => Value)
-            from args in TupleValue.Optional()
-            from body in Body.Optional()
-            select args.IsDefined || body.IsDefined
-                ? new StartInvocaton(head, args.GetOrDefault(), body.GetOrDefault())
-                : head;
+            from aab in ArgsAndBody.Many()
+            select CreateInvocations(head, aab);
+
+        private static IExpression CreateInvocations(IExpression head, IEnumerable<ArgsAndBody> aabs)
+        {
+            var current = head;
+            foreach (var aab in aabs)
+            {
+                current = new Invocation(current, aab.Args, aab.Body);
+            }
+            return current;
+        }
 
 
     }

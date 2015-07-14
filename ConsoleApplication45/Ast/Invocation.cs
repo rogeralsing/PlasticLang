@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace PlasticLangLabb1.Ast
 {
-    public class StartInvocaton : IExpression
+    public class Invocation : IExpression
     {
-        public StartInvocaton(IExpression head, TupleValue args,IExpression body)
+        public Invocation(IExpression head, TupleValue args,IExpression body)
         {
             Head = head;
             var tmp = args != null ? args.Items : new IExpression[0];

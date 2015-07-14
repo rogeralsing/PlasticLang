@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace PlasticLangLabb1.Ast
@@ -49,6 +50,7 @@ namespace PlasticLangLabb1.Ast
     }
 
 
+    [DebuggerDisplay("{Value}")]
     public class Number : IExpression
     {
         public Number(string numb)

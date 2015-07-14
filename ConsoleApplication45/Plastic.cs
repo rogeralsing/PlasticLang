@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using PlasticLangLabb1.Ast;
 using Sprache;
@@ -138,23 +139,37 @@ let repeat = macro (times, body)
 
             PlasticMacro func = (c, a) =>
             {
-                var Args = a.Take(a.Length - 1).Cast<Identifier>();
+                var Args = a.Take(a.Length - 1).Cast<Identifier>().ToArray();
                 var Body = a.Last();
 
-                PlasticFunction op = args =>
+                PlasticFunction op = null;
+                op = args =>
                 {
-                    //create context for this invocation
-                    var ctx = new PlasticContext(context);
-                    int i = 0;
-                    foreach (var arg in Args)
+                    //full application
+                    if (args.Length == Args.Length)
                     {
-                        //copy args from caller to this context
-                        ctx[arg.Name] = args[i];
-                        i++;
-                    }
+                        //create context for this invocation
+                        var ctx = new PlasticContext(context);
+                        for (int i = 0; i < args.Length; i++)
+                        {
+                            var arg = Args[i];
+                            //copy args from caller to this context
+                            ctx[arg.Name] = args[i];
+                        }
 
-                    var x = Body.Eval(ctx);
-                    return x;
+                        var x = Body.Eval(ctx);
+                        return x;
+                    }
+                    else
+                    {
+                        //partial application
+                        object[] partialArgs = args.ToArray();
+
+                        PlasticFunction partial = pargs => 
+                            op(partialArgs.Union(pargs).ToArray());
+                        
+                        return partial;
+                    }
                 };
                 return op;
             };

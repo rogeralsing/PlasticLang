@@ -55,11 +55,20 @@ while (a < 20)
 {
      print ('daisy me rollin`')
      a++
-}
+};
 
 (x => print('lambda fun ' + x))('yay')
 
 if (true, print('hello'));
+
+let f = func(a,b,c) 
+{
+    print('abc '+a+' '+b+' '+c);
+}
+
+f(1)(2)(3);
+
+
 ";
             Plastic.Run(code);
             Console.ReadLine();
