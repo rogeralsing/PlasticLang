@@ -55,7 +55,7 @@ while (a < 20)
 {
      print ('daisy me rollin`')
      a++
-};
+}
 
 (x => print('lambda fun ' + x))('yay')
 

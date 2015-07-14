@@ -168,19 +168,26 @@ namespace PlasticLangLabb1
 
         public static readonly Parser<IExpression> InvocationOrValue =
             from head in Parse.Ref(() => Value)
-            from aab in ArgsAndBody.Many()
-            select CreateInvocations(head, aab);
+            from args in TupleValue.Many()
+            from body in Body.Optional()
+            select CreateInvocations(head, args.ToArray(), body.GetOrDefault());
 
-        private static IExpression CreateInvocations(IExpression head, IEnumerable<ArgsAndBody> aabs)
+        private static IExpression CreateInvocations(IExpression head, TupleValue[] argsList, Statements body)
         {
             var current = head;
-            foreach (var aab in aabs)
+            for (int i=0;i<argsList.Length;i++)
             {
-                current = new Invocation(current, aab.Args, aab.Body);
+                var args = argsList[i];
+                if (i == argsList.Length-1)
+                {
+                    current = new Invocation(current, args, body);
+                }
+                else
+                {
+                    current = new Invocation(current, args, null);
+                }
             }
             return current;
         }
-
-
     }
 }
