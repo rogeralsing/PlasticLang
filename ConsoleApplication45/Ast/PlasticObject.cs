@@ -4,22 +4,25 @@ namespace PlasticLangLabb1.Ast
 {
     public class PlasticObject
     {
-        private readonly Dictionary<string,object> _properties = new Dictionary<string, object>();
+        public PlasticContext Context { get;private set; }
 
-        public bool HasProperty(string name)
+        public PlasticObject(PlasticContext context)
         {
-            return _properties.ContainsKey(name);
+            Context = context;
         }
 
         public object this[string property]
         {
             get
             {
-                object res = null;
-                _properties.TryGetValue(property, out res);
-                return res;
+                return Context[property];
+                
             }
-            set { _properties[property] = value; }
+            set
+            {
+                Context.Declare(property, value);
+                
+            }
         }
     }
 }

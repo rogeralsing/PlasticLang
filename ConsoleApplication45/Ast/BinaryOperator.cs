@@ -161,10 +161,7 @@ namespace PlasticLangLabb1.Ast
             var pobj = l as PlasticObject;
             if (pobj != null)
             {
-                if (member != null)
-                {
-                    return pobj[member.Name];
-                }
+                return right.Eval(pobj.Context);
             }
 
             

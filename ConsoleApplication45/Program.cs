@@ -70,12 +70,17 @@ f(1)(2)(3);
 
 
 person = class () {
-    x = 123
+    this.firstName = 'Roger'
+    this.lastName = 'Johansson'
+
 }
 
-print ('person firstname =' + person.firstName)
+print ('person firstname = ' + person.firstName)
+
+
 
 ";
+
 
             /*
     this.firstName = 'Roger'

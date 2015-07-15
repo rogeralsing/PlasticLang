@@ -56,7 +56,6 @@
     <Compile Include="Ast\PlasticObject.cs" />
     <Compile Include="Ast\Statements.cs" />
     <Compile Include="Ast\LetAssignment.cs" />
-    <Compile Include="Ast\IdentifierInc.cs" />
     <Compile Include="Plastic.cs" />
     <Compile Include="PlasticParser.cs" />
     <Compile Include="Program.cs" />

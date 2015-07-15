@@ -38,12 +38,12 @@ namespace PlasticLangLabb1
         public static readonly Parser<IExpression> IdentifierInc =
             from identifier in Identifier
             from plusplus in Parse.String("++").Token()
-            select new IdentifierInc(identifier);
+            select new Assignment(identifier, new BinaryExpression(identifier, new AddBinary(), new Number("1")));
 
         public static readonly Parser<IExpression> IdentifierDec =
             from identifier in Identifier
             from plusplus in Parse.String("--").Token()
-            select new IdentifierDec(identifier);
+            select new Assignment(identifier, new BinaryExpression(identifier, new SubtractBnary(), new Number("1")));
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
@@ -82,6 +82,10 @@ namespace PlasticLangLabb1
                     .Or(LessThanOperator),
                 Term, (o, l, r) => new BinaryExpression(l, o, r));
 
+        public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').Token(),
+            Parse.Ref(() => Compare), (o, l, r) => 
+                new Assignment(l, r));
+
         public static readonly Parser<IExpression> LetAssign =
             (from x in Parse.String("let").Token()
                 from cells in Identifier.DelimitedBy(Parse.Char(',').Token())
@@ -95,17 +99,17 @@ namespace PlasticLangLabb1
                     select new LetAssignment(cells, expression));
 
         public static readonly Parser<IExpression> Assign =
-            from cells in Identifier.DelimitedBy(Parse.Char(',').Token())
+            from assignee in Parse.Ref(() => Identifier)
             from assignOp in Parse.String("=").Token()
             from expression in Parse.Ref(() => Expression)
-            select new Assignment(cells, expression);
+            select new Assignment(assignee, expression);
 
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
                 .Or(Parse.Ref(() => MacroDeclaration))
-                .Or(Parse.Ref(() => Assign))
+           //     .Or(Parse.Ref(() => Assign))
                 .Or(Parse.Ref(() => LetAssign))
-                .Or(Parse.Ref(() => Compare))
+                .Or(Parse.Ref(() => AssignTerm))
                 .Or(Parse.Ref(() => Body));
 
         public static readonly Parser<IExpression> TerminatedStatement =
@@ -161,7 +165,6 @@ namespace PlasticLangLabb1
                 .Optional()
                 .Contained(Parse.Char('[').Token(), Parse.Char(']').Token())
                 .Select(o => new ArrayValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
-
 
         public static readonly Parser<ArgsAndBody> ArgsAndBody =
             (from args in TupleValue

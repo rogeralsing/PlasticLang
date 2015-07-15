@@ -5,23 +5,43 @@ namespace PlasticLangLabb1.Ast
 {
     public class Assignment : IExpression
     {
-        public Assignment(IEnumerable<Identifier> cells, IExpression expression)
+        public Assignment(IExpression assignee, IExpression expression)
         {
-            Cells = cells.ToArray();
+            Assignee = assignee;
             Expression = expression;
         }
 
-        public Identifier[] Cells { get; set; }
+        public IExpression Assignee { get; set; }
         public IExpression Expression { get; set; }
 
         public object Eval(PlasticContext context)
         {
-            var value = Expression.Eval(context);
-            foreach (var cell in Cells)
+            var value = Expression.Eval(context);            
+            var dot = Assignee as BinaryExpression;
+            var assignee =Assignee as Identifier;
+            
+            if (assignee != null)
             {
-                context[cell.Name] = value;
+                context[assignee.Name] = value;        
             }
+
+            if (dot != null)
+            {
+                var obj = dot.Left.Eval(context) as PlasticObject;
+                var memberId = dot.Right as Identifier;
+                obj[memberId.Name] = value;
+            }
+
+            //foreach (var cell in Cells)
+            //{
+            //    context[cell.Name] = value;
+            //}
             return value;
+        }
+
+        private void AssignToIdentifier(Identifier assignee, PlasticContext context, object value)
+        {
+            context[assignee.Name] = value;            
         }
     }
 }

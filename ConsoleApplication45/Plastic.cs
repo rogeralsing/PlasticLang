@@ -177,8 +177,9 @@ repeat := macro (times, body)
             PlasticMacro @class = (c, a) =>
             {
                 var body = a.First();
-                PlasticObject self = new PlasticObject();
+                
                 var thisContext = c.ChildContext();
+                var self = new PlasticObject(thisContext);
                 thisContext["this"] = self;
 
                 body.Eval(thisContext);
