@@ -127,7 +127,7 @@ repeat := macro (times, body)
                     foreach (var arg in Args)
                     {
                         //copy args from caller to this context
-                        ctx[arg.Name] = args[i];
+                        ctx.Declare(arg.Name, args[i]);
                         i++;
                     }
 
@@ -154,7 +154,7 @@ repeat := macro (times, body)
                         {
                             var arg = Args[i];
                             //copy args from caller to this context
-                            ctx[arg.Name] = args[i];
+                            ctx.Declare(arg.Name, args[i]);
                         }
 
                         var x = Body.Eval(ctx);
@@ -165,9 +165,9 @@ repeat := macro (times, body)
                         //partial application
                         object[] partialArgs = args.ToArray();
 
-                        PlasticFunction partial = pargs => 
+                        PlasticFunction partial = pargs =>
                             op(partialArgs.Union(pargs).ToArray());
-                        
+
                         return partial;
                     }
                 };
@@ -181,10 +181,10 @@ repeat := macro (times, body)
                 {
                     var thisContext = c.ChildContext();
 
-                    for (int i = 0; i < a.Length - 1;i++)
+                    for (int i = 0; i < a.Length - 1; i++)
                     {
                         var argName = a[i] as Identifier;
-                        thisContext.Declare(argName.Name,args[i]);
+                        thisContext.Declare(argName.Name, args[i]);
                     }
 
                     var self = new PlasticObject(thisContext);
@@ -197,19 +197,19 @@ repeat := macro (times, body)
             };
 
 
-            context["print"] = print;
-            context["while"] = @while;
-            context["each"] = each;
-            context["if"] = @if;
-            context["elif"] = @elif;
-            context["else"] = @else;
-            context["true"] = true;
-            context["false"] = false;
-            context["null"] = null;
-            context["exit"] = exit;
-            context["macro"] = macro;
-            context["func"] = func;
-            context["class"] = @class;
+            context.Declare("print", print);
+            context.Declare("while", @while);
+            context.Declare("each", each);
+            context.Declare("if", @if);
+            context.Declare("elif", @elif);
+            context.Declare("else", @else);
+            context.Declare("true", true);
+            context.Declare("false", false);
+            context.Declare("null", null);
+            context.Declare("exit", exit);
+            context.Declare("macro", macro);
+            context.Declare("func", func);
+            context.Declare("class", @class);
 
             var libCode = PlasticParser.Statements.Parse(lib);
             libCode.Eval(context);

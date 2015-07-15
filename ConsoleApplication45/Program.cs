@@ -70,7 +70,7 @@ f(1)(2)(3);
 
 
 Person := class (firstName,lastName) {
-    sayHello = func ()
+    sayHello := func ()
     {
         print ('Hello ' + firstName + ' ' + lastName)
     }
