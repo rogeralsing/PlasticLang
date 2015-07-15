@@ -70,16 +70,18 @@ f(1)(2)(3);
 
 
 Person := class (fname,lname) {
-    this.firstName = fname
-    this.lastName = lname
-    this.sayHello = func ()
+    firstName = fname
+    lastName = lname
+    sayHello = func ()
     {
-        print ('Hello ' + this.firstName + ' ' + this.lastName)
+        print ('Hello ' + firstName + ' ' + lastName)
     }
 }
 
 roger := Person('Roger','Johansson');
 sara := Person('Sara','Gustavsson');
+
+roger.firstName = 'Roggan'
 
 print ('roger = ' + roger.firstName + ' ' + roger.lastName)
 print ('sara = ' + sara.firstName + ' ' + sara.lastName

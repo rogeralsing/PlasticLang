@@ -116,7 +116,7 @@ repeat := macro (times, body)
 
             PlasticMacro macro = (c, a) =>
             {
-                var Args = a.Take(a.Length - 1).Cast<Identifier>();
+                var Args = a.Take(a.Length - 1).Cast<Identifier>().ToArray();
                 var Body = a.Last();
 
                 PlasticMacro op = (callingContext, args) =>
@@ -131,7 +131,7 @@ repeat := macro (times, body)
                         i++;
                     }
 
-                    var m = Body.Eval(callingContext);
+                    var m = Body.Eval(ctx);
                     return m;
                 };
                 return op;

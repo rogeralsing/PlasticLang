@@ -14,6 +14,17 @@ namespace PlasticLangLabb1.Ast
         private readonly Dictionary<string, object> _cells = new Dictionary<string, object>();
         private readonly PlasticContext _parent;
 
+        public bool HasProperty(string name)
+        {
+            if (_cells.ContainsKey(name))
+                return true;
+
+            if (_parent != null)
+                return _parent.HasProperty(name);
+
+            return false;
+        }
+
         public PlasticContext()
         {
             
@@ -47,6 +58,12 @@ namespace PlasticLangLabb1.Ast
             }
             set
             {
+                if (!HasProperty(name))
+                {
+                    _cells[name] = value;
+                    return;
+                }
+
                 if (!_cells.ContainsKey(name) && _parent != null)
                     _parent[name] = value;
                 else
