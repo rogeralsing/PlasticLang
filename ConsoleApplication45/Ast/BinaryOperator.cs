@@ -144,9 +144,9 @@ namespace PlasticLangLabb1.Ast
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
             var l = left.Eval(context);
+            var member = right as Identifier;
             
-            
-            var arr = l as object[];
+            var arr = l as object[];            
             if (arr != null)
             {
                 
@@ -158,10 +158,21 @@ namespace PlasticLangLabb1.Ast
                 }
             }
 
-            var id = right as Identifier;
-            if (id != null)
+            var pobj = l as PlasticObject;
+            if (pobj != null)
             {
-                var res = l.GetType().GetProperty(id.Name).GetValue(l);
+                if (member != null)
+                {
+                    return pobj[member.Name];
+                }
+            }
+
+            
+
+
+            if (member != null)
+            {
+                var res = l.GetType().GetProperty(member.Name).GetValue(l);
                 return res;
             }
             var str = right as QuotedString;

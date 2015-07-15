@@ -76,7 +76,7 @@ namespace PlasticLangLabb1.Ast
 
         private object InvokeMacro(PlasticContext context, PlasticMacro macro)
         {
-            var ctx = new PlasticContext(context);
+            var ctx = context.ChildContext();
             IExpression[] args = Args;
             var res = macro(ctx, args);
             context.Declare("last", res);

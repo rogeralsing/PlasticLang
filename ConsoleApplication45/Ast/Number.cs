@@ -19,9 +19,15 @@ namespace PlasticLangLabb1.Ast
             
         }
 
-        public PlasticContext(PlasticContext parentContext)
+        private PlasticContext(PlasticContext parentContext)
         {
             _parent = parentContext;
+        }
+
+        public PlasticContext ChildContext()
+        {
+            var child = new PlasticContext(this);
+            return child;
         }
 
         public void Declare(string name, object value)

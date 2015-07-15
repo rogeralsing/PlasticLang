@@ -8,19 +8,19 @@ namespace PlasticLangLabb1
         {
             var code = @"
 
-let a = 1
-let b = 3
-let c = a + b
-a = a + 1
+a := 1
+b := 3
+c := a + b
+a := a + 1
 print('c = ' + c)
 print('a = ' + a)
 
-let arr  = ['hello','this','is','an','array']
+arr  := ['hello','this','is','an','array']
 
 print ('arr length is ' + (arr.'Length' + 100) )
 print ('str length is ' + 'some string'.Length)
 
-let closureprint = x => print(x + a)
+closureprint := x => print(x + a)
 closureprint('foo')
 
 each(element, arr)
@@ -28,7 +28,7 @@ each(element, arr)
     print(element)
 }
 
-for (a = 0; a < 10; a ++) 
+for (a := 0; a < 10; a ++) 
 {
     print (a);
 }
@@ -69,7 +69,21 @@ f := func(a,b,c)
 f(1)(2)(3);
 
 
+person = class () {
+    x = 123
+}
+
+print ('person firstname =' + person.firstName)
+
 ";
+
+            /*
+    this.firstName = 'Roger'
+    this.lastName = 'Johansson'
+    this.sayHello = () => {
+        print ('Hello ' + this.firstName + ' ' + this.lastName)
+    }
+             */
             Plastic.Run(code);
             Console.ReadLine();
         }

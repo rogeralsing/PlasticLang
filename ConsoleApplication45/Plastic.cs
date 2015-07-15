@@ -24,7 +24,7 @@ for := macro (init, guard, step, body)
 
 repeat := macro (times, body)
 {
-    let i = times();
+    i := times();
     while(i >= 0)
     {
         body()
@@ -122,7 +122,7 @@ repeat := macro (times, body)
                 PlasticMacro op = (callingContext, args) =>
                 {
                     //create context for this invocation
-                    var ctx = new PlasticContext(callingContext);
+                    var ctx = callingContext.ChildContext();
                     int i = 0;
                     foreach (var arg in Args)
                     {
@@ -149,7 +149,7 @@ repeat := macro (times, body)
                     if (args.Length == Args.Length)
                     {
                         //create context for this invocation
-                        var ctx = new PlasticContext(context);
+                        var ctx = context.ChildContext();
                         for (int i = 0; i < args.Length; i++)
                         {
                             var arg = Args[i];
@@ -174,6 +174,18 @@ repeat := macro (times, body)
                 return op;
             };
 
+            PlasticMacro @class = (c, a) =>
+            {
+                var body = a.First();
+                PlasticObject self = new PlasticObject();
+                var thisContext = c.ChildContext();
+                thisContext["this"] = self;
+
+                body.Eval(thisContext);
+
+                return self;
+            };
+
 
             context["print"] = print;
             context["while"] = @while;
@@ -183,9 +195,11 @@ repeat := macro (times, body)
             context["else"] = @else;
             context["true"] = true;
             context["false"] = false;
+            context["null"] = null;
             context["exit"] = exit;
             context["macro"] = macro;
             context["func"] = func;
+            context["class"] = @class;
 
             var libCode = PlasticParser.Statements.Parse(lib);
             libCode.Eval(context);
