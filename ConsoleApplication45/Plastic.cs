@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using PlasticLangLabb1.Ast;
 using Sprache;
@@ -10,6 +9,16 @@ namespace PlasticLangLabb1
     public static class Plastic
     {
         public static void Run(string code)
+        {
+            var context = SetupCoreSymbols();
+            BootstrapLib(context);
+
+            var userContext = context.ChildContext();
+            var res = PlasticParser.Statements.Parse(code);
+            res.Eval(userContext);
+        }
+
+        private static void BootstrapLib(PlasticContext context)
         {
             var lib = @"
 for := macro (init, guard, step, body)
@@ -32,6 +41,14 @@ repeat := macro (times, body)
     }
 }
 ";
+
+
+            var libCode = PlasticParser.Statements.Parse(lib);
+            libCode.Eval(context);
+        }
+
+        private static PlasticContext SetupCoreSymbols()
+        {
             var exit = new object();
             var context = new PlasticContext();
             PlasticFunction print = a =>
@@ -123,7 +140,7 @@ repeat := macro (times, body)
                 {
                     //create context for this invocation
                     var ctx = callingContext.ChildContext();
-                    int i = 0;
+                    var i = 0;
                     foreach (var arg in Args)
                     {
                         //copy args from caller to this context
@@ -150,7 +167,7 @@ repeat := macro (times, body)
                     {
                         //create context for this invocation
                         var ctx = c.ChildContext();
-                        for (int i = 0; i < args.Length; i++)
+                        for (var i = 0; i < args.Length; i++)
                         {
                             var arg = Args[i];
                             //copy args from caller to this context
@@ -160,16 +177,13 @@ repeat := macro (times, body)
                         var x = Body.Eval(ctx);
                         return x;
                     }
-                    else
-                    {
-                        //partial application
-                        object[] partialArgs = args.ToArray();
+                    //partial application
+                    var partialArgs = args.ToArray();
 
-                        PlasticFunction partial = pargs =>
-                            op(partialArgs.Union(pargs).ToArray());
+                    PlasticFunction partial = pargs =>
+                        op(partialArgs.Union(pargs).ToArray());
 
-                        return partial;
-                    }
+                    return partial;
                 };
                 return op;
             };
@@ -177,11 +191,11 @@ repeat := macro (times, body)
             PlasticMacro @class = (c, a) =>
             {
                 var body = a.Last();
-                PlasticFunction f = (args) =>
+                PlasticFunction f = args =>
                 {
                     var thisContext = c.ChildContext();
 
-                    for (int i = 0; i < a.Length - 1; i++)
+                    for (var i = 0; i < a.Length - 1; i++)
                     {
                         var argName = a[i] as Identifier;
                         thisContext.Declare(argName.Name, args[i]);
@@ -210,12 +224,7 @@ repeat := macro (times, body)
             context.Declare("macro", macro);
             context.Declare("func", func);
             context.Declare("class", @class);
-
-            var libCode = PlasticParser.Statements.Parse(lib);
-            libCode.Eval(context);
-
-            var res = PlasticParser.Statements.Parse(code);
-            res.Eval(context);
+            return context;
         }
     }
 }

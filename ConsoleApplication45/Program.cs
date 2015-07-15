@@ -91,8 +91,6 @@ john.sayHello();
 jane.sayHello();
 john.extra.sayHello();
 
-
-
 LinkedList = class () 
 {
     Node = class (value) { next = null; }
@@ -127,11 +125,13 @@ LinkedList = class ()
 
 
 list = LinkedList();
-list.add(123);
-list.add(567);
-list.add('roger');
-list.add('johansson');
-list.each(v => print ('lamda ' + v));
+list.add('first');
+list.add('second');
+list.add('third');
+list.add('last');
+list.each(v => {
+    print ('lamda ' + v);
+});
 
 
 ";
