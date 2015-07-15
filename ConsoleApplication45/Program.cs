@@ -69,14 +69,21 @@ f := func(a,b,c)
 f(1)(2)(3);
 
 
-person = class () {
+Person = class () {
     this.firstName = 'Roger'
     this.lastName = 'Johansson'
-
+    this.sayHello = func ()
+    {
+        print ('Hello ' + this.firstName + ' ' + this.lastName)
+    }
 }
 
-print ('person firstname = ' + person.firstName)
+roger := Person;
 
+
+print ('person firstname = ' + roger.firstName)
+
+roger.sayHello();
 
 
 ";
