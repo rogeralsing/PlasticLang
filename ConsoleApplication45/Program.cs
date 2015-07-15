@@ -69,9 +69,7 @@ f := func(a,b,c)
 f(1)(2)(3);
 
 
-Person := class (fname,lname) {
-    firstName = fname
-    lastName = lname
+Person := class (firstName,lastName) {
     sayHello = func ()
     {
         print ('Hello ' + firstName + ' ' + lastName)
