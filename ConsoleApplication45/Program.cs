@@ -91,7 +91,7 @@ john.sayHello();
 jane.sayHello();
 john.extra.sayHello();
 
-LinkedList = class () 
+LinkedList = class 
 {
     Node = class (value) { next = null; }
 
@@ -105,7 +105,7 @@ LinkedList = class ()
             head = node;
             tail = node;
         }
-        else()
+        else
         {
             tail.next =  node;
             tail = node;  

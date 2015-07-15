@@ -195,6 +195,10 @@ namespace PlasticLangLabb1
                     current = new Invocation(current, args, null);
                 }
             }
+            if (argsList.Length == 0 &&  body != null)
+            {
+                current = new Invocation(current, null, body);
+            }
             return current;
         }
     }
