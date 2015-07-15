@@ -91,13 +91,12 @@ john.sayHello();
 jane.sayHello();
 john.extra.sayHello();
 
-Node = class (value)
-{
-    next = null;
-}
+
 
 LinkedList = class () 
 {
+    Node = class (value) { next = null; }
+
     head = null;
     tail = null;
     add = func (value)
@@ -115,7 +114,7 @@ LinkedList = class ()
         }        
     }
 
-    each = func(lambda)
+    each = func (lambda)
     {
         current = head;
         while(current != null)
@@ -131,7 +130,7 @@ list = LinkedList();
 list.add(123);
 list.add(567);
 list.add('roger');
-
+list.add('johansson');
 list.each(v => print ('lamda ' + v));
 
 
