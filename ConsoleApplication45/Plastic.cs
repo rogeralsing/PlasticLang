@@ -149,7 +149,7 @@ repeat := macro (times, body)
                     if (args.Length == Args.Length)
                     {
                         //create context for this invocation
-                        var ctx = context.ChildContext();
+                        var ctx = c.ChildContext();
                         for (int i = 0; i < args.Length; i++)
                         {
                             var arg = Args[i];
@@ -176,15 +176,24 @@ repeat := macro (times, body)
 
             PlasticMacro @class = (c, a) =>
             {
-                var body = a.First();
-                
-                var thisContext = c.ChildContext();
-                var self = new PlasticObject(thisContext);
-                thisContext["this"] = self;
+                var body = a.Last();
+                PlasticFunction f = (args) =>
+                {
+                    var thisContext = c.ChildContext();
 
-                body.Eval(thisContext);
+                    for (int i = 0; i < a.Length - 1;i++)
+                    {
+                        var argName = a[i] as Identifier;
+                        thisContext.Declare(argName.Name,args[i]);
+                    }
 
-                return self;
+                    var self = new PlasticObject(thisContext);
+                    thisContext.Declare("this", self);
+                    body.Eval(thisContext);
+
+                    return self;
+                };
+                return f;
             };
 
 

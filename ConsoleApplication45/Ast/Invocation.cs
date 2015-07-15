@@ -85,8 +85,14 @@ namespace PlasticLangLabb1.Ast
 
         private object Invoke(PlasticContext context, PlasticFunction function)
         {
-            object[] args = Args.Select(i => i.Eval(context)).ToArray();           
-            var res = function(args);
+            List<object> evaluatedArgs = new List<object>();
+            foreach (var arg in Args)
+            {
+                var evaluatedArg = arg.Eval(context);
+                evaluatedArgs.Add(evaluatedArg);
+            }
+       
+            var res = function(evaluatedArgs.ToArray());
             context.Declare("last", res);
             return res;
         }
