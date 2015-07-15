@@ -123,6 +123,57 @@ LinkedList = class
     }
 }
 
+Stack = class
+{
+    Node = class (value,prev) { next = null; }
+
+    head = null;
+    tail = null;
+    push = func (value)
+    {
+        node = Node(value,tail);
+        if (head == null)
+        {         
+            head = node;
+            tail = node;
+        }
+        else
+        {
+            tail.next =  node;
+            tail = node;  
+        }        
+    }
+
+    each = func (lambda)
+    {
+        current = tail;
+        while(current != null)
+        {
+            lambda(current.value);
+            current = current.prev;
+        }
+    }
+
+    peek = func()
+    {
+        tail.value;
+    }
+
+    pop = func()
+    {
+        res = tail.value;
+        tail = tail.prev;
+        if (tail != null)
+        {
+            tail.next = null;
+        }
+        else
+        {
+            head = null;
+        }
+        res
+    }
+}
 
 list = LinkedList();
 list.add('first');
@@ -132,6 +183,17 @@ list.add('last');
 list.each(v => {
     print ('lamda ' + v);
 });
+
+s = Stack();
+s.push(1);
+s.push(2);
+s.push(3);
+s.push(4);
+
+print (s.pop());
+print (s.pop());
+print (s.pop());
+print (s.pop());
 
 
 ";
