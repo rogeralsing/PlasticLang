@@ -69,24 +69,71 @@ f := func(a,b,c)
 f(1)(2)(3);
 
 
-Person := class (firstName,lastName) {
+Person := class (firstName,lastName)
+{
     sayHello := func ()
     {
         print ('Hello ' + firstName + ' ' + lastName)
     }
 }
 
-roger := Person('Roger','Johansson');
-sara := Person('Sara','Gustavsson');
+john := Person('John','Doe');
+jane := Person('Jane','Doe');
 
-roger.firstName = 'Roggan'
+john.extra = Person('testing sub object','oh yes')
 
-print ('roger = ' + roger.firstName + ' ' + roger.lastName)
-print ('sara = ' + sara.firstName + ' ' + sara.lastName
-)
+john.firstName = 'Johnny'
 
-roger.sayHello();
-sara.sayHello();
+print ('john = ' + john.firstName + ' ' + john.lastName)
+print ('jane = ' + jane.firstName + ' ' + jane.lastName)
+
+john.sayHello();
+jane.sayHello();
+john.extra.sayHello();
+
+Node = class (value)
+{
+    next = null;
+}
+
+LinkedList = class () 
+{
+    head = null;
+    tail = null;
+    add = func (value)
+    {
+        node = Node(value);
+        if (head == null)
+        {         
+            head = node;
+            tail = node;
+        }
+        else()
+        {
+            tail.next =  node;
+            tail = node;  
+        }        
+    }
+
+    each = func(lambda)
+    {
+        current = head;
+        while(current != null)
+        {
+            lambda(current.value);
+            current = current.next;
+        }
+    }
+}
+
+
+list = LinkedList();
+list.add(123);
+list.add(567);
+list.add('roger');
+
+list.each(v => print ('lamda ' + v));
+
 
 ";
 
