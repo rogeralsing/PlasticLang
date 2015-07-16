@@ -11,7 +11,7 @@
 
         public object Eval(PlasticContext context)
         {
-            return Value;
+            return context.QuotedString(this);
         }
 
         public override string ToString()

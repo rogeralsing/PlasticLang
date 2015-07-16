@@ -10,6 +10,10 @@ namespace PlasticLang
 
     public abstract class PlasticContext
     {
+        public abstract object Number(Number number);
+
+        public abstract object QuotedString(QuotedString quotedString);
+
 
         public abstract object Invoke(IExpression head, IExpression[] args);
 
@@ -110,6 +114,16 @@ namespace PlasticLang
             }
             throw new NotImplementedException();
         }
+
+        public override object Number(Number number)
+        {
+            return number.Value;
+        }
+
+        public override object QuotedString(QuotedString quotedString)
+        {
+            return quotedString.Value;
+        }
     }
 
     public class TypeContext : PlasticContext
@@ -161,6 +175,16 @@ namespace PlasticLang
             }
             throw new Exception("No matching method found.");
         }
+
+        public override object Number(Number number)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object QuotedString(QuotedString quotedString)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class ArrayContext : PlasticContext
@@ -186,7 +210,9 @@ namespace PlasticLang
         {
             get
             {
-                throw new NotImplementedException();
+                var prop = _array.GetType().GetProperty(name);
+                var res = prop.GetValue(_array);
+                return res;
             }
             set
             {
@@ -202,6 +228,17 @@ namespace PlasticLang
         public override void Declare(string name, object value)
         {
             throw new NotImplementedException();
+        }
+
+        public override object Number(Number number)
+        {
+            var index = (int) number.Value;
+            return _array[index];
+        }
+
+        public override object QuotedString(QuotedString quotedString)
+        {
+            return this[quotedString.Value];
         }
     }
 
@@ -268,6 +305,16 @@ namespace PlasticLang
         public override void Declare(string name, object value)
         {
             throw new NotImplementedException();
+        }
+
+        public override object Number(Number number)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object QuotedString(QuotedString quotedString)
+        {
+            return this[quotedString.Value];
         }
     }
 }

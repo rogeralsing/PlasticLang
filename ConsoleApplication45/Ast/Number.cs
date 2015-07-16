@@ -13,7 +13,7 @@ namespace PlasticLang.Ast
 
         public object Eval(PlasticContext context)
         {
-            return Value;
+            return context.Number(this);
         }
 
         public override string ToString()
