@@ -40,6 +40,90 @@ repeat := macro (times, body)
         i--
     }
 }
+
+LinkedList = class 
+{
+    Node = class (value) { next = null; }
+
+    head = null;
+    tail = null;
+    add = func (value)
+    {
+        node = Node(value);
+        if (head == null)
+        {         
+            head = node;
+            tail = node;
+        }
+        else
+        {
+            tail.next =  node;
+            tail = node;  
+        }        
+    }
+
+    each = func (lambda)
+    {
+        current = head;
+        while(current != null)
+        {
+            lambda(current.value);
+            current = current.next;
+        }
+    }
+}
+
+Stack = class
+{
+    Node = class (value,prev) { next = null; }
+
+    head = null;
+    tail = null;
+    push = func (value)
+    {
+        node = Node(value,tail);
+        if (head == null)
+        {         
+            head = node;
+            tail = node;
+        }
+        else
+        {
+            tail.next =  node;
+            tail = node;  
+        }        
+    }
+
+    each = func (lambda)
+    {
+        current = tail;
+        while(current != null)
+        {
+            lambda(current.value);
+            current = current.prev;
+        }
+    }
+
+    peek = func()
+    {
+        tail.value;
+    }
+
+    pop = func()
+    {
+        res = tail.value;
+        tail = tail.prev;
+        if (tail != null)
+        {
+            tail.next = null;
+        }
+        else
+        {
+            head = null;
+        }
+        res
+    }
+}
 ";
 
 
@@ -133,7 +217,26 @@ repeat := macro (times, body)
 
             PlasticMacro macro = (c, a) =>
             {
-                var Args = a.Take(a.Length - 1).Cast<Identifier>().ToArray();
+                var Args = a.Take(a.Length - 1).Select(arg =>
+                {
+                    var identifier = arg as Identifier;
+                    if (identifier != null)
+                    {
+                        return new Argument(identifier.Name, ArgumentType.Value);
+                    }
+                    var dot = arg as BinaryExpression;
+                    if (dot != null)
+                    {
+                        var id = dot.Left as Identifier;
+                        var type = dot.Right as Identifier;
+                        ArgumentType argType = ArgumentType.Value;
+                        if (type.Name == "ref")
+                            argType = ArgumentType.Expression;
+
+                        return new Argument(id.Name, argType);
+                    }
+                    throw new NotSupportedException();
+                }).ToArray();
                 var Body = a.Last();
 
                 PlasticMacro op = (callingContext, args) =>

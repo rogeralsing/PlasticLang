@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ast\ArgsAndBody.cs" />
+    <Compile Include="Ast\Argument.cs" />
     <Compile Include="Ast\ArrayValue.cs" />
     <Compile Include="Ast\Assignment.cs" />
     <Compile Include="Ast\BinaryExpression.cs" />

@@ -91,90 +91,6 @@ john.sayHello();
 jane.sayHello();
 john.extra.sayHello();
 
-LinkedList = class 
-{
-    Node = class (value) { next = null; }
-
-    head = null;
-    tail = null;
-    add = func (value)
-    {
-        node = Node(value);
-        if (head == null)
-        {         
-            head = node;
-            tail = node;
-        }
-        else
-        {
-            tail.next =  node;
-            tail = node;  
-        }        
-    }
-
-    each = func (lambda)
-    {
-        current = head;
-        while(current != null)
-        {
-            lambda(current.value);
-            current = current.next;
-        }
-    }
-}
-
-Stack = class
-{
-    Node = class (value,prev) { next = null; }
-
-    head = null;
-    tail = null;
-    push = func (value)
-    {
-        node = Node(value,tail);
-        if (head == null)
-        {         
-            head = node;
-            tail = node;
-        }
-        else
-        {
-            tail.next =  node;
-            tail = node;  
-        }        
-    }
-
-    each = func (lambda)
-    {
-        current = tail;
-        while(current != null)
-        {
-            lambda(current.value);
-            current = current.prev;
-        }
-    }
-
-    peek = func()
-    {
-        tail.value;
-    }
-
-    pop = func()
-    {
-        res = tail.value;
-        tail = tail.prev;
-        if (tail != null)
-        {
-            tail.next = null;
-        }
-        else
-        {
-            head = null;
-        }
-        res
-    }
-}
-
 list = LinkedList();
 list.add('first');
 list.add('second');
@@ -194,8 +110,6 @@ print (s.pop());
 print (s.pop());
 print (s.pop());
 print (s.pop());
-
-
 ";
 
 
