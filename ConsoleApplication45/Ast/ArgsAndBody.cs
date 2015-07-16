@@ -1,6 +1,4 @@
-﻿using PlasticLang.Ast;
-
-namespace PlasticLang.Ast
+﻿namespace PlasticLang.Ast
 {
     public class ArgsAndBody
     {

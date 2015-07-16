@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using PlasticLang.Ast;
 
 namespace PlasticLang.Ast
 {

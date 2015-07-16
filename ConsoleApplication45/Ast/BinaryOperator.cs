@@ -1,5 +1,4 @@
 ﻿using System;
-using PlasticLang.Ast;
 
 namespace PlasticLang.Ast
 {

@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Linq;
 using PlasticLang.Ast;
-using PlasticLang;
-using PlasticLang.Ast;
 using Sprache;
 
 namespace PlasticLang
