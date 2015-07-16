@@ -21,7 +21,7 @@ namespace PlasticLangLabb1
         private static void BootstrapLib(PlasticContext context)
         {
             var lib = @"
-for := macro (init.ref , guard.ref, step.ref, body.ref)
+for := func (init.ref , guard.ref, step.ref, body.ref)
 {
     init()
     while(guard())
@@ -31,7 +31,7 @@ for := macro (init.ref , guard.ref, step.ref, body.ref)
     }
 }
 
-repeat := macro (times, body.ref)
+repeat := func (times, body.ref)
 {
     while(times >= 0)
     {
@@ -214,7 +214,7 @@ Stack = class
                 return result;
             };
 
-            PlasticMacro macro = (c, a) =>
+            PlasticMacro func = (c, a) =>
             {
                 var Args = a.Take(a.Length - 1).Select(arg =>
                 {
@@ -274,40 +274,7 @@ Stack = class
                 return op;
             };
 
-            PlasticMacro func = (c, a) =>
-            {
-                var Args = a.Take(a.Length - 1).Cast<Identifier>().ToArray();
-                var Body = a.Last();
-
-                PlasticFunction op = null;
-                op = args =>
-                {
-                    //full application
-                    if (args.Length == Args.Length)
-                    {
-                        //create context for this invocation
-                        var ctx = c.ChildContext();
-                        for (var i = 0; i < args.Length; i++)
-                        {
-                            var arg = Args[i];
-                            //copy args from caller to this context
-                            ctx.Declare(arg.Name, args[i]);
-                        }
-
-                        var x = Body.Eval(ctx);
-                        return x;
-                    }
-                    //partial application
-                    var partialArgs = args.ToArray();
-
-                    PlasticFunction partial = pargs =>
-                        op(partialArgs.Union(pargs).ToArray());
-
-                    return partial;
-                };
-                return op;
-            };
-
+            
             PlasticMacro @class = (c, a) =>
             {
                 var body = a.Last();
@@ -341,7 +308,6 @@ Stack = class
             context.Declare("false", false);
             context.Declare("null", null);
             context.Declare("exit", exit);
-            context.Declare("macro", macro);
             context.Declare("func", func);
             context.Declare("class", @class);
             return context;
