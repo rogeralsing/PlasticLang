@@ -139,7 +139,11 @@ namespace PlasticLang
 
         public override object this[string name]
         {
-            get { throw new NotSupportedException(); }
+            get
+            {
+                var prop = typeof(Type).GetProperty(name);
+                return prop.GetValue(_type);
+            }
             set
             {
                 throw new NotSupportedException();
