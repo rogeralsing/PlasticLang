@@ -114,10 +114,8 @@ namespace PlasticLang
 
     public class TypeContext : PlasticContext
     {
-        private Type _type;
-        private readonly System.Reflection.MemberInfo[] _members;
-        private readonly Dictionary<string, _MemberInfo> _lookup;
-        private PlasticContext _owner;
+        private readonly Type _type;
+        private readonly PlasticContext _owner;
 
         public TypeContext(Type type,PlasticContext owner)
         {
@@ -162,6 +160,48 @@ namespace PlasticLang
                 }
             }
             throw new Exception("No matching method found.");
+        }
+    }
+
+    public class ArrayContext : PlasticContext
+    {
+        private readonly object[] _array;
+        private readonly PlasticContext _owner;
+
+        public ArrayContext(object[] array, PlasticContext owner)
+        {
+            _array = array;
+            _owner = owner;
+        }
+
+        public override object Invoke(IExpression head, IExpression[] args)
+        {
+            var index = (int)(head as Number).Value;
+            var evaluatedArgs = args.Select(a => a.Eval(_owner)).ToArray();
+
+            return _array[index];
+        }
+
+        public override object this[string name]
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override bool HasProperty(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Declare(string name, object value)
+        {
+            throw new NotImplementedException();
         }
     }
 }

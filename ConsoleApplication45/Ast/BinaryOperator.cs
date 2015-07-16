@@ -148,12 +148,9 @@ namespace PlasticLang.Ast
             var arr = l as object[];
             if (arr != null)
             {
-                if (right is Number)
-                {
-                    var r = right.Eval(context);
-                    var index = (int) (decimal) r;
-                    return arr[index];
-                }
+                //TODO: this is not correct.. arr.1 gives 1 as 1 is evaluated as itself
+                var arrayContext = new ArrayContext(arr, context);
+                return right.Eval(arrayContext);
             }
 
             var pobj = l as PlasticObject;
