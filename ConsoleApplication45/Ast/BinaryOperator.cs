@@ -178,8 +178,8 @@ namespace PlasticLang.Ast
             var type = l as Type;
             if (type != null)
             {
-              //  var tmpCtx = context.ChildContext();
-              //  tmpCtx.Declare();
+                var typeContext = new TypeContext(type, context);
+                return right.Eval(typeContext);
             }
 
             throw new NotSupportedException();
