@@ -162,7 +162,10 @@ Stack = class
 
                 if ((bool) cond.Eval(c))
                 {
-                    return body.Eval(c);
+                    var res = body.Eval(c);
+                    if (res == exit)
+                        return null;
+                    return res;
                 }
 
                 return exit;
@@ -179,7 +182,10 @@ Stack = class
 
                 if ((bool) cond.Eval(c))
                 {
-                    return body.Eval(c);
+                    var res = body.Eval(c);
+                    if (res == exit)
+                        return null;
+                    return res;
                 }
 
                 return exit;
@@ -193,7 +199,11 @@ Stack = class
 
                 var body = a[0];
 
-                return body.Eval(c);
+                var res = body.Eval(c);
+                if (res == exit)
+                    return null;
+
+                return res;
             };
 
             PlasticMacro each = (c, a) =>
