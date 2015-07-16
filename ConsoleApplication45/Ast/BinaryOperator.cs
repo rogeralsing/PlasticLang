@@ -178,7 +178,7 @@ namespace PlasticLang.Ast
             var type = l as Type;
             if (type != null)
             {
-                var tmpCtx = context.ChildContext();
+              //  var tmpCtx = context.ChildContext();
               //  tmpCtx.Declare();
             }
 

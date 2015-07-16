@@ -2,21 +2,34 @@
 
 namespace PlasticLang
 {
-    public class PlasticContext
+
+    public abstract class PlasticContext
+    {
+       
+
+        public abstract object this[string name] { get; set; }
+
+
+        public abstract bool HasProperty(string name);
+
+        public abstract void Declare(string name, object value);
+    }
+
+    public class PlasticContextImpl : PlasticContext
     {
         private readonly Dictionary<string, object> _cells = new Dictionary<string, object>();
         private readonly PlasticContext _parent;
 
-        public PlasticContext()
+        public PlasticContextImpl()
         {
         }
 
-        private PlasticContext(PlasticContext parentContext)
+        public PlasticContextImpl(PlasticContext parentContext)
         {
             _parent = parentContext;
         }
 
-        public object this[string name]
+        public override object this[string name]
         {
             get
             {
@@ -41,7 +54,7 @@ namespace PlasticLang
             }
         }
 
-        public bool HasProperty(string name)
+        public override bool HasProperty(string name)
         {
             if (_cells.ContainsKey(name))
                 return true;
@@ -52,13 +65,7 @@ namespace PlasticLang
             return false;
         }
 
-        public PlasticContext ChildContext()
-        {
-            var child = new PlasticContext(this);
-            return child;
-        }
-
-        public void Declare(string name, object value)
+        public override void Declare(string name, object value)
         {
             _cells[name] = value;
         }

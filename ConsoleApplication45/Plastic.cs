@@ -13,7 +13,7 @@ namespace PlasticLang
             var context = SetupCoreSymbols();
             BootstrapLib(context);
 
-            var userContext = context.ChildContext();
+            var userContext = new PlasticContextImpl(context);
             var res = PlasticParser.Statements.Parse(code);
             res.Eval(userContext);
         }
@@ -133,7 +133,7 @@ Stack = class
         private static PlasticContext SetupCoreSymbols()
         {
             var exit = new object();
-            var context = new PlasticContext();
+            var context = new PlasticContextImpl();
             PlasticMacro print = (c, a) =>
             {
                 var obj = a.First().Eval(c);
@@ -263,7 +263,7 @@ Stack = class
                     if (args.Length == Args.Length)
                     {
                         //create context for this invocation
-                        var ctx = callingContext.ChildContext();
+                        var ctx =  new PlasticContextImpl(callingContext);
                         for (var i = 0; i < args.Length; i++)
                         {
                             var arg = Args[i];
@@ -298,7 +298,7 @@ Stack = class
                 var body = a.Last();
                 PlasticMacro f = (ctx, args) =>
                 {
-                    var thisContext = c.ChildContext();
+                    var thisContext = new PlasticContextImpl(c);
 
                     for (var i = 0; i < a.Length - 1; i++)
                     {
