@@ -168,22 +168,6 @@ namespace PlasticLang.Ast
 
             var objContext = new InstanceContext(l, context);
             return right.Eval(objContext);
-
-            var str = right as QuotedString;
-            if (str != null)
-            {
-                var res = l.GetType().GetProperty(str.Value).GetValue(l);
-                return res;
-            }
-
-            var member = right as Identifier;
-            if (member != null)
-            {
-                var res = l.GetType().GetProperty(member.Name).GetValue(l);
-                return res;
-            }
-
-            throw new NotSupportedException();
         }
 
         public override string ToString()

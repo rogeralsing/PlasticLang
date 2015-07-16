@@ -1,6 +1,6 @@
 ﻿namespace PlasticLang.Ast
 {
-    public class QuotedString : IExpression
+    public class QuotedString : IExpression ,IStringLiteral
     {
         public QuotedString(string value)
         {

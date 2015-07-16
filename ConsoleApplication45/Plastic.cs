@@ -226,7 +226,7 @@ Stack = class
                 object result = null;
                 foreach (var element in enumerable)
                 {
-                    c.Declare(v.Name, element);
+                    c.Declare(v.Value, element);
                     body.Eval(c);
                 }
                 return result;
@@ -239,7 +239,7 @@ Stack = class
                     var identifier = arg as Identifier;
                     if (identifier != null)
                     {
-                        return new Argument(identifier.Name, ArgumentType.Value);
+                        return new Argument(identifier.Value, ArgumentType.Value);
                     }
                     var dot = arg as BinaryExpression;
                     if (dot != null)
@@ -247,10 +247,10 @@ Stack = class
                         var id = dot.Left as Identifier;
                         var type = dot.Right as Identifier;
                         var argType = ArgumentType.Value;
-                        if (type.Name == "ref")
+                        if (type.Value == "ref")
                             argType = ArgumentType.Expression;
 
-                        return new Argument(id.Name, argType);
+                        return new Argument(id.Value, argType);
                     }
                     throw new NotSupportedException();
                 }).ToArray();
@@ -303,7 +303,7 @@ Stack = class
                     for (var i = 0; i < a.Length - 1; i++)
                     {
                         var argName = a[i] as Identifier; //TODO: add support for expressions and partial appl
-                        thisContext.Declare(argName.Name, args[i].Eval(ctx));
+                        thisContext.Declare(argName.Value, args[i].Eval(ctx));
                     }
 
                     var self = new PlasticObject(thisContext);
@@ -320,7 +320,7 @@ Stack = class
                 var arg = a.First();
                 var path = arg.ToString().Replace(" ", "");
                 Type type = Type.GetType(path);
-                var id = (arg as Identifier ?? (arg as BinaryExpression).Right as Identifier).Name;
+                var id = (arg as Identifier ?? (arg as BinaryExpression).Right as Identifier).Value;
 
                 c.Declare(id,type);
 

@@ -19,14 +19,14 @@ namespace PlasticLang.Ast
             var value = Expression.Eval(context);
             foreach (var cell in Cells)
             {
-                context.Declare(cell.Name, value);
+                context.Declare(cell.Value, value);
             }
             return value;
         }
 
         public override string ToString()
         {
-            return string.Format("let {0} = {1}", string.Join(",", Cells.Select(i => i.Name)), Expression);
+            return string.Format("let {0} = {1}", string.Join(",", Cells.Select(i => i.Value)), Expression);
         }
     }
 }

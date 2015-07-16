@@ -19,26 +19,22 @@
 
             if (assignee != null)
             {
-                context[assignee.Name] = value;
+                context[assignee.Value] = value;
             }
 
             if (dot != null)
             {
                 var obj = dot.Left.Eval(context) as PlasticObject;
                 var memberId = dot.Right as Identifier;
-                obj[memberId.Name] = value;
+                obj[memberId.Value] = value;
             }
 
-            //foreach (var cell in Cells)
-            //{
-            //    context[cell.Name] = value;
-            //}
             return value;
         }
 
         private void AssignToIdentifier(Identifier assignee, PlasticContext context, object value)
         {
-            context[assignee.Name] = value;
+            context[assignee.Value] = value;
         }
     }
 }

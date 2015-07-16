@@ -162,7 +162,7 @@ namespace PlasticLang
 
         public override object Invoke(IExpression head, IExpression[] args)
         {
-            var memberName = (head as Identifier).Name;
+            var memberName = (head as Identifier).Value;
             var evaluatedArgs = args.Select(a => a.Eval(_owner)).ToArray();
             var members = _type.GetMethods().Where(m => m.Name == memberName);
             foreach (var member in members)
@@ -260,13 +260,9 @@ namespace PlasticLang
         public override object Invoke(IExpression head, IExpression[] args)
         {
             var memberName = "";
-            if (head is Identifier)
+            if (head is IStringLiteral)
             {
-                memberName = (head as Identifier).Name;
-            }
-            if (head is QuotedString)
-            {
-                memberName = (head as QuotedString).Value;
+                memberName = (head as IStringLiteral).Value;
             }
 
             var evaluatedArgs = args.Select(a => a.Eval(_owner)).ToArray();

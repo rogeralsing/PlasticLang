@@ -1,22 +1,22 @@
 ﻿namespace PlasticLang.Ast
 {
-    public class Identifier : IExpression
+    public class Identifier : IExpression , IStringLiteral
     {
-        public Identifier(string name)
+        public Identifier(string value)
         {
-            Name = name;
+            Value = value;
         }
 
-        public string Name { get; set; }
+        public string Value { get; set; }
 
         public object Eval(PlasticContext context)
         {
-            return context[Name];
+            return context[Value];
         }
 
         public override string ToString()
         {
-            return Name;
+            return Value;
         }
     }
 }
