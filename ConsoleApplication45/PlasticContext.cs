@@ -148,10 +148,20 @@ namespace PlasticLang
         {
             var memberName = (head as Identifier).Name;
             var evaluatedArgs = args.Select(a => a.Eval(_owner)).ToArray();
-
-            var member = _type.GetMethod(memberName);
-            var res = member.Invoke(null,evaluatedArgs);
-            return res;
+            var members = _type.GetMethods().Where(m => m.Name == memberName);
+            foreach (var member in members)
+            {
+                try
+                {
+                    var res = member.Invoke(null, evaluatedArgs);
+                    return res;
+                }
+                catch
+                {
+                    
+                }
+            }
+            throw new Exception("No matching method found.");
         }
     }
 }
