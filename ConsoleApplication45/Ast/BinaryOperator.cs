@@ -142,8 +142,7 @@ namespace PlasticLang.Ast
     {
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
-            var l = left.Eval(context);
-            var member = right as Identifier;
+            var l = left.Eval(context);            
 
             var arr = l as object[];
             if (arr != null)
@@ -159,12 +158,17 @@ namespace PlasticLang.Ast
                 return right.Eval(pobj.Context);
             }
 
-
-            if (member != null)
+            var type = l as Type;
+            if (type != null)
             {
-                var res = l.GetType().GetProperty(member.Name).GetValue(l);
-                return res;
+                var typeContext = new TypeContext(type, context);
+                return right.Eval(typeContext);
             }
+
+
+            var objContext = new InstanceContext(l, context);
+            return right.Eval(objContext);
+
             var str = right as QuotedString;
             if (str != null)
             {
@@ -172,11 +176,11 @@ namespace PlasticLang.Ast
                 return res;
             }
 
-            var type = l as Type;
-            if (type != null)
+            var member = right as Identifier;
+            if (member != null)
             {
-                var typeContext = new TypeContext(type, context);
-                return right.Eval(typeContext);
+                var res = l.GetType().GetProperty(member.Name).GetValue(l);
+                return res;
             }
 
             throw new NotSupportedException();
