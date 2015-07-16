@@ -134,10 +134,10 @@ Stack = class
         {
             var exit = new object();
             var context = new PlasticContext();
-            PlasticFunction print = a =>
+            PlasticMacro print = (c, a) =>
             {
                 var v = a.FirstOrDefault();
-                Console.WriteLine(v);
+                Console.WriteLine(v.Eval(c));
                 return v;
             };
 
@@ -228,7 +228,7 @@ Stack = class
                     {
                         var id = dot.Left as Identifier;
                         var type = dot.Right as Identifier;
-                        ArgumentType argType = ArgumentType.Value;
+                        var argType = ArgumentType.Value;
                         if (type.Name == "ref")
                             argType = ArgumentType.Expression;
 
@@ -267,25 +267,25 @@ Stack = class
                     //partial application
                     var partialArgs = args.ToArray();
 
-                    PlasticMacro partial = (ctx,pargs) => op(ctx,partialArgs.Union(pargs).ToArray());
+                    PlasticMacro partial = (ctx, pargs) => op(ctx, partialArgs.Union(pargs).ToArray());
 
                     return partial;
                 };
                 return op;
             };
 
-            
+
             PlasticMacro @class = (c, a) =>
             {
                 var body = a.Last();
-                PlasticFunction f = args =>
+                PlasticMacro f = (ctx, args) =>
                 {
                     var thisContext = c.ChildContext();
 
                     for (var i = 0; i < a.Length - 1; i++)
                     {
-                        var argName = a[i] as Identifier;
-                        thisContext.Declare(argName.Name, args[i]);
+                        var argName = a[i] as Identifier; //TODO: add support for expressions and partial appl
+                        thisContext.Declare(argName.Name, args[i].Eval(ctx));
                     }
 
                     var self = new PlasticObject(thisContext);

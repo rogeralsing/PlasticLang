@@ -6,11 +6,11 @@ namespace PlasticLangLabb1.Ast
 {
     public class Invocation : IExpression
     {
-        public Invocation(IExpression head, TupleValue args,IExpression body)
+        public Invocation(IExpression head, TupleValue args, IExpression body)
         {
             Head = head;
             var tmp = args != null ? args.Items : new IExpression[0];
-            
+
             if (body != null)
             {
                 var oneBody = Enumerable.Repeat(body, 1).ToArray();
@@ -25,7 +25,6 @@ namespace PlasticLangLabb1.Ast
         public object Eval(PlasticContext context)
         {
             var target = Head.Eval(context);
-            var function = target as PlasticFunction;
             var macro = target as PlasticMacro;
             var expressions = target as IEnumerable<IExpression>;
             var expression = target as IExpression;
@@ -33,11 +32,6 @@ namespace PlasticLangLabb1.Ast
             if (expressions != null)
             {
                 return InvokeMulti(context, expressions);
-            }
-
-            if (function != null)
-            {
-                return Invoke(context, function);
             }
 
             if (macro != null)
@@ -52,7 +46,7 @@ namespace PlasticLangLabb1.Ast
 
             if (array != null)
             {
-                var index = (int)(decimal)Args.First().Eval(context);
+                var index = (int) (decimal) Args.First().Eval(context);
                 return array[index];
             }
             throw new NotImplementedException();
@@ -64,10 +58,7 @@ namespace PlasticLangLabb1.Ast
             foreach (var item in expressions)
             {
                 var i = item.Eval(context);
-                var func = i as PlasticFunction;
                 var macro = i as PlasticMacro;
-                if (func != null)
-                    res = Invoke(context, func);
                 if (macro != null)
                     res = InvokeMacro(context, macro);
             }
@@ -77,22 +68,8 @@ namespace PlasticLangLabb1.Ast
         private object InvokeMacro(PlasticContext context, PlasticMacro macro)
         {
             var ctx = context.ChildContext();
-            IExpression[] args = Args;
+            var args = Args;
             var res = macro(ctx, args);
-            context.Declare("last", res);
-            return res;
-        }
-
-        private object Invoke(PlasticContext context, PlasticFunction function)
-        {
-            List<object> evaluatedArgs = new List<object>();
-            foreach (var arg in Args)
-            {
-                var evaluatedArg = arg.Eval(context);
-                evaluatedArgs.Add(evaluatedArg);
-            }
-       
-            var res = function(evaluatedArgs.ToArray());
             context.Declare("last", res);
             return res;
         }

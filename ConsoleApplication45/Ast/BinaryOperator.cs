@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace PlasticLangLabb1.Ast
 {
@@ -77,7 +76,7 @@ namespace PlasticLangLabb1.Ast
     {
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
-            return ((dynamic)left.Eval(context)) != ((dynamic)right.Eval(context));
+            return ((dynamic) left.Eval(context)) != ((dynamic) right.Eval(context));
         }
 
         public override string ToString()
@@ -90,7 +89,7 @@ namespace PlasticLangLabb1.Ast
     {
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
-            return ((dynamic)left.Eval(context)) > ((dynamic)right.Eval(context));
+            return ((dynamic) left.Eval(context)) > ((dynamic) right.Eval(context));
         }
 
         public override string ToString()
@@ -103,7 +102,7 @@ namespace PlasticLangLabb1.Ast
     {
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
-            return ((dynamic)left.Eval(context)) >= ((dynamic)right.Eval(context));
+            return ((dynamic) left.Eval(context)) >= ((dynamic) right.Eval(context));
         }
 
         public override string ToString()
@@ -116,7 +115,7 @@ namespace PlasticLangLabb1.Ast
     {
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
-            return ((dynamic)left.Eval(context)) < ((dynamic)right.Eval(context));
+            return ((dynamic) left.Eval(context)) < ((dynamic) right.Eval(context));
         }
 
         public override string ToString()
@@ -129,7 +128,7 @@ namespace PlasticLangLabb1.Ast
     {
         public override object Eval(PlasticContext context, IExpression left, IExpression right)
         {
-            return ((dynamic)left.Eval(context)) <= ((dynamic)right.Eval(context));
+            return ((dynamic) left.Eval(context)) <= ((dynamic) right.Eval(context));
         }
 
         public override string ToString()
@@ -145,11 +144,10 @@ namespace PlasticLangLabb1.Ast
         {
             var l = left.Eval(context);
             var member = right as Identifier;
-            
-            var arr = l as object[];            
+
+            var arr = l as object[];
             if (arr != null)
             {
-                
                 if (right is Number)
                 {
                     var r = right.Eval(context);
@@ -163,8 +161,6 @@ namespace PlasticLangLabb1.Ast
             {
                 return right.Eval(pobj.Context);
             }
-
-            
 
 
             if (member != null)

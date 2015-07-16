@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace PlasticLangLabb1.Ast
+﻿namespace PlasticLangLabb1.Ast
 {
     public class Identifier : IExpression
     {

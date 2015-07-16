@@ -112,20 +112,11 @@ print (s.pop());
 print (s.pop());
 ";
 
-
-            /*
-    this.firstName = 'Roger'
-    this.lastName = 'Johansson'
-    this.sayHello = () => {
-        print ('Hello ' + this.firstName + ' ' + this.lastName)
-    }
-             */
             Plastic.Run(code);
             Console.ReadLine();
         }
     }
 }
-
 
 /*
 

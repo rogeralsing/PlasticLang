@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PlasticLangLabb1.Ast
+﻿namespace PlasticLangLabb1.Ast
 {
     public class Argument
     {
@@ -15,14 +9,12 @@ namespace PlasticLangLabb1.Ast
         }
 
         public ArgumentType Type { get; set; }
-
         public string Name { get; set; }
     }
 
     public enum ArgumentType
     {
         Value,
-        Expression,
-
+        Expression
     }
 }

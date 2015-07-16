@@ -1,19 +1,17 @@
-﻿using System.Diagnostics;
-
-namespace PlasticLangLabb1.Ast
+﻿namespace PlasticLangLabb1.Ast
 {
     public class BinaryExpression : IExpression
     {
-        public IExpression Left { get; private set; }
-        public BinaryOperator Op { get; private set; }
-        public IExpression Right { get; private set; }
-
         public BinaryExpression(IExpression left, BinaryOperator op, IExpression right)
         {
             Left = left;
             Op = op;
             Right = right;
         }
+
+        public IExpression Left { get; private set; }
+        public BinaryOperator Op { get; private set; }
+        public IExpression Right { get; private set; }
 
         public object Eval(PlasticContext context)
         {

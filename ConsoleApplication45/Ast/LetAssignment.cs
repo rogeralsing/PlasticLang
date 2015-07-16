@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace PlasticLangLabb1.Ast
@@ -20,7 +19,7 @@ namespace PlasticLangLabb1.Ast
             var value = Expression.Eval(context);
             foreach (var cell in Cells)
             {
-                context.Declare(cell.Name,value);
+                context.Declare(cell.Name, value);
             }
             return value;
         }

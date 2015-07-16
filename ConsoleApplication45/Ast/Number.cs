@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 
 namespace PlasticLangLabb1.Ast
@@ -14,36 +13,13 @@ namespace PlasticLangLabb1.Ast
         private readonly Dictionary<string, object> _cells = new Dictionary<string, object>();
         private readonly PlasticContext _parent;
 
-        public bool HasProperty(string name)
-        {
-            if (_cells.ContainsKey(name))
-                return true;
-
-            if (_parent != null)
-                return _parent.HasProperty(name);
-
-            return false;
-        }
-
         public PlasticContext()
         {
-            
         }
 
         private PlasticContext(PlasticContext parentContext)
         {
             _parent = parentContext;
-        }
-
-        public PlasticContext ChildContext()
-        {
-            var child = new PlasticContext(this);
-            return child;
-        }
-
-        public void Declare(string name, object value)
-        {
-            _cells[name] = value;
         }
 
         public object this[string name]
@@ -69,6 +45,28 @@ namespace PlasticLangLabb1.Ast
                 else
                     _cells[name] = value;
             }
+        }
+
+        public bool HasProperty(string name)
+        {
+            if (_cells.ContainsKey(name))
+                return true;
+
+            if (_parent != null)
+                return _parent.HasProperty(name);
+
+            return false;
+        }
+
+        public PlasticContext ChildContext()
+        {
+            var child = new PlasticContext(this);
+            return child;
+        }
+
+        public void Declare(string name, object value)
+        {
+            _cells[name] = value;
         }
     }
 

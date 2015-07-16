@@ -12,6 +12,34 @@ namespace PlasticLangLabb1
             return Parse.String(op).Token().Return(node);
         }
 
+        private static Parser<QuotedString> MakeString(char quote)
+        {
+            return (from str in Parse.CharExcept(quote).Many().Contained(Parse.Char(quote), Parse.Char(quote))
+                select new QuotedString(new string(str.ToArray()))).Token();
+        }
+
+        private static IExpression CreateInvocations(IExpression head, TupleValue[] argsList, Statements body)
+        {
+            var current = head;
+            for (var i = 0; i < argsList.Length; i++)
+            {
+                var args = argsList[i];
+                if (i == argsList.Length - 1)
+                {
+                    current = new Invocation(current, args, body);
+                }
+                else
+                {
+                    current = new Invocation(current, args, null);
+                }
+            }
+            if (argsList.Length == 0 && body != null)
+            {
+                current = new Invocation(current, null, body);
+            }
+            return current;
+        }
+
         public static readonly Parser<Identifier> Identifier =
             (from first in Parse.Letter.Once().Text()
                 from rest in Parse.LetterOrDigit.Many().Text()
@@ -23,12 +51,6 @@ namespace PlasticLangLabb1
                 select new Number(numb)).Token();
 
         public static readonly Parser<QuotedString> QuotedString = MakeString('"').Or(MakeString('\''));
-
-        private static Parser<QuotedString> MakeString(char quote)
-        {
-            return (from str in Parse.CharExcept(quote).Many().Contained(Parse.Char(quote), Parse.Char(quote))
-                select new QuotedString(new string(str.ToArray()))).Token();
-        }
 
         public static readonly Parser<IExpression> Literal =
             Identifier.Select(x => x as IExpression)
@@ -83,7 +105,7 @@ namespace PlasticLangLabb1
                 Term, (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').Token(),
-            Parse.Ref(() => Compare), (o, l, r) => 
+            Parse.Ref(() => Compare), (o, l, r) =>
                 new Assignment(l, r));
 
         public static readonly Parser<IExpression> LetAssign =
@@ -107,7 +129,7 @@ namespace PlasticLangLabb1
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
                 .Or(Parse.Ref(() => MacroDeclaration))
-           //     .Or(Parse.Ref(() => Assign))
+                //     .Or(Parse.Ref(() => Assign))
                 .Or(Parse.Ref(() => LetAssign))
                 .Or(Parse.Ref(() => AssignTerm))
                 .Or(Parse.Ref(() => Body));
@@ -179,27 +201,5 @@ namespace PlasticLangLabb1
             from args in TupleValue.Many()
             from body in Body.Optional()
             select CreateInvocations(head, args.ToArray(), body.GetOrDefault());
-
-        private static IExpression CreateInvocations(IExpression head, TupleValue[] argsList, Statements body)
-        {
-            var current = head;
-            for (int i=0;i<argsList.Length;i++)
-            {
-                var args = argsList[i];
-                if (i == argsList.Length-1)
-                {
-                    current = new Invocation(current, args, body);
-                }
-                else
-                {
-                    current = new Invocation(current, args, null);
-                }
-            }
-            if (argsList.Length == 0 &&  body != null)
-            {
-                current = new Invocation(current, null, body);
-            }
-            return current;
-        }
     }
 }

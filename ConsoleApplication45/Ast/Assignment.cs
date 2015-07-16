@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace PlasticLangLabb1.Ast
+﻿namespace PlasticLangLabb1.Ast
 {
     public class Assignment : IExpression
     {
@@ -16,13 +13,13 @@ namespace PlasticLangLabb1.Ast
 
         public object Eval(PlasticContext context)
         {
-            var value = Expression.Eval(context);            
+            var value = Expression.Eval(context);
             var dot = Assignee as BinaryExpression;
-            var assignee =Assignee as Identifier;
-            
+            var assignee = Assignee as Identifier;
+
             if (assignee != null)
             {
-                context[assignee.Name] = value;        
+                context[assignee.Name] = value;
             }
 
             if (dot != null)
@@ -41,7 +38,7 @@ namespace PlasticLangLabb1.Ast
 
         private void AssignToIdentifier(Identifier assignee, PlasticContext context, object value)
         {
-            context[assignee.Name] = value;            
+            context[assignee.Name] = value;
         }
     }
 }
