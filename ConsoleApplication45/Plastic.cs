@@ -136,9 +136,17 @@ Stack = class
             var context = new PlasticContext();
             PlasticMacro print = (c, a) =>
             {
-                var v = a.FirstOrDefault();
-                Console.WriteLine(v.Eval(c));
-                return v;
+                var obj = a.First().Eval(c);
+                var args = a.Skip(1).Select(o => o.Eval(c)).ToArray();
+                if (args.Any())
+                {
+                    Console.WriteLine(obj.ToString(), args);
+                }
+                else
+                {
+                    Console.WriteLine(obj);
+                }
+                return obj;
             };
 
             PlasticMacro @while = (c, a) =>
@@ -224,8 +232,8 @@ Stack = class
                 return result;
             };
 
-            PlasticMacro func = (c, a) =>
-            {
+            PlasticMacro func = (_, a) =>
+            {      
                 var Args = a.Take(a.Length - 1).Select(arg =>
                 {
                     var identifier = arg as Identifier;
@@ -307,6 +315,17 @@ Stack = class
                 return f;
             };
 
+            PlasticMacro @using = (c, a) =>
+            {
+                var arg = a.First();
+                var path = arg.ToString().Replace(" ", "");
+                Type type = Type.GetType(path);
+                var id = (arg as Identifier ?? (arg as BinaryExpression).Right as Identifier).Name;
+
+                c.Declare(id,type);
+
+                return type;
+            };
 
             context.Declare("print", print);
             context.Declare("while", @while);
@@ -320,6 +339,7 @@ Stack = class
             context.Declare("exit", exit);
             context.Declare("func", func);
             context.Declare("class", @class);
+            context.Declare("using", @using);
             return context;
         }
     }

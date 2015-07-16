@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PlasticLang.Ast
 {
@@ -19,6 +21,11 @@ namespace PlasticLang.Ast
                 result = statement.Eval(context);
             }
             return result;
+        }
+
+        public override string ToString()
+        {
+            return "{" + string.Join(Environment.NewLine, _statements.Select(s => s.ToString())) + "}";
         }
     }
 }

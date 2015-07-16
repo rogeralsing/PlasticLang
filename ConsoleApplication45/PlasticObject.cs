@@ -1,4 +1,4 @@
-﻿namespace PlasticLang.Ast
+﻿namespace PlasticLang
 {
     public class PlasticObject
     {

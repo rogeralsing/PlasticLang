@@ -175,6 +175,13 @@ namespace PlasticLang.Ast
                 return res;
             }
 
+            var type = l as Type;
+            if (type != null)
+            {
+                var tmpCtx = context.ChildContext();
+              //  tmpCtx.Declare();
+            }
+
             throw new NotSupportedException();
         }
 
