@@ -21,7 +21,7 @@ namespace PlasticLangLabb1
         private static void BootstrapLib(PlasticContext context)
         {
             var lib = @"
-for := macro (init, guard, step, body)
+for := macro (init.ref , guard.ref, step.ref, body.ref)
 {
     init()
     while(guard())
@@ -31,13 +31,12 @@ for := macro (init, guard, step, body)
     }
 }
 
-repeat := macro (times, body)
+repeat := macro (times, body.ref)
 {
-    i := times();
-    while(i >= 0)
+    while(times >= 0)
     {
         body()
-        i--
+        times--
     }
 }
 
@@ -239,20 +238,38 @@ Stack = class
                 }).ToArray();
                 var Body = a.Last();
 
-                PlasticMacro op = (callingContext, args) =>
+                PlasticMacro op = null;
+                op = (callingContext, args) =>
                 {
-                    //create context for this invocation
-                    var ctx = callingContext.ChildContext();
-                    var i = 0;
-                    foreach (var arg in Args)
+                    //full application
+                    if (args.Length == Args.Length)
                     {
-                        //copy args from caller to this context
-                        ctx.Declare(arg.Name, args[i]);
-                        i++;
-                    }
+                        //create context for this invocation
+                        var ctx = callingContext.ChildContext();
+                        for (var i = 0; i < args.Length; i++)
+                        {
+                            var arg = Args[i];
+                            if (arg.Type == ArgumentType.Expression)
+                            {
+                                //copy args from caller to this context
+                                ctx.Declare(arg.Name, args[i]);
+                            }
+                            else if (arg.Type == ArgumentType.Value)
+                            {
+                                var value = args[i].Eval(callingContext);
+                                ctx.Declare(arg.Name, value);
+                            }
+                        }
 
-                    var m = Body.Eval(ctx);
-                    return m;
+                        var m = Body.Eval(ctx);
+                        return m;
+                    }
+                    //partial application
+                    var partialArgs = args.ToArray();
+
+                    PlasticMacro partial = (ctx,pargs) => op(ctx,partialArgs.Union(pargs).ToArray());
+
+                    return partial;
                 };
                 return op;
             };
