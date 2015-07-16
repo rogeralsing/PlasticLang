@@ -1,6 +1,7 @@
 ﻿using System;
+using PlasticLang.Ast;
 
-namespace PlasticLangLabb1.Ast
+namespace PlasticLang.Ast
 {
     public abstract class BinaryOperator
     {

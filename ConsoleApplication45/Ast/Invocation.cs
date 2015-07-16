@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using PlasticLang;
+using PlasticLang.Ast;
 
-namespace PlasticLangLabb1.Ast
+namespace PlasticLang.Ast
 {
     public class Invocation : IExpression
     {

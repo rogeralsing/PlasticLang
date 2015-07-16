@@ -1,4 +1,6 @@
-﻿namespace PlasticLangLabb1.Ast
+﻿using PlasticLang.Ast;
+
+namespace PlasticLang.Ast
 {
     public class Assignment : IExpression
     {

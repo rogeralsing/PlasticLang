@@ -1,4 +1,4 @@
-﻿namespace PlasticLangLabb1.Ast
+﻿namespace PlasticLang.Ast
 {
     public class Argument
     {

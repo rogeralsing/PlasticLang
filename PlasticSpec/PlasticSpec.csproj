@@ -57,9 +57,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ConsoleApplication45\PlasticLangLabb1.csproj">
+    <ProjectReference Include="..\ConsoleApplication45\Plastic.csproj">
       <Project>{4074b938-d690-4bf9-a478-ecfe8fde859b}</Project>
-      <Name>PlasticLangLabb1</Name>
+      <Name>Plastic</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

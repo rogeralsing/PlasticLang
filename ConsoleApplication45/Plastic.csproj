@@ -7,8 +7,8 @@
     <ProjectGuid>{4074B938-D690-4BF9-A478-ECFE8FDE859B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PlasticLangLabb1</RootNamespace>
-    <AssemblyName>PlasticLangLabb1</AssemblyName>
+    <RootNamespace>PlasticLang</RootNamespace>
+    <AssemblyName>Plastic</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -45,15 +45,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ast\ArgsAndBody.cs" />
-    <Compile Include="Ast\Argument.cs" />
+    <Compile Include="Argument.cs" />
     <Compile Include="Ast\ArrayValue.cs" />
     <Compile Include="Ast\Assignment.cs" />
     <Compile Include="Ast\BinaryExpression.cs" />
     <Compile Include="Ast\BinaryOperator.cs" />
     <Compile Include="Ast\Identifier.cs" />
+    <Compile Include="Ast\IExpresson.cs" />
     <Compile Include="Ast\Invocation.cs" />
     <Compile Include="Ast\Number.cs" />
-    <Compile Include="Ast\PlasticFunction.cs" />
+    <Compile Include="PlasticContext.cs" />
+    <Compile Include="PlasticFunction.cs" />
     <Compile Include="Ast\PlasticObject.cs" />
     <Compile Include="Ast\Statements.cs" />
     <Compile Include="Ast\LetAssignment.cs" />

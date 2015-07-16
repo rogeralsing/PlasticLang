@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-using PlasticLangLabb1.Ast;
+using PlasticLang.Ast;
+using PlasticLang;
+using PlasticLang.Ast;
 using Sprache;
 
-namespace PlasticLangLabb1
+namespace PlasticLang
 {
     public static class Plastic
     {
@@ -61,7 +63,7 @@ LinkedList = class
         }        
     }
 
-    each = func (lambda)
+    each = func ( lambda)
     {
         current = head;
         while(current != null)

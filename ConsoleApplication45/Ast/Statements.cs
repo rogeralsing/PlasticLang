@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using PlasticLang.Ast;
 
-namespace PlasticLangLabb1.Ast
+namespace PlasticLang.Ast
 {
     public class Statements : IExpression
     {

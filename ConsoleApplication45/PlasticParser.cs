@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using PlasticLangLabb1.Ast;
+using PlasticLang.Ast;
+using PlasticLang.Ast;
 using Sprache;
 
-namespace PlasticLangLabb1
+namespace PlasticLang
 {
     public class PlasticParser
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PlasticLangLabb1
+namespace PlasticLang
 {
     internal class Program
     {
