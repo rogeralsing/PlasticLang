@@ -7,7 +7,7 @@ namespace PlasticLang
 {
     public class PlasticParser
     {
-        public static Parser<char> Separator = Parse.Char(',').Or(Parse.Char(';')).Token();
+        public static Parser<IOption<char>> Separator = Parse.Char(',').Or(Parse.Char(';')).Optional().Token();
  
         public static Parser<BinaryOperator> BinOp(string op, BinaryOperator node)
         {
@@ -118,14 +118,13 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
-                .Or(Parse.Ref(() => MacroDeclaration))
                 .Or(Parse.Ref(() => LetAssign))
                 .Or(Parse.Ref(() => AssignTerm))
                 .Or(Parse.Ref(() => Body));
 
         public static readonly Parser<IExpression> TerminatedStatement =
             from exp in Parse.Ref(() => Expression)
-            from _ in Parse.Char(';').Optional().Token()
+            from _ in Separator.Optional().Token()
             select exp;
 
         public static readonly Parser<IExpression> Statement =
@@ -137,9 +136,9 @@ namespace PlasticLang
 
         public static readonly Parser<Statements> Body =
             from lbrace in Parse.Char('{').Token()
-            from statements in Statement.Many()
+            from statements in Statements
             from rbrace in Parse.Char('}').Token()
-            select new Statements(statements);
+            select statements;
 
         public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Expression);
 
@@ -156,12 +155,6 @@ namespace PlasticLang
             from arrow in Parse.String("=>").Token()
             from body in Parse.Ref(() => LambdaBody)
             select new Invocation(new Identifier("func"), new TupleValue(args), body);
-
-        public static readonly Parser<IExpression> MacroDeclaration =
-            from args in LambdaArgs
-            from arrow in Parse.String("#>").Token()
-            from body in Parse.Ref(() => LambdaBody)
-            select new Invocation(new Identifier("macro"), new TupleValue(args), body);
 
         public static readonly Parser<TupleValue> TupleValue =
             Parse.Ref(() => Expression)

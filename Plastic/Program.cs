@@ -16,9 +16,10 @@ namespace PlasticLang
                 Plastic.Run(code);
                 return 0;
             },error => 1);
-
-
+            Console.ReadLine();
             return returnvalue;
+
+
         }
     }
 
