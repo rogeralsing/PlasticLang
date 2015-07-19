@@ -26,14 +26,7 @@ namespace PlasticLang
             for (var i = 0; i < argsList.Length; i++)
             {
                 var args = argsList[i];
-                if (i == argsList.Length - 1)
-                {
-                    current = new Invocation(current, args, body);
-                }
-                else
-                {
-                    current = new Invocation(current, args, null);
-                }
+                current = new Invocation(current, args, i == argsList.Length - 1 ? body : null);
             }
             if (argsList.Length == 0 && body != null)
             {
@@ -70,11 +63,12 @@ namespace PlasticLang
             select new Assignment(identifier, new BinaryExpression(identifier, new SubtractBnary(), new Number("1")));
 
         public static readonly Parser<IExpression> Value =
-            Parse.Ref(() => TupleValue)
+                    Parse.Ref(() => TupleValue)
                 .Or(Parse.Ref(() => ArrayValue))
                 .Or(Parse.Ref(() => IdentifierInc))
                 .Or(Parse.Ref(() => IdentifierDec))
-                .Or(Parse.Ref(() => Literal));
+                .Or(Parse.Ref(() => Literal))
+                .Or(Parse.Ref(() => Body));
 
         public static readonly Parser<BinaryOperator> MultiplyOperator = BinOp("*", new MultiplyBinary());
         public static readonly Parser<BinaryOperator> DivideOperator = BinOp("/", new DivideBinary());
@@ -119,8 +113,8 @@ namespace PlasticLang
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
                 .Or(Parse.Ref(() => LetAssign))
-                .Or(Parse.Ref(() => AssignTerm))
-                .Or(Parse.Ref(() => Body));
+                .Or(Parse.Ref(() => AssignTerm));
+                //.Or(Parse.Ref(() => Body));
 
         public static readonly Parser<IExpression> TerminatedStatement =
             from exp in Parse.Ref(() => Expression)
@@ -142,8 +136,8 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Expression);
 
-        public static readonly Parser<IEnumerable<Identifier>> LambdaArgs =
-            Identifier
+        public static readonly Parser<IEnumerable<IExpression>> LambdaArgs =
+            Expression
                 .DelimitedBy(Separator)
                 .Optional()
                 .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
