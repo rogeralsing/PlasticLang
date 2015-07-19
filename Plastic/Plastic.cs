@@ -123,6 +123,29 @@ Stack = class
         res
     }
 }
+
+
+switch :=  func(exp, body.ref)
+{
+    matched = false;
+    case := func (value, caseBody.ref)
+    {   
+        if (exp == value)
+        {
+            caseBody();
+            matched = true;
+        }
+    }
+    default := func (defaultBody.ref)
+    {
+        if (matched == false)
+        {
+            defaultBody();
+        }
+    }
+    body();
+}
+
 ";
 
 
