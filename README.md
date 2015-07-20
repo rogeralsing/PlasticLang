@@ -76,3 +76,12 @@ Person := class (firstName,lastName)
 john := Person('John','Doe');
 john.beep();
 ```
+
+### .NET Interop
+
+```javascript
+Console := using (System.Console);
+Console.WriteLine('Name?');
+name = Console.ReadLine();
+Console.WriteLine('Hello {0}', name);
+```
