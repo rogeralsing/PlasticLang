@@ -35,8 +35,8 @@ myMacro := func (someScalar, someExpression.ref)
 
 ### Assignment
 
-`:=` assigns a value to a name in the current lexical scope.
-`=` assigns/updates the value in the scope it was declared
+* `:=` assigns a value to a name in the current lexical scope.
+* `=` assigns/updates the value in the scope it was declared
 
 ### Classes
 
