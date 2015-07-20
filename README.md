@@ -40,5 +40,18 @@ myMacro := func (someScalar, someExpression.ref)
 
 ### Classes
 
+```javascript
+Person := class (firstName,lastName)
+{
+    sayHello := func ()
+    {
+        print ('Hello {0} {1}',firstName,lastName)
+    }
+}
+
+john := Person('John','Doe');
+john.sayHello();
+```
+
 ### Mixins
 
