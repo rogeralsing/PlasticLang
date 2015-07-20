@@ -338,6 +338,30 @@ switch :=  func(exp, body.ref)
                 return f;
             };
 
+            PlasticMacro mixin = (c, a) =>
+            {
+                var body = a.Last();
+                PlasticMacro f = (ctx, args) =>
+                {
+                    var plasticContextImpl = ctx as PlasticContextImpl;
+                    if (plasticContextImpl != null)
+                    {
+                        var thisContext = plasticContextImpl.Parent;
+
+                        for (var i = 0; i < a.Length - 1; i++)
+                        {
+                            var argName = a[i] as Identifier; //TODO: add support for expressions and partial appl
+                            thisContext.Declare(argName.Value, args[i].Eval(ctx));
+                        }
+
+                        body.Eval(thisContext);
+                    }
+
+                    return null;
+                };
+                return f;
+            };
+
             PlasticMacro @using = (c, a) =>
             {
                 var arg = a.First();
@@ -361,6 +385,7 @@ switch :=  func(exp, body.ref)
             context.Declare("null", null);
             context.Declare("exit", exit);
             context.Declare("func", func);
+            context.Declare("mixin", mixin);
             context.Declare("class", @class);
             context.Declare("using", @using);
             return context;

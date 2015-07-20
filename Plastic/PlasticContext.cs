@@ -28,7 +28,7 @@ namespace PlasticLang
     public class PlasticContextImpl : PlasticContext
     {
         private readonly Dictionary<string, object> _cells = new Dictionary<string, object>();
-        private readonly PlasticContext _parent;
+        public PlasticContext Parent { get; private set; }
 
         public PlasticContextImpl()
         {
@@ -36,7 +36,7 @@ namespace PlasticLang
 
         public PlasticContextImpl(PlasticContext parentContext)
         {
-            _parent = parentContext;
+            Parent = parentContext;
         }
 
         public override object this[string name]
@@ -44,8 +44,8 @@ namespace PlasticLang
             get
             {
                 //if cell is not populated in this context, fetch from parent
-                if (!_cells.ContainsKey(name) && _parent != null)
-                    return _parent[name];
+                if (!_cells.ContainsKey(name) && Parent != null)
+                    return Parent[name];
 
                 return _cells[name];
             }
@@ -57,8 +57,8 @@ namespace PlasticLang
                     return;
                 }
 
-                if (!_cells.ContainsKey(name) && _parent != null)
-                    _parent[name] = value;
+                if (!_cells.ContainsKey(name) && Parent != null)
+                    Parent[name] = value;
                 else
                     _cells[name] = value;
             }
@@ -69,8 +69,8 @@ namespace PlasticLang
             if (_cells.ContainsKey(name))
                 return true;
 
-            if (_parent != null)
-                return _parent.HasProperty(name);
+            if (Parent != null)
+                return Parent.HasProperty(name);
 
             return false;
         }
