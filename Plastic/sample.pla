@@ -1,11 +1,22 @@
-﻿a := 1
+﻿﻿a := 1
 b := 3
 c := a + b
 a := a + 1
 print('c = ' + c)
 print('a = ' + a)
 
-arr  := ['hello','this','is','an','array']
+print ('hello'.GetType().Name.Length)
+
+Console := using (System.Console);
+print(Console);
+Console.WriteLine('.NET interop!!');
+
+tuple       := ('hello' 'this' 'is' 'a' 'tuple')
+arr         := ['hello' 'this' 'is' 'an' 'array']
+statements  := {'hello' 'this' 'is' 'a' 'body'}
+
+
+print (arr.1);
 
 print ('arr length is ' + (arr.'Length' + 100) )
 print ('str length is ' + 'some string'.Length)
@@ -18,7 +29,7 @@ each(element, arr)
     print(element)
 }
 
-for (a := 0; a < 10; a ++) 
+for (a := 0; a < 10; a ++)
 {
     print (a);
 }
@@ -41,41 +52,52 @@ else
     print ('inside else')
 }
 
-while (a < 20)
+while (a < 5)
 {
      print ('daisy me rollin`')
      a++
 }
 
-(x => print('lambda fun ' + x))('yay')
+(x => print('lambda fun {0}', x))('yay')
 
 if (true, print('hello'));
 
-f := func(a,b,c) 
+f := func(a,b,c)
 {
     print('abc '+a+' '+b+' '+c);
 }
 
 f(1)(2)(3);
 
+multiply := (x,y) => x*y
+double := multiply(2);
+
+print ('88 doubled is ' + double(88))
+
+BeepMixin := mixin
+{
+    beep := func ()
+    {
+        print ('beep')
+    }
+}
 
 Person := class (firstName,lastName)
 {
+    BeepMixin()
     sayHello := func ()
     {
-        print ('Hello ' + firstName + ' ' + lastName)
+        print ('Hello {0} {1}',firstName,lastName)
     }
 }
 
 john := Person('John','Doe');
 jane := Person('Jane','Doe');
-
 john.extra = Person('testing sub object','oh yes')
-
 john.firstName = 'Johnny'
 
-print ('john = ' + john.firstName + ' ' + john.lastName)
-print ('jane = ' + jane.firstName + ' ' + jane.lastName)
+john.beep();
+
 
 john.sayHello();
 jane.sayHello();
@@ -94,9 +116,24 @@ s = Stack();
 s.push(1);
 s.push(2);
 s.push(3);
-s.push(4);
 
 print (s.pop());
 print (s.pop());
 print (s.pop());
-print (s.pop());
+
+
+bar = 4232443;
+
+print ('testing pattern matching')
+switch (bar)
+{
+    case(123; print('123'))
+    case(888; print('888!!!!!!!'))
+    case(999; print('999'))
+    default( print('no match'))
+}
+
+Console := using (System.Console);
+Console.WriteLine('Name?');
+name = Console.ReadLine();
+Console.WriteLine('Hello {0}', name);
