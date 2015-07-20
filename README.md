@@ -6,8 +6,18 @@ Conceptually inspired by Lisp and Ruby, syntactically by the C family.
 
 ### Functions
 
+Standard function declaration:
+```javascript
+hello := func(who)
+{
+   print ('hello ' + who)
+}
+```
 
-
+Or written as a lambda expression:
+```javascript
+hello := who => print ('hello ' + who)
+```
 
 ### Macros
 
