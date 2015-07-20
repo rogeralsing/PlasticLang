@@ -147,7 +147,6 @@ namespace PlasticLang.Ast
             var arr = l as object[];
             if (arr != null)
             {
-                //TODO: this is not correct.. arr.1 gives 1 as 1 is evaluated as itself
                 var arrayContext = new ArrayContext(arr, context);
                 return right.Eval(arrayContext);
             }

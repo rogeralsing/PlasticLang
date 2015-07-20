@@ -286,23 +286,23 @@ switch :=  func(exp, body.ref)
                     if (args.Length == Args.Length)
                     {
                         //create context for this invocation
-                        var ctx =  new PlasticContextImpl(callingContext);
+                        var invocationScope =  new PlasticContextImpl(callingContext);
                         for (var i = 0; i < args.Length; i++)
                         {
                             var arg = Args[i];
                             if (arg.Type == ArgumentType.Expression)
                             {
                                 //copy args from caller to this context
-                                ctx.Declare(arg.Name, args[i]);
+                                invocationScope.Declare(arg.Name, args[i]);
                             }
                             else if (arg.Type == ArgumentType.Value)
                             {
                                 var value = args[i].Eval(callingContext);
-                                ctx.Declare(arg.Name, value);
+                                invocationScope.Declare(arg.Name, value);
                             }
                         }
 
-                        var m = Body.Eval(ctx);
+                        var m = Body.Eval(invocationScope);
                         return m;
                     }
                     //partial application
@@ -343,19 +343,15 @@ switch :=  func(exp, body.ref)
                 var body = a.Last();
                 PlasticMacro f = (ctx, args) =>
                 {
-                    var plasticContextImpl = ctx as PlasticContextImpl;
-                    if (plasticContextImpl != null)
+                    var thisContext = ctx;
+
+                    for (var i = 0; i < a.Length - 1; i++)
                     {
-                        var thisContext = plasticContextImpl.Parent;
-
-                        for (var i = 0; i < a.Length - 1; i++)
-                        {
-                            var argName = a[i] as Identifier; //TODO: add support for expressions and partial appl
-                            thisContext.Declare(argName.Value, args[i].Eval(ctx));
-                        }
-
-                        body.Eval(thisContext);
+                        var argName = a[i] as Identifier; //TODO: add support for expressions and partial appl
+                        thisContext.Declare(argName.Value, args[i].Eval(ctx));
                     }
+
+                    body.Eval(thisContext);
 
                     return null;
                 };
