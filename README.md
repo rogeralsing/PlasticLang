@@ -19,6 +19,17 @@ Or written as a lambda expression:
 hello := who => print ('hello ' + who)
 ```
 
+Partial applications
+```javascript
+f := func(a,b,c)
+{
+    print('abc '+a+' '+b+' '+c);
+}
+
+f(1)(2)(3);
+```
+
+
 ### Macros
 
 Macros in plastic is not a separate concept, they are normal functions in which some of the arguments are passed as expressions rather than evaluated values.
