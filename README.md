@@ -55,3 +55,24 @@ john.sayHello();
 
 ### Mixins
 
+```
+BeepMixin := mixin
+{
+    beep := func ()
+    {
+        print ('beep')
+    }
+}
+
+Person := class (firstName,lastName)
+{
+    BeepMixin()
+    sayHello := func ()
+    {
+        print ('Hello {0} {1}',firstName,lastName)
+    }
+}
+
+john := Person('John','Doe');
+john.beep();
+```
