@@ -44,8 +44,12 @@ namespace PlasticLang
             get
             {
                 //if cell is not populated in this context, fetch from parent
-                if (!_cells.ContainsKey(name) && Parent != null)
-                    return Parent[name];
+                if (!_cells.ContainsKey(name))
+                {
+                    if (Parent != null)
+                        return Parent[name];
+                    return null;
+                }
 
                 return _cells[name];
             }

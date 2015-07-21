@@ -11,14 +11,17 @@ namespace PlasticLang
         public static void Run(string code)
         {
             var context = SetupCoreSymbols();
-            BootstrapLib(context);
-
             var userContext = new PlasticContextImpl(context);
-            var res = PlasticParser.Statements.Parse(code);
-            res.Eval(userContext);
+            Run(code, userContext);
         }
 
-        private static void BootstrapLib(PlasticContext context)
+        public static object Run(string code,PlasticContext context)
+        {
+            var res = PlasticParser.Statements.Parse(code);
+            return res.Eval(context);
+        }
+
+        public static void BootstrapLib(PlasticContext context)
         {
             var lib = @"
 for := func (init.ref , guard.ref, step.ref, body.ref)
@@ -153,7 +156,7 @@ switch :=  func(exp, body.ref)
             libCode.Eval(context);
         }
 
-        private static PlasticContext SetupCoreSymbols()
+        public static PlasticContext SetupCoreSymbols()
         {
             var exit = new object();
             var context = new PlasticContextImpl();
@@ -384,6 +387,9 @@ switch :=  func(exp, body.ref)
             context.Declare("mixin", mixin);
             context.Declare("class", @class);
             context.Declare("using", @using);
+            
+            BootstrapLib(context);
+
             return context;
         }
     }
