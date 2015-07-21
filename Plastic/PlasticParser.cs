@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using PlasticLang.Ast;
 using Sprache;
@@ -7,17 +8,17 @@ namespace PlasticLang
 {
     public class PlasticParser
     {
-        public static Parser<IOption<char>> Separator = Parse.Char(',').Or(Parse.Char(';')).Optional().Token();
+        public static Parser<IOption<char>> Separator = Parse.Char(',').Or(Parse.Char(';')).Optional().PlasticToken();
  
         public static Parser<BinaryOperator> BinOp(string op, BinaryOperator node)
         {
-            return Parse.String(op).Token().Return(node);
+            return Parse.String(op).PlasticToken().Return(node);
         }
 
         private static Parser<QuotedString> MakeString(char quote)
         {
             return (from str in Parse.CharExcept(quote).Many().Contained(Parse.Char(quote), Parse.Char(quote))
-                select new QuotedString(new string(str.ToArray()))).Token();
+                select new QuotedString(new string(str.ToArray()))).PlasticToken();
         }
 
         private static IExpression CreateInvocations(IExpression head, TupleValue[] argsList, Statements body)
@@ -39,11 +40,11 @@ namespace PlasticLang
             (from first in Parse.Letter.Once().Text()
                 from rest in Parse.LetterOrDigit.Many().Text()
                 select new Identifier(first + rest))
-                .Token();
+                .PlasticToken();
 
         public static readonly Parser<Number> Number =
             (from numb in Parse.DecimalInvariant
-                select new Number(numb)).Token();
+                select new Number(numb)).PlasticToken();
 
         public static readonly Parser<QuotedString> QuotedString = MakeString('"').Or(MakeString('\''));
 
@@ -54,12 +55,12 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> IdentifierInc =
             from identifier in Identifier
-            from plusplus in Parse.String("++").Token()
+            from plusplus in Parse.String("++").PlasticToken()
             select new Assignment(identifier, new BinaryExpression(identifier, new AddBinary(), new Number("1")));
 
         public static readonly Parser<IExpression> IdentifierDec =
             from identifier in Identifier
-            from plusplus in Parse.String("--").Token()
+            from plusplus in Parse.String("--").PlasticToken()
             select new Assignment(identifier, new BinaryExpression(identifier, new SubtractBnary(), new Number("1")));
 
         public static readonly Parser<IExpression> Value =
@@ -100,13 +101,13 @@ namespace PlasticLang
                     .Or(LessThanOperator),
                 Term, (o, l, r) => new BinaryExpression(l, o, r));
 
-        public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').Token(),
+        public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
             Parse.Ref(() => Compare), (o, l, r) =>
                 new Assignment(l, r));
 
         public static readonly Parser<IExpression> LetAssign =
             from cells in Identifier.Once()
-            from assignOp in Parse.String(":=").Token()
+            from assignOp in Parse.String(":=").PlasticToken()
             from expression in Parse.Ref(() => Expression)
             select new LetAssignment(cells, expression);
 
@@ -118,7 +119,7 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> TerminatedStatement =
             from exp in Parse.Ref(() => Expression)
-            from _ in Separator.Optional().Token()
+            from _ in Separator.Optional().PlasticToken()
             select exp;
 
         public static readonly Parser<IExpression> Statement =
@@ -129,9 +130,9 @@ namespace PlasticLang
             select new Statements(statements);
 
         public static readonly Parser<Statements> Body =
-            from lbrace in Parse.Char('{').Token()
+            from lbrace in Parse.Char('{').PlasticToken()
             from statements in Statements
-            from rbrace in Parse.Char('}').Token()
+            from rbrace in Parse.Char('}').PlasticToken()
             select statements;
 
         public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Expression);
@@ -140,13 +141,13 @@ namespace PlasticLang
             Expression
                 .DelimitedBy(Separator)
                 .Optional()
-                .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
+                .Contained(Parse.Char('(').PlasticToken(), Parse.Char(')').PlasticToken())
                 .Select(o => o.GetOrDefault())
                 .Or(Identifier.Once());
 
         public static readonly Parser<IExpression> LambdaDeclaration =
             from args in LambdaArgs
-            from arrow in Parse.String("=>").Token()
+            from arrow in Parse.String("=>").PlasticToken()
             from body in Parse.Ref(() => LambdaBody)
             select new Invocation(new Identifier("func"), new TupleValue(args), body);
 
@@ -154,14 +155,14 @@ namespace PlasticLang
             Parse.Ref(() => Expression)
                 .DelimitedBy(Separator)
                 .Optional()
-                .Contained(Parse.Char('(').Token(), Parse.Char(')').Token())
+                .Contained(Parse.Char('(').PlasticToken(), Parse.Char(')').PlasticToken())
                 .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
 
         public static readonly Parser<IExpression> ArrayValue =
             Parse.Ref(() => Expression)
                 .DelimitedBy(Separator)
                 .Optional()
-                .Contained(Parse.Char('[').Token(), Parse.Char(']').Token())
+                .Contained(Parse.Char('[').PlasticToken(), Parse.Char(']').PlasticToken())
                 .Select(o => new ArrayValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
 
         public static readonly Parser<ArgsAndBody> ArgsAndBody =
@@ -177,5 +178,24 @@ namespace PlasticLang
             from args in TupleValue.Many()
             from body in Body.Optional()
             select CreateInvocations(head, args.ToArray(), body.GetOrDefault());
+    }
+
+    public static class ParseExtensions
+    {
+        private static readonly CommentParser Comments = new CommentParser("//", "/*", "*/",Environment.NewLine);
+
+        private static readonly Parser<string> Ws =
+            from _ in Parse.WhiteSpace.Many()
+            from c in Comments.AnyComment.Optional()
+            from __ in Parse.WhiteSpace.Many()
+            select "";
+        
+        public static Parser<T> PlasticToken<T>(this Parser<T> self)
+        {
+            return from _ in Ws
+                from item in self
+                from __ in Ws
+                select item;
+        }
     }
 }
