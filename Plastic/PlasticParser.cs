@@ -183,7 +183,6 @@ namespace PlasticLang
     public static class ParseExtensions
     {
         private static readonly CommentParser Comments = new CommentParser("//", "/*", "*/",Environment.NewLine);
-
         private static readonly Parser<string> Ws =
             from _ in Parse.WhiteSpace.Many()
             from c in Comments.AnyComment.Optional()

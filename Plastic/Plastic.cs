@@ -373,6 +373,13 @@ switch :=  func(exp, body.ref)
                 return type;
             };
 
+            PlasticMacro eval = (c, a) =>
+            {
+                var code = a.First().Eval(c) as string;
+                var res = Run(code, c);
+                return res;
+            };
+
             context.Declare("print", print);
             context.Declare("while", @while);
             context.Declare("each", each);
@@ -387,6 +394,7 @@ switch :=  func(exp, body.ref)
             context.Declare("mixin", mixin);
             context.Declare("class", @class);
             context.Declare("using", @using);
+            context.Declare("eval", eval);
             
             BootstrapLib(context);
 
