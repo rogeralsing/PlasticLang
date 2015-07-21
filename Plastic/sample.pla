@@ -13,7 +13,7 @@ Console.WriteLine('.NET interop!!');
 
 tuple       := ('hello' 'this' 'is' 'a' 'tuple')
 arr         := ['hello' 'this' 'is' 'an' 'array']
-statements  := {'hello' 'this' 'is' 'a' 'body'}
+statements  := {'hello' 'this' 'is' 'a' 'body'}     //this will result in "body" as statements are evaluated directly
 
 
 print (arr.1);
@@ -137,3 +137,8 @@ Console := using (System.Console);
 Console.WriteLine('Name?');
 name = Console.ReadLine();
 Console.WriteLine('Hello {0}', name);
+
+{(body.ref) => body()}{print ('strange')}
+
+code = 'print("I am eval!!")'
+eval(code)
