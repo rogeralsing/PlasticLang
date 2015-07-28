@@ -409,9 +409,121 @@ switch :=  func(exp, body.ref)
                 var left = a.ElementAt(0) as Identifier;
                 var right = a.ElementAt(1);
 
-                var value = right.Eval(context);
+                var value = right.Eval(c);
                 context.Declare(left.Value, value);
                 return value;
+            };
+
+            PlasticMacro add = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) + ((dynamic)right.Eval(c));                
+            };
+
+            PlasticMacro sub = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) - ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro mul = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) * ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro div = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) / ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro eq = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) == ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro neq = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) != ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro gt = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) > ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro gteq = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) >= ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro lt = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) < ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro lteq = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) <= ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro dotop = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                var l = left.Eval(c);
+
+                var arr = l as object[];
+                if (arr != null)
+                {
+                    var arrayContext = new ArrayContext(arr, c);
+                    return right.Eval(arrayContext);
+                }
+
+                var pobj = l as PlasticObject;
+                if (pobj != null)
+                {
+                    return right.Eval(pobj.Context);
+                }
+
+                var type = l as Type;
+                if (type != null)
+                {
+                    var typeContext = new TypeContext(type, c);
+                    return right.Eval(typeContext);
+                }
+
+
+                var objContext = new InstanceContext(l, c);
+                return right.Eval(objContext);
             };
 
             context.Declare("print", print);
@@ -431,6 +543,18 @@ switch :=  func(exp, body.ref)
             context.Declare("eval", eval);
             context.Declare("assign", assign);
             context.Declare("def", def);
+            context.Declare("add", add);
+            context.Declare("sub", sub);
+            context.Declare("mul", mul);
+            context.Declare("div", div);
+            context.Declare("div", div);
+            context.Declare("eq", eq);
+            context.Declare("neq", neq);
+            context.Declare("gt", gt);
+            context.Declare("gteq", gteq);
+            context.Declare("lt", lt);
+            context.Declare("lteq", lteq);
+            context.Declare("dot", dotop);
             
             BootstrapLib(context);
 

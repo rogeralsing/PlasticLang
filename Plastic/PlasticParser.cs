@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using PlasticLang.Ast;
 using Sprache;
 
@@ -14,6 +15,11 @@ namespace PlasticLang
         public static Parser<BinaryOperator> BinOp(string op, BinaryOperator node)
         {
             return Parse.String(op).PlasticToken().Return(node);
+        }
+
+        public static Parser<string> BinOps(string op, string name)
+        {
+            return Parse.String(op).PlasticToken().Return(name);
         }
 
         private static Parser<QuotedString> MakeString(char quote)
@@ -57,12 +63,12 @@ namespace PlasticLang
         public static readonly Parser<IExpression> IdentifierInc =
             from identifier in Identifier
             from plusplus in Parse.String("++").PlasticToken()
-            select new Invocation("assign", identifier, new BinaryExpression(identifier, new AddBinary(), new Number("1")));
+            select new Invocation("assign", identifier, new Invocation("add", identifier,new Number("1")));
 
         public static readonly Parser<IExpression> IdentifierDec =
             from identifier in Identifier
             from plusplus in Parse.String("--").PlasticToken()
-            select new Invocation("assign", identifier, new BinaryExpression(identifier, new SubtractBnary(), new Number("1")));
+            select new Invocation("assign", identifier, new Invocation("sub", identifier, new Number("1")));
 
         public static readonly Parser<IExpression> Value =
                     Parse.Ref(() => TupleValue)
@@ -72,26 +78,26 @@ namespace PlasticLang
                 .Or(Parse.Ref(() => Literal))
                 .Or(Parse.Ref(() => Body));
 
-        public static readonly Parser<BinaryOperator> MultiplyOperator = BinOp("*", new MultiplyBinary());
-        public static readonly Parser<BinaryOperator> DivideOperator = BinOp("/", new DivideBinary());
-        public static readonly Parser<BinaryOperator> AddOperator = BinOp("+", new AddBinary());
-        public static readonly Parser<BinaryOperator> SubtractOperator = BinOp("-", new SubtractBnary());
-        public static readonly Parser<BinaryOperator> EqualsOperator = BinOp("==", new EqualsBinary());
-        public static readonly Parser<BinaryOperator> NotEqualsOperator = BinOp("!=", new NotEqualsBinary());
-        public static readonly Parser<BinaryOperator> GreaterThanOperator = BinOp(">", new GreaterThanBinary());
-        public static readonly Parser<BinaryOperator> GreateerOrEqualOperator = BinOp(">=", new GreaterOrEqualBinary());
-        public static readonly Parser<BinaryOperator> LessThanOperator = BinOp("<", new LessThanBinary());
-        public static readonly Parser<BinaryOperator> LessOrEqualOperator = BinOp("<=", new LessOrEqualBinary());
+        public static readonly Parser<string> MultiplyOperator = BinOps("*", "mul");
+        public static readonly Parser<string> DivideOperator = BinOps("/", "div");
+        public static readonly Parser<string> AddOperator = BinOps("+", "add");
+        public static readonly Parser<string> SubtractOperator = BinOps("-", "sub");
+        public static readonly Parser<string> EqualsOperator = BinOps("==", "eq");
+        public static readonly Parser<string> NotEqualsOperator = BinOps("!=", "neq");
+        public static readonly Parser<string> GreaterThanOperator = BinOps(">", "gt");
+        public static readonly Parser<string> GreateerOrEqualOperator = BinOps(">=", "gteq");
+        public static readonly Parser<string> LessThanOperator = BinOps("<", "lt");
+        public static readonly Parser<string> LessOrEqualOperator = BinOps("<=", "lteq");
         public static readonly Parser<BinaryOperator> DotOperator = BinOp(".", new DotBinary());
 
         public static readonly Parser<IExpression> DotTerm = Parse.ChainOperator(DotOperator,
             Parse.Ref(() => InvocationOrValue), (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
-            Parse.Ref(() => DotTerm), (o, l, r) => new BinaryExpression(l, o, r));
+            Parse.Ref(() => DotTerm), (o, l, r) => new Invocation(o, l, r));
 
         public static readonly Parser<IExpression> Term = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
-            InnerTerm, (o, l, r) => new BinaryExpression(l, o, r));
+            InnerTerm, (o, l, r) => new Invocation(o, l, r));
 
         public static readonly Parser<IExpression> Compare =
             Parse.ChainOperator(
@@ -100,7 +106,7 @@ namespace PlasticLang
                     .Or(GreaterThanOperator)
                     .Or(LessOrEqualOperator)
                     .Or(LessThanOperator),
-                Term, (o, l, r) => new BinaryExpression(l, o, r));
+                Term, (o, l, r) => new Invocation(o, l, r));
 
         public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
             Parse.Ref(() => Compare), (o, l, r) =>
