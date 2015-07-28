@@ -16,5 +16,10 @@ namespace PlasticLang.Ast
         {
             return Items.Select(i => i.Eval(context)).ToArray();
         }
+
+        public override string ToString()
+        {
+            return string.Format("[{0}]", string.Join(",", Items.Select(i => i.ToString())));
+        }
     }
 }

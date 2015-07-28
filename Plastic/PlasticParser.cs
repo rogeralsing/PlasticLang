@@ -47,11 +47,11 @@ namespace PlasticLang
                 {
                     args = args.Union(Enumerable.Repeat(body, 1)).ToArray();
                 }
-                current = new Invocation(current, args);
+                current = new ListValue(current.Union(args));
             }
             if (argsList.Length == 0 && body != null)
             {
-                current = new Invocation(current, body);
+                current = new ListValue(current, body);
             }
             return current;
         }
@@ -78,12 +78,12 @@ namespace PlasticLang
         public static readonly Parser<IExpression> IdentifierInc =
             from symbol in Symbol
             from plusplus in Parse.String("++").PlasticToken()
-            select Invocation.CallFunction("assign", symbol, Invocation.CallFunction("_add", symbol, Ast.Number.One));
+            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_add", symbol, Ast.Number.One));
 
         public static readonly Parser<IExpression> IdentifierDec =
             from symbol in Symbol
             from plusplus in Parse.String("--").PlasticToken()
-            select Invocation.CallFunction("assign", symbol, Invocation.CallFunction("_sub", symbol, Ast.Number.One));
+            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_sub", symbol, Ast.Number.One));
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
@@ -99,10 +99,10 @@ namespace PlasticLang
             Parse.Ref(() => InvocationOrValue), (o, l, r) => new BinaryExpression(l, o, r));
 
         public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
-            Parse.Ref(() => DotTerm), (o, l, r) => Invocation.CallFunction(o, l, r));
+            Parse.Ref(() => DotTerm), (o, l, r) => ListValue.CallFunction(o, l, r));
 
         public static readonly Parser<IExpression> Term = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
-            InnerTerm, (o, l, r) => Invocation.CallFunction(o, l, r));
+            InnerTerm, (o, l, r) => ListValue.CallFunction(o, l, r));
 
         public static readonly Parser<IExpression> Compare =
             Parse.ChainOperator(
@@ -111,17 +111,17 @@ namespace PlasticLang
                     .Or(GreaterThanOperator)
                     .Or(LessOrEqualOperator)
                     .Or(LessThanOperator),
-                Term, (o, l, r) => Invocation.CallFunction(o, l, r));
+                Term, (o, l, r) => ListValue.CallFunction(o, l, r));
 
         public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
             Parse.Ref(() => Compare), (o, l, r) =>
-                Invocation.CallFunction("assign", l, r));
+                ListValue.CallFunction("assign", l, r));
 
         public static readonly Parser<IExpression> LetAssign =
             from symbol in Symbol
             from assignOp in Parse.String(":=").PlasticToken()
             from expression in Parse.Ref(() => Expression)
-            select Invocation.CallFunction("def", symbol, expression);
+            select ListValue.CallFunction("def", symbol, expression);
 
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
@@ -162,7 +162,7 @@ namespace PlasticLang
             from args in LambdaArgs
             from arrow in Parse.String("=>").PlasticToken()
             from body in Parse.Ref(() => LambdaBody).Once()
-            select Invocation.CallFunction("func", args.Union(body).ToArray());
+            select ListValue.CallFunction("func", args.Union(body).ToArray());
 
         public static readonly Parser<TupleValue> TupleValue =
             Parse.Ref(() => Expression)
