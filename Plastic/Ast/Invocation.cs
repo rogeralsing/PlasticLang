@@ -5,10 +5,8 @@ namespace PlasticLang.Ast
 {
     public class Invocation : IExpression
     {
-        public Invocation(string name, params IExpression[] args)
+        public Invocation(string name, params IExpression[] args) : this(new Identifier(name),args)
         {
-            Head = new Identifier(name);
-            Args = args;
         }
 
         public Invocation(IExpression head, params IExpression[] args)
