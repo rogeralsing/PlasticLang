@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace PlasticLang.Ast
 {
     public class Invocation : IExpression
     {
-        public Invocation(IExpression head, TupleValue args, IExpression body)
+        public Invocation(IExpression head, params IExpression[] args)
+        {
+            Head = head;
+            Args = args;
+        }
+
+        public Invocation(IExpression head, TupleValue args, IExpression body = null)
         {
             Head = head;
             var tmp = args != null ? args.Items : new IExpression[0];

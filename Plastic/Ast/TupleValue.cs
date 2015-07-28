@@ -5,6 +5,11 @@ namespace PlasticLang.Ast
 {
     public class TupleValue : IExpression
     {
+        public TupleValue(params IExpression[] items)
+        {
+            Items = items;
+        }
+
         public TupleValue(IEnumerable<IExpression> items)
         {
             Items = items.ToArray();
