@@ -18,12 +18,8 @@ namespace PlasticLang
         public static readonly Parser<string> GreateerOrEqualOperator = BinOps(">=", "_gteq");
         public static readonly Parser<string> LessThanOperator = BinOps("<", "_lt");
         public static readonly Parser<string> LessOrEqualOperator = BinOps("<=", "_lteq");
-        public static readonly Parser<BinaryOperator> DotOperator = BinOp(".", new DotBinary());
+        public static readonly Parser<string> DotOperator = BinOps(".", "_dot");
 
-        public static Parser<BinaryOperator> BinOp(string op, BinaryOperator node)
-        {
-            return Parse.String(op).PlasticToken().Return(node);
-        }
 
         public static Parser<string> BinOps(string op, string name)
         {
@@ -94,7 +90,7 @@ namespace PlasticLang
                 .Or(Parse.Ref(() => Body));
 
         public static readonly Parser<IExpression> DotTerm = Parse.ChainOperator(DotOperator,
-            Parse.Ref(() => InvocationOrValue), (o, l, r) => new BinaryExpression(l, o, r));
+            Parse.Ref(() => InvocationOrValue), (o, l, r) =>  ListValue.CallFunction("_dot",l,r));
 
         public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
             Parse.Ref(() => DotTerm), (o, l, r) => ListValue.CallFunction(o, l, r));

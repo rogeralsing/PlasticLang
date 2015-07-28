@@ -374,7 +374,7 @@ switch :=  func(exp, @body)
                 var right = a.ElementAt(1);
 
                 var value = right.Eval(c);
-                var dot = left as BinaryExpression;
+                
                 var assignee = left as Symbol;
 
                 if (assignee != null)
@@ -382,10 +382,11 @@ switch :=  func(exp, @body)
                     c[assignee.Value] = value;
                 }
 
+                var dot = left as ListValue;
                 if (dot != null)
                 {
-                    var obj = dot.Left.Eval(c) as PlasticObject;
-                    var memberId = dot.Right as Symbol;
+                    var obj = dot.Args.ElementAt(0).Eval(c) as PlasticObject;
+                    var memberId = dot.Args.ElementAt(1) as Symbol;
                     obj[memberId.Value] = value;
                 }
 
