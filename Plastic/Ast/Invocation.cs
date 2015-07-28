@@ -4,7 +4,7 @@ namespace PlasticLang.Ast
 {
     public class Invocation : IExpression
     {
-        public Invocation(string name, params IExpression[] args) : this(new Identifier(name),args)
+        public Invocation(string name, params IExpression[] args) : this(new Symbol(name),args)
         {
         }
 

@@ -51,7 +51,7 @@
     <Compile Include="Ast\ArrayValue.cs" />
     <Compile Include="Ast\BinaryExpression.cs" />
     <Compile Include="Ast\BinaryOperator.cs" />
-    <Compile Include="Ast\Identifier.cs" />
+    <Compile Include="Ast\Symbol.cs" />
     <Compile Include="Ast\IExpresson.cs" />
     <Compile Include="Ast\Invocation.cs" />
     <Compile Include="Ast\IStringLiteral.cs" />

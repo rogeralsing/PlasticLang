@@ -242,7 +242,7 @@ switch :=  func(exp, body.ref)
 
             PlasticMacro each = (c, a) =>
             {
-                var v = a[0] as Identifier;
+                var v = a[0] as Symbol;
                 var body = a[2];
 
                 var enumerable = a[1].Eval(c) as IEnumerable;
@@ -262,16 +262,16 @@ switch :=  func(exp, body.ref)
             {      
                 var Args = a.Take(a.Length - 1).Select(arg =>
                 {
-                    var identifier = arg as Identifier;
-                    if (identifier != null)
+                    var symbol = arg as Symbol;
+                    if (symbol != null)
                     {
-                        return new Argument(identifier.Value, ArgumentType.Value);
+                        return new Argument(symbol.Value, ArgumentType.Value);
                     }
                     var dot = arg as BinaryExpression;
                     if (dot != null)
                     {
-                        var id = dot.Left as Identifier;
-                        var type = dot.Right as Identifier;
+                        var id = dot.Left as Symbol;
+                        var type = dot.Right as Symbol;
                         var argType = ArgumentType.Value;
                         if (type.Value == "ref")
                             argType = ArgumentType.Expression;
@@ -328,7 +328,7 @@ switch :=  func(exp, body.ref)
 
                     for (var i = 0; i < a.Length - 1; i++)
                     {
-                        var argName = a[i] as Identifier; //TODO: add support for expressions and partial appl
+                        var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
                         thisContext.Declare(argName.Value, args[i].Eval(ctx));
                     }
 
@@ -350,7 +350,7 @@ switch :=  func(exp, body.ref)
 
                     for (var i = 0; i < a.Length - 1; i++)
                     {
-                        var argName = a[i] as Identifier; //TODO: add support for expressions and partial appl
+                        var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
                         thisContext.Declare(argName.Value, args[i].Eval(ctx));
                     }
 
@@ -382,7 +382,7 @@ switch :=  func(exp, body.ref)
 
                 var value = right.Eval(c);
                 var dot = left as BinaryExpression;
-                var assignee = left as Identifier;
+                var assignee = left as Symbol;
 
                 if (assignee != null)
                 {
@@ -392,7 +392,7 @@ switch :=  func(exp, body.ref)
                 if (dot != null)
                 {
                     var obj = dot.Left.Eval(c) as PlasticObject;
-                    var memberId = dot.Right as Identifier;
+                    var memberId = dot.Right as Symbol;
                     obj[memberId.Value] = value;
                 }
 
@@ -401,7 +401,7 @@ switch :=  func(exp, body.ref)
 
             PlasticMacro def = (c, a) =>
             {
-                var left = a.ElementAt(0) as Identifier;
+                var left = a.ElementAt(0) as Symbol;
                 var right = a.ElementAt(1);
 
                 var value = right.Eval(c);

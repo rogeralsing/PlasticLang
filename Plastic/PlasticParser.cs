@@ -58,10 +58,10 @@ namespace PlasticLang
 
         public static Parser<IOption<char>> Separator = Parse.Char(',').Or(Parse.Char(';')).Optional().PlasticToken();
 
-        public static readonly Parser<Identifier> Identifier =
+        public static readonly Parser<Symbol> Symbol =
             (from first in Parse.Letter.Or(Parse.Chars('_', '@')).Once().Text()
                 from rest in Parse.LetterOrDigit.Or(Parse.Chars('!', '?', '_')).Many().Text()
-                select new Identifier(first + rest))
+                select new Symbol(first + rest))
                 .PlasticToken();
 
         public static readonly Parser<Number> Number =
@@ -71,19 +71,19 @@ namespace PlasticLang
         public static readonly Parser<QuotedString> QuotedString = MakeString('"').Or(MakeString('\''));
 
         public static readonly Parser<IExpression> Literal =
-            Identifier.Select(x => x as IExpression)
+            Symbol.Select(x => x as IExpression)
                 .Or(Number)
                 .Or(QuotedString);
 
         public static readonly Parser<IExpression> IdentifierInc =
-            from identifier in Identifier
+            from symbol in Symbol
             from plusplus in Parse.String("++").PlasticToken()
-            select new Invocation("assign", identifier, new Invocation("_add", identifier, new Number("1")));
+            select new Invocation("assign", symbol, new Invocation("_add", symbol, new Number("1")));
 
         public static readonly Parser<IExpression> IdentifierDec =
-            from identifier in Identifier
+            from symbol in Symbol
             from plusplus in Parse.String("--").PlasticToken()
-            select new Invocation("assign", identifier, new Invocation("_sub", identifier, new Number("1")));
+            select new Invocation("assign", symbol, new Invocation("_sub", symbol, new Number("1")));
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
@@ -118,10 +118,10 @@ namespace PlasticLang
                 new Invocation("assign", l, r));
 
         public static readonly Parser<IExpression> LetAssign =
-            from identifier in Identifier
+            from symbol in Symbol
             from assignOp in Parse.String(":=").PlasticToken()
             from expression in Parse.Ref(() => Expression)
-            select new Invocation("def", identifier, expression);
+            select new Invocation("def", symbol, expression);
 
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
@@ -156,7 +156,7 @@ namespace PlasticLang
                 .Optional()
                 .Contained(Parse.Char('(').PlasticToken(), Parse.Char(')').PlasticToken())
                 .Select(o => o.GetOrDefault())
-                .Or(Identifier.Once());
+                .Or(Symbol.Once());
 
         public static readonly Parser<IExpression> LambdaDeclaration =
             from args in LambdaArgs

@@ -1,8 +1,8 @@
 ﻿namespace PlasticLang.Ast
 {
-    public class Identifier : IExpression , IStringLiteral
+    public class Symbol : IExpression , IStringLiteral
     {
-        public Identifier(string value)
+        public Symbol(string value)
         {
             Value = value;
         }
