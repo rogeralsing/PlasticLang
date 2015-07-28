@@ -31,12 +31,17 @@ namespace PlasticLang
             var current = head;
             for (var i = 0; i < argsList.Length; i++)
             {
-                var args = argsList[i];
-                current = new Invocation(current, args, i == argsList.Length - 1 ? body : null);
+                var tuple = argsList[i];
+                var args = tuple.Items;
+                if (i == argsList.Length - 1 && body != null)
+                {
+                    args = args.Union(Enumerable.Repeat(body, 1)).ToArray();
+                }
+                current = new Invocation(current, args);
             }
             if (argsList.Length == 0 && body != null)
             {
-                current = new Invocation(current, null, body);
+                current = new Invocation(current, body);
             }
             return current;
         }
@@ -153,8 +158,9 @@ namespace PlasticLang
         public static readonly Parser<IExpression> LambdaDeclaration =
             from args in LambdaArgs
             from arrow in Parse.String("=>").PlasticToken()
-            from body in Parse.Ref(() => LambdaBody)
-            select new Invocation("func", new TupleValue(args), body);
+            from body in Parse.Ref(() => LambdaBody).Once()
+            select 
+            new Invocation("func", args.Union(body).ToArray());
 
         public static readonly Parser<TupleValue> TupleValue =
             Parse.Ref(() => Expression)

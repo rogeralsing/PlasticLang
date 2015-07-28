@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace PlasticLang.Ast
 {
@@ -14,22 +15,6 @@ namespace PlasticLang.Ast
         {
             Head = head;
             Args = args;
-        }
-        public Invocation(string name, TupleValue args, IExpression body = null) : this(new Identifier(name),args,body)
-        {
-        }
-
-        public Invocation(IExpression head, TupleValue args, IExpression body = null)
-        {
-            Head = head;
-            var tmp = args != null ? args.Items : new IExpression[0];
-
-            if (body != null)
-            {
-                var oneBody = Enumerable.Repeat(body, 1).ToArray();
-                tmp = tmp.Union(oneBody).ToArray();
-            }
-            Args = tmp.ToArray();
         }
 
         public IExpression[] Args { get; set; }
