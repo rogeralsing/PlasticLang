@@ -286,7 +286,7 @@ switch :=  func(exp, body.ref)
                 op = (callingContext, args) =>
                 {
                     //full application
-                    if (args.Length == Args.Length)
+                    if (args.Length >= Args.Length)
                     {
                         //create context for this invocation
                         var invocationScope =  new PlasticContextImpl(callingContext);
@@ -538,18 +538,18 @@ switch :=  func(exp, body.ref)
             context.Declare("eval", eval);
             context.Declare("assign", assign);
             context.Declare("def", def);
-            context.Declare("add", add);
-            context.Declare("sub", sub);
-            context.Declare("mul", mul);
-            context.Declare("div", div);
-            context.Declare("div", div);
-            context.Declare("eq", eq);
-            context.Declare("neq", neq);
-            context.Declare("gt", gt);
-            context.Declare("gteq", gteq);
-            context.Declare("lt", lt);
-            context.Declare("lteq", lteq);
-            context.Declare("dot", dotop);
+            context.Declare("_add", add);
+            context.Declare("_sub", sub);
+            context.Declare("_mul", mul);
+            context.Declare("_div", div);
+            context.Declare("_div", div);
+            context.Declare("_eq", eq);
+            context.Declare("_neq", neq);
+            context.Declare("_gt", gt);
+            context.Declare("_gteq", gteq);
+            context.Declare("_lt", lt);
+            context.Declare("_lteq", lteq);
+            context.Declare("_dot", dotop);
             
             BootstrapLib(context);
 
