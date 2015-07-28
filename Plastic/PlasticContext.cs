@@ -10,9 +10,9 @@ namespace PlasticLang
 
     public abstract class PlasticContext
     {
-        public abstract object Number(Number number);
+        public abstract object Number(NumberLiteral numberLiteral);
 
-        public abstract object QuotedString(QuotedString quotedString);
+        public abstract object QuotedString(StringLiteral stringLiteral);
 
 
         public abstract object Invoke(IExpression head, IExpression[] args);
@@ -118,14 +118,14 @@ namespace PlasticLang
             throw new NotImplementedException();
         }
 
-        public override object Number(Number number)
+        public override object Number(NumberLiteral numberLiteral)
         {
-            return number.Value;
+            return numberLiteral.Value;
         }
 
-        public override object QuotedString(QuotedString quotedString)
+        public override object QuotedString(StringLiteral stringLiteral)
         {
-            return quotedString.Value;
+            return stringLiteral.Value;
         }
     }
 
@@ -183,12 +183,12 @@ namespace PlasticLang
             throw new Exception("No matching method found.");
         }
 
-        public override object Number(Number number)
+        public override object Number(NumberLiteral numberLiteral)
         {
             throw new NotImplementedException();
         }
 
-        public override object QuotedString(QuotedString quotedString)
+        public override object QuotedString(StringLiteral stringLiteral)
         {
             throw new NotImplementedException();
         }
@@ -207,7 +207,7 @@ namespace PlasticLang
 
         public override object Invoke(IExpression head, IExpression[] args)
         {
-            var index = (int)(head as Number).Value;
+            var index = (int)(head as NumberLiteral).Value;
             var evaluatedArgs = args.Select(a => a.Eval(_owner)).ToArray();
 
             return _array[index];
@@ -237,15 +237,15 @@ namespace PlasticLang
             throw new NotImplementedException();
         }
 
-        public override object Number(Number number)
+        public override object Number(NumberLiteral numberLiteral)
         {
-            var index = (int) number.Value;
+            var index = (int) numberLiteral.Value;
             return _array[index];
         }
 
-        public override object QuotedString(QuotedString quotedString)
+        public override object QuotedString(StringLiteral stringLiteral)
         {
-            return this[quotedString.Value];
+            return this[stringLiteral.Value];
         }
     }
 
@@ -310,14 +310,14 @@ namespace PlasticLang
             throw new NotImplementedException();
         }
 
-        public override object Number(Number number)
+        public override object Number(NumberLiteral numberLiteral)
         {
             throw new NotImplementedException();
         }
 
-        public override object QuotedString(QuotedString quotedString)
+        public override object QuotedString(StringLiteral stringLiteral)
         {
-            return this[quotedString.Value];
+            return this[stringLiteral.Value];
         }
     }
 }

@@ -364,7 +364,7 @@ switch :=  func(exp, body.ref)
 
             PlasticMacro @using = (c, a) =>
             {
-                var path = a.First() as QuotedString;
+                var path = a.First() as StringLiteral;
                 Type type = Type.GetType(path.Value);
                 return type;
             };

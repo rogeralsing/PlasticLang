@@ -2,16 +2,16 @@
 
 namespace PlasticLang.Ast
 {
-    public class Number : IExpression
+    public class NumberLiteral : IExpression
     {
-        public static readonly Number One = new Number(1m);
+        public static readonly NumberLiteral One = new NumberLiteral(1m);
 
-        public Number(decimal numb)
+        public NumberLiteral(decimal numb)
         {
             Value = numb;
         }
 
-        public Number(string numb)
+        public NumberLiteral(string numb)
         {
             Value = decimal.Parse(numb, NumberFormatInfo.InvariantInfo);
         }

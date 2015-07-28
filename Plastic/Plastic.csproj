@@ -56,7 +56,7 @@
     <Compile Include="Ast\IExpresson.cs" />
     <Compile Include="Ast\ListValue.cs" />
     <Compile Include="Ast\IStringLiteral.cs" />
-    <Compile Include="Ast\Number.cs" />
+    <Compile Include="Ast\NumberLiteral.cs" />
     <Compile Include="PlasticContext.cs" />
     <Compile Include="PlasticFunction.cs" />
     <Compile Include="PlasticObject.cs" />
@@ -65,7 +65,7 @@
     <Compile Include="PlasticParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Ast\QuotedString.cs" />
+    <Compile Include="Ast\StringLiteral.cs" />
     <Compile Include="Ast\TupleValue.cs" />
   </ItemGroup>
   <ItemGroup>

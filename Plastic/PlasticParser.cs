@@ -30,10 +30,10 @@ namespace PlasticLang
             return Parse.String(op).PlasticToken().Return(name);
         }
 
-        private static Parser<QuotedString> MakeString(char quote)
+        private static Parser<StringLiteral> MakeString(char quote)
         {
             return (from str in Parse.CharExcept(quote).Many().Contained(Parse.Char(quote), Parse.Char(quote))
-                select new QuotedString(new string(str.ToArray()))).PlasticToken();
+                select new StringLiteral(new string(str.ToArray()))).PlasticToken();
         }
 
         private static IExpression CreateInvocations(IExpression head, TupleValue[] argsList, Statements body)
@@ -64,11 +64,11 @@ namespace PlasticLang
                 select new Symbol(first + rest))
                 .PlasticToken();
 
-        public static readonly Parser<Number> Number =
+        public static readonly Parser<NumberLiteral> Number =
             (from numb in Parse.DecimalInvariant
-                select new Number(numb)).PlasticToken();
+                select new NumberLiteral(numb)).PlasticToken();
 
-        public static readonly Parser<QuotedString> QuotedString = MakeString('"').Or(MakeString('\''));
+        public static readonly Parser<StringLiteral> QuotedString = MakeString('"').Or(MakeString('\''));
 
         public static readonly Parser<IExpression> Literal =
             Symbol.Select(x => x as IExpression)
@@ -78,12 +78,12 @@ namespace PlasticLang
         public static readonly Parser<IExpression> IdentifierInc =
             from symbol in Symbol
             from plusplus in Parse.String("++").PlasticToken()
-            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_add", symbol, Ast.Number.One));
+            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_add", symbol, Ast.NumberLiteral.One));
 
         public static readonly Parser<IExpression> IdentifierDec =
             from symbol in Symbol
             from plusplus in Parse.String("--").PlasticToken()
-            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_sub", symbol, Ast.Number.One));
+            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_sub", symbol, Ast.NumberLiteral.One));
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
