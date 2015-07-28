@@ -380,6 +380,30 @@ switch :=  func(exp, body.ref)
                 return res;
             };
 
+            PlasticMacro def = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                var value = right.Eval(c);
+                var dot = left as BinaryExpression;
+                var assignee = left as Identifier;
+
+                if (assignee != null)
+                {
+                    c[assignee.Value] = value;
+                }
+
+                if (dot != null)
+                {
+                    var obj = dot.Left.Eval(c) as PlasticObject;
+                    var memberId = dot.Right as Identifier;
+                    obj[memberId.Value] = value;
+                }
+
+                return value;
+            };
+
             context.Declare("print", print);
             context.Declare("while", @while);
             context.Declare("each", each);
@@ -395,6 +419,7 @@ switch :=  func(exp, body.ref)
             context.Declare("class", @class);
             context.Declare("using", @using);
             context.Declare("eval", eval);
+            context.Declare("def", def);
             
             BootstrapLib(context);
 

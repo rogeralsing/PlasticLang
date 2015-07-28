@@ -50,7 +50,6 @@
     <Compile Include="Ast\ArgsAndBody.cs" />
     <Compile Include="Argument.cs" />
     <Compile Include="Ast\ArrayValue.cs" />
-    <Compile Include="Ast\Assignment.cs" />
     <Compile Include="Ast\BinaryExpression.cs" />
     <Compile Include="Ast\BinaryOperator.cs" />
     <Compile Include="Ast\Identifier.cs" />
