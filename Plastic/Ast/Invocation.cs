@@ -1,11 +1,13 @@
 ﻿using System.Linq;
+using System.Security.Policy;
 
 namespace PlasticLang.Ast
 {
     public class Invocation : IExpression
     {
-        public Invocation(string name, params IExpression[] args) : this(new Symbol(name),args)
+        public static Invocation CallFunction(string name, params IExpression[] args)
         {
+            return new Invocation(new Symbol(name), args);
         }
 
         public Invocation(IExpression head, params IExpression[] args)
