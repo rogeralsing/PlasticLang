@@ -419,7 +419,7 @@ switch :=  func(exp, body.ref)
             context.Declare("class", @class);
             context.Declare("using", @using);
             context.Declare("eval", eval);
-            context.Declare("def", def);
+            context.Declare("assign", def);
             
             BootstrapLib(context);
 

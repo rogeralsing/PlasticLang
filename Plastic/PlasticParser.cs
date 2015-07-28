@@ -56,12 +56,12 @@ namespace PlasticLang
         public static readonly Parser<IExpression> IdentifierInc =
             from identifier in Identifier
             from plusplus in Parse.String("++").PlasticToken()
-            select new Invocation(new Identifier("def"), identifier, new BinaryExpression(identifier, new AddBinary(), new Number("1")));
+            select new Invocation(new Identifier("assign"), identifier, new BinaryExpression(identifier, new AddBinary(), new Number("1")));
 
         public static readonly Parser<IExpression> IdentifierDec =
             from identifier in Identifier
             from plusplus in Parse.String("--").PlasticToken()
-            select new Invocation(new Identifier("def"), identifier, new BinaryExpression(identifier, new SubtractBnary(), new Number("1")));
+            select new Invocation(new Identifier("assign"), identifier, new BinaryExpression(identifier, new SubtractBnary(), new Number("1")));
 
         public static readonly Parser<IExpression> Value =
                     Parse.Ref(() => TupleValue)
@@ -103,7 +103,7 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
             Parse.Ref(() => Compare), (o, l, r) =>
-                new Invocation(new Identifier("def"), l, r));
+                new Invocation(new Identifier("assign"), l, r));
 
         public static readonly Parser<IExpression> LetAssign =
             from cells in Identifier.Once()
