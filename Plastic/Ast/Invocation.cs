@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace PlasticLang.Ast
 {
@@ -22,8 +21,6 @@ namespace PlasticLang.Ast
         {
             return context.Invoke(Head, Args);
         }
-
-       
 
         public override string ToString()
         {
