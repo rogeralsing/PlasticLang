@@ -4,10 +4,19 @@ namespace PlasticLang.Ast
 {
     public class Invocation : IExpression
     {
+        public Invocation(string name, params IExpression[] args)
+        {
+            Head = new Identifier(name);
+            Args = args;
+        }
+
         public Invocation(IExpression head, params IExpression[] args)
         {
             Head = head;
             Args = args;
+        }
+        public Invocation(string name, TupleValue args, IExpression body = null) : this(new Identifier(name),args,body)
+        {
         }
 
         public Invocation(IExpression head, TupleValue args, IExpression body = null)

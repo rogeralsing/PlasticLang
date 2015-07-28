@@ -56,12 +56,12 @@ namespace PlasticLang
         public static readonly Parser<IExpression> IdentifierInc =
             from identifier in Identifier
             from plusplus in Parse.String("++").PlasticToken()
-            select new Invocation(new Identifier("assign"), identifier, new BinaryExpression(identifier, new AddBinary(), new Number("1")));
+            select new Invocation("assign", identifier, new BinaryExpression(identifier, new AddBinary(), new Number("1")));
 
         public static readonly Parser<IExpression> IdentifierDec =
             from identifier in Identifier
             from plusplus in Parse.String("--").PlasticToken()
-            select new Invocation(new Identifier("assign"), identifier, new BinaryExpression(identifier, new SubtractBnary(), new Number("1")));
+            select new Invocation("assign", identifier, new BinaryExpression(identifier, new SubtractBnary(), new Number("1")));
 
         public static readonly Parser<IExpression> Value =
                     Parse.Ref(() => TupleValue)
@@ -103,13 +103,13 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
             Parse.Ref(() => Compare), (o, l, r) =>
-                new Invocation(new Identifier("assign"), l, r));
+                new Invocation("assign", l, r));
 
         public static readonly Parser<IExpression> LetAssign =
-            from cells in Identifier.Once()
+            from identifier in Identifier
             from assignOp in Parse.String(":=").PlasticToken()
             from expression in Parse.Ref(() => Expression)
-            select new LetAssignment(cells, expression);
+            select new Invocation("def", identifier, expression);
 
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
@@ -149,7 +149,7 @@ namespace PlasticLang
             from args in LambdaArgs
             from arrow in Parse.String("=>").PlasticToken()
             from body in Parse.Ref(() => LambdaBody)
-            select new Invocation(new Identifier("func"), new TupleValue(args), body);
+            select new Invocation("func", new TupleValue(args), body);
 
         public static readonly Parser<TupleValue> TupleValue =
             Parse.Ref(() => Expression)
