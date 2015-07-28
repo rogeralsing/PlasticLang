@@ -47,7 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ast\ArgsAndBody.cs" />
     <Compile Include="Argument.cs" />
     <Compile Include="Ast\ArrayValue.cs" />
     <Compile Include="Ast\BinaryExpression.cs" />

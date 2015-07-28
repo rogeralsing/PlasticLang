@@ -4,6 +4,7 @@ using System.Linq;
 using PlasticLang.Ast;
 using Sprache;
 
+
 namespace PlasticLang
 {
     public class PlasticParser
@@ -164,14 +165,6 @@ namespace PlasticLang
                 .Optional()
                 .Contained(Parse.Char('[').PlasticToken(), Parse.Char(']').PlasticToken())
                 .Select(o => new ArrayValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
-
-        public static readonly Parser<ArgsAndBody> ArgsAndBody =
-            (from args in TupleValue
-                from body in Body.Optional()
-                select new ArgsAndBody(args, body.GetOrDefault()))
-                .Or(
-                    from body in Body
-                    select new ArgsAndBody(null, body));
 
         public static readonly Parser<IExpression> InvocationOrValue =
             from head in Parse.Ref(() => Value)
