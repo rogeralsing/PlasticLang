@@ -44,6 +44,10 @@ myMacro := func (someScalar, someExpression.ref)
 }
 ```
 
+### Expressions
+
+In Plastic, everything is an expression.
+
 ### Assignment
 
 * `:=` assigns a value to a name in the current lexical scope.
