@@ -363,13 +363,8 @@ switch :=  func(exp, body.ref)
 
             PlasticMacro @using = (c, a) =>
             {
-                var arg = a.First();
-                var path = arg.ToString().Replace(" ", "");
-                Type type = Type.GetType(path);
-                var id = (arg as Identifier ?? (arg as BinaryExpression).Right as Identifier).Value;
-
-                c.Declare(id,type);
-
+                var path = a.First() as QuotedString;
+                Type type = Type.GetType(path.Value);
                 return type;
             };
 
