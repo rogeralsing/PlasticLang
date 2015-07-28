@@ -78,12 +78,12 @@ namespace PlasticLang
         public static readonly Parser<IExpression> IdentifierInc =
             from symbol in Symbol
             from plusplus in Parse.String("++").PlasticToken()
-            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_add", symbol, Ast.NumberLiteral.One));
+            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_add", symbol, NumberLiteral.One));
 
         public static readonly Parser<IExpression> IdentifierDec =
             from symbol in Symbol
             from plusplus in Parse.String("--").PlasticToken()
-            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_sub", symbol, Ast.NumberLiteral.One));
+            select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_sub", symbol, NumberLiteral.One));
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
@@ -92,8 +92,6 @@ namespace PlasticLang
                 .Or(Parse.Ref(() => IdentifierDec))
                 .Or(Parse.Ref(() => Literal))
                 .Or(Parse.Ref(() => Body));
-
-
 
         public static readonly Parser<IExpression> DotTerm = Parse.ChainOperator(DotOperator,
             Parse.Ref(() => InvocationOrValue), (o, l, r) => new BinaryExpression(l, o, r));
@@ -127,8 +125,6 @@ namespace PlasticLang
             Parse.Ref(() => LambdaDeclaration)
                 .Or(Parse.Ref(() => LetAssign))
                 .Or(Parse.Ref(() => AssignTerm));
-
-        //.Or(Parse.Ref(() => Body));
 
         public static readonly Parser<IExpression> TerminatedStatement =
             from exp in Parse.Ref(() => Expression)

@@ -33,7 +33,6 @@ namespace PlasticLang.Ast
                 return right.Eval(typeContext);
             }
 
-
             var objContext = new InstanceContext(l, context);
             return right.Eval(objContext);
         }

@@ -25,7 +25,7 @@ namespace PlasticLang
         public static void BootstrapLib(PlasticContext context)
         {
             var lib = @"
-for := func (init.ref , guard.ref, step.ref, body.ref)
+for := func (@init , @guard, @step, @body)
 {
     init()
     while(guard())
@@ -35,7 +35,7 @@ for := func (init.ref , guard.ref, step.ref, body.ref)
     }
 }
 
-repeat := func (times, body.ref)
+repeat := func (times, @body)
 {
     while(times >= 0)
     {
@@ -129,10 +129,10 @@ Stack = class
 }
 
 
-switch :=  func(exp, body.ref)
+switch :=  func(exp, @body)
 {
     matched = false;
-    case := func (value, caseBody.ref)
+    case := func (value, @caseBody)
     {   
         if (exp == value)
         {
@@ -140,7 +140,7 @@ switch :=  func(exp, body.ref)
             matched = true;
         }
     }
-    default := func (defaultBody.ref)
+    default := func (@defaultBody)
     {
         if (matched == false)
         {
@@ -266,19 +266,11 @@ switch :=  func(exp, body.ref)
                     var symbol = arg as Symbol;
                     if (symbol != null)
                     {
-                        return new Argument(symbol.Value, ArgumentType.Value);
+                        if(!symbol.Value.StartsWith("@"))
+                            return new Argument(symbol.Value, ArgumentType.Value);
+                        return new Argument(symbol.Value.Substring(1), ArgumentType.Expression);
                     }
-                    var dot = arg as BinaryExpression;
-                    if (dot != null)
-                    {
-                        var id = dot.Left as Symbol;
-                        var type = dot.Right as Symbol;
-                        var argType = ArgumentType.Value;
-                        if (type.Value == "ref")
-                            argType = ArgumentType.Expression;
 
-                        return new Argument(id.Value, argType);
-                    }
                     throw new NotSupportedException();
                 }).ToArray();
                 var Body = a.Last();

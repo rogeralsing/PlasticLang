@@ -58,7 +58,7 @@
     <Compile Include="Ast\IStringLiteral.cs" />
     <Compile Include="Ast\NumberLiteral.cs" />
     <Compile Include="PlasticContext.cs" />
-    <Compile Include="PlasticFunction.cs" />
+    <Compile Include="PlasticMacro.cs" />
     <Compile Include="PlasticObject.cs" />
     <Compile Include="Ast\Statements.cs" />
     <Compile Include="Plastic.cs" />
