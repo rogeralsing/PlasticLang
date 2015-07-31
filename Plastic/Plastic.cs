@@ -515,6 +515,13 @@ switch :=  func(exp, @body)
                 return right.Eval(objContext);
             };
 
+            PlasticMacro quote = (c, a) =>
+            {
+                var q = a.First();
+
+                return q;
+            };
+
             context.Declare("print", print);
             context.Declare("while", @while);
             context.Declare("each", each);
@@ -544,6 +551,7 @@ switch :=  func(exp, @body)
             context.Declare("_lt", lt);
             context.Declare("_lteq", lteq);
             context.Declare("_dot", dotop);
+            context.Declare("quote", quote);
             
             BootstrapLib(context);
 
