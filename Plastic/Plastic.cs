@@ -400,6 +400,64 @@ quote := func(@q)
                     obj[memberId.Value] = value;
                 }
 
+                var tuple = left as TupleValue;
+                var arr = value as object[];
+                if (tuple != null)
+                {
+                    Func<TupleValue, object[], bool> match = null;
+                    match = (t, values) =>
+                    {
+                        if (t.Items.Length != values.Length)
+                            return false;
+
+                        for (int i = 0; i < values.Length; i++)
+                        {
+                            var l = t.Items[i];
+                            var r = values[i];
+
+                            if (l is Symbol) //left is symbol, assign a value to it..
+                            {
+                                c[(l as Symbol).Value] = r;
+                            }
+                            else if (l is TupleValue)
+                            {
+                                if (r is object[])
+                                {
+                                    //right is a sub tuple, recursive match
+                                    var subMatch = match(l as TupleValue, r as object[]);
+                                    if (!subMatch)
+                                        return false;
+                                }
+                                else
+                                {
+                                    //left is tuple, right is not. just exit
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                //left is a value, compare to right
+                                var lv = l.Eval(c);
+                                if (lv == null)
+                                {
+                                    if (r != null)
+                                    {
+                                        return false;
+                                    }
+                                }
+                                else if (!lv.Equals(r))
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+
+                        return true;
+                    };
+                        
+                    return match(tuple, arr);
+                }
+
                 return value;
             };
 
