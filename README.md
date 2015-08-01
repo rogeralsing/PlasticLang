@@ -53,6 +53,13 @@ In Plastic, everything is an expression.
 * `:=` assigns a value to a name in the current lexical scope.
 * `=` assigns/updates the value in the scope it was declared
 
+Pattern matching
+
+```javascript
+(:dostuff,1,foo,bar) = (:dostuff,1,"hello","plastic")
+```
+`foo` is now "hello" and `bar` = "plastic"
+
 ### Classes
 
 ```javascript
