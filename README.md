@@ -31,7 +31,7 @@ f(1)(2)(3);
 //or
 
 //partial application of the "for" function
-repeat10 = for(i := 0;i < 10;i++)
+repeat10 = for(i:= 0;i<10;i++)
 
 //apply the last argument, the body
 repeat10
