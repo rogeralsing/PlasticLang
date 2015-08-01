@@ -18,6 +18,10 @@ namespace PlasticLang
         public static readonly Parser<string> GreateerOrEqualOperator = BinOps(">=", "_gteq");
         public static readonly Parser<string> LessThanOperator = BinOps("<", "_lt");
         public static readonly Parser<string> LessOrEqualOperator = BinOps("<=", "_lteq");
+
+        public static readonly Parser<string> BooleanOr = BinOps("||", "_bor");
+        public static readonly Parser<string> BooleanAnd = BinOps("&&", "_band");
+
         public static readonly Parser<string> DotOperator = BinOps(".", "_dot");
 
 
@@ -107,8 +111,16 @@ namespace PlasticLang
                     .Or(LessThanOperator),
                 Term, (o, l, r) => ListValue.CallFunction(o, l, r));
 
+
+        public static readonly Parser<IExpression> BooleanLogic =
+            Parse.ChainOperator(
+                BooleanOr.Or(BooleanAnd),
+                Compare, (o, l, r) => ListValue.CallFunction(o, l, r));
+
+        
+
         public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
-            Parse.Ref(() => Compare), (o, l, r) =>
+            Parse.Ref(() => BooleanLogic), (o, l, r) =>
                 ListValue.CallFunction("assign", l, r));
 
         public static readonly Parser<IExpression> LetAssign =

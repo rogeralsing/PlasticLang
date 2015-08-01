@@ -494,6 +494,22 @@ quote := func(@q)
                 return ((dynamic)left.Eval(c)) <= ((dynamic)right.Eval(c));
             };
 
+            PlasticMacro booland = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) && ((dynamic)right.Eval(c));
+            };
+
+            PlasticMacro boolor = (c, a) =>
+            {
+                var left = a.ElementAt(0);
+                var right = a.ElementAt(1);
+
+                return ((dynamic)left.Eval(c)) || ((dynamic)right.Eval(c));
+            };
+
             PlasticMacro dotop = (c, a) =>
             {
                 var left = a.ElementAt(0);
@@ -554,6 +570,8 @@ quote := func(@q)
             context.Declare("_gteq", gteq);
             context.Declare("_lt", lt);
             context.Declare("_lteq", lteq);
+            context.Declare("_band", booland);
+            context.Declare("_bor", boolor);
             context.Declare("_dot", dotop);
            
             
