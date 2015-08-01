@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PlasticLang;
 
 namespace PlasticRepl
@@ -15,10 +11,22 @@ namespace PlasticRepl
             var userContext = new PlasticContextImpl(context);
             while (true)
             {
-                Console.Write("<< ");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.Write("user> ");
+                Console.ForegroundColor = ConsoleColor.Gray;
                 var input = Console.ReadLine();
-                var res = Plastic.Run(input, userContext);
-                Console.WriteLine(">> {0}",res);
+                try
+                {
+                    
+                    var res = Plastic.Run(input, userContext);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("{0}", res);
+                }
+                catch (Exception x)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(x.Message);
+                }
             }
         }
     }

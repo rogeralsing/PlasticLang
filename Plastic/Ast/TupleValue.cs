@@ -19,9 +19,6 @@ namespace PlasticLang.Ast
 
         public object Eval(PlasticContext context)
         {
-            if (Items.Length == 1)
-                return Items[0].Eval(context);
-
             return Items.Select(i => i.Eval(context)).ToArray();
         }
 

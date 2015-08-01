@@ -91,7 +91,7 @@ namespace PlasticLang
             select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_sub", symbol, NumberLiteral.One));
 
         public static readonly Parser<IExpression> Value =
-            Parse.Ref(() => TupleValue)
+            Parse.Ref(() => TupleOrParenValue)
                 .Or(Parse.Ref(() => NotExpression))
                 .Or(Parse.Ref(() => ArrayValue))
                 .Or(Parse.Ref(() => IdentifierInc))
@@ -172,7 +172,7 @@ namespace PlasticLang
             from body in Parse.Ref(() => LambdaBody).Once()
             select ListValue.CallFunction("func", args.Union(body).ToArray());
 
-        public static readonly Parser<IExpression> TupleValue =
+        public static readonly Parser<IExpression> TupleOrParenValue =
             Parse.Ref(() => Expression)
                 .DelimitedBy(Separator)
                 .Contained(Parse.Char('(').PlasticToken(), Parse.Char(')').PlasticToken())
