@@ -163,6 +163,7 @@ namespace PlasticLang
 
         public override object Invoke(IExpression head, IExpression[] args)
         {
+
             var memberName = (head as Symbol).Value;
             var evaluatedArgs = args.Select(a => a.Eval(_owner)).ToArray();
             var members = _type.GetMethods().Where(m => m.Name == memberName);

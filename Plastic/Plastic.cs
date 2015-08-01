@@ -401,19 +401,19 @@ quote := func(@q)
                 }
 
                 var tuple = left as TupleValue;
-                var arr = value as object[];
+                var arr = value as TupleValue;
                 if (tuple != null)
                 {
-                    Func<TupleValue, object[], bool> match = null;
+                    Func<TupleValue, TupleValue, bool> match = null;
                     match = (t, values) =>
                     {
-                        if (t.Items.Length != values.Length)
+                        if (t.Items.Length != values.Items.Length)
                             return false;
 
-                        for (int i = 0; i < values.Length; i++)
+                        for (int i = 0; i < values.Items.Length; i++)
                         {
                             var l = t.Items[i];
-                            var r = values[i];
+                            var r = values.Items[i];
 
                             if (l is Symbol) //left is symbol, assign a value to it..
                             {
@@ -421,10 +421,10 @@ quote := func(@q)
                             }
                             else if (l is TupleValue)
                             {
-                                if (r is object[])
+                                if (r is TupleValue)
                                 {
                                     //right is a sub tuple, recursive match
-                                    var subMatch = match(l as TupleValue, r as object[]);
+                                    var subMatch = match(l as TupleValue, r as TupleValue);
                                     if (!subMatch)
                                         return false;
                                 }

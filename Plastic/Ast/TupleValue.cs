@@ -19,7 +19,7 @@ namespace PlasticLang.Ast
 
         public object Eval(PlasticContext context)
         {
-            return Items.Select(i => i.Eval(context)).ToArray();
+            return this;
         }
 
         public override string ToString()
