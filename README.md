@@ -27,6 +27,18 @@ f := func(a,b,c)
 }
 
 f(1)(2)(3);
+
+//or
+
+//partial application of the "for" function
+repeat10 = for(i:= 0;i<10;i++)
+
+//apply the last argument, the body
+repeat10
+{
+   print (i)
+}
+
 ```
 
 
@@ -52,6 +64,13 @@ In Plastic, everything is an expression.
 
 * `:=` assigns a value to a name in the current lexical scope.
 * `=` assigns/updates the value in the scope it was declared
+
+Pattern matching
+
+```javascript
+(:dostuff,1,foo,bar) = (:dostuff,1,"hello","plastic")
+```
+`foo` is now "hello" and `bar` = "plastic"
 
 ### Classes
 
