@@ -75,6 +75,11 @@ namespace PlasticLang
                 .Or(Number)
                 .Or(QuotedString);
 
+        public static readonly Parser<IExpression> NegatedValue =
+            from not in Parse.Char('!').PlasticToken()
+            from exp in Parse.Ref(() => Expression)
+            select ListValue.CallFunction("_not", exp);
+
         public static readonly Parser<IExpression> IdentifierInc =
             from symbol in Symbol
             from plusplus in Parse.String("++").PlasticToken()
@@ -87,17 +92,18 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
+                .Or(Parse.Ref(() => NegatedValue))
                 .Or(Parse.Ref(() => ArrayValue))
                 .Or(Parse.Ref(() => IdentifierInc))
                 .Or(Parse.Ref(() => IdentifierDec))
                 .Or(Parse.Ref(() => Literal))
                 .Or(Parse.Ref(() => Body));
 
-        public static readonly Parser<IExpression> DotTerm = Parse.ChainOperator(DotOperator,
+        public static readonly Parser<IExpression> Dot = Parse.ChainOperator(DotOperator,
             Parse.Ref(() => InvocationOrValue), (o, l, r) =>  ListValue.CallFunction("_dot",l,r));
 
         public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
-            Parse.Ref(() => DotTerm), (o, l, r) => ListValue.CallFunction(o, l, r));
+            Parse.Ref(() => Dot), (o, l, r) => ListValue.CallFunction(o, l, r));
 
         public static readonly Parser<IExpression> Term = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
             InnerTerm, (o, l, r) => ListValue.CallFunction(o, l, r));
@@ -116,10 +122,8 @@ namespace PlasticLang
             Parse.ChainOperator(
                 BooleanOr.Or(BooleanAnd),
                 Compare, (o, l, r) => ListValue.CallFunction(o, l, r));
-
-        
-
-        public static readonly Parser<IExpression> AssignTerm = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
+       
+        public static readonly Parser<IExpression> Assignment = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
             Parse.Ref(() => BooleanLogic), (o, l, r) =>
                 ListValue.CallFunction("assign", l, r));
 
@@ -132,7 +136,7 @@ namespace PlasticLang
         public static readonly Parser<IExpression> Expression =
             Parse.Ref(() => LambdaDeclaration)
                 .Or(Parse.Ref(() => LetAssign))
-                .Or(Parse.Ref(() => AssignTerm));
+                .Or(Parse.Ref(() => Assignment));
 
         public static readonly Parser<IExpression> TerminatedStatement =
             from exp in Parse.Ref(() => Expression)

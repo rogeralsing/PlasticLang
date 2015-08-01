@@ -510,6 +510,13 @@ quote := func(@q)
                 return ((dynamic)left.Eval(c)) || ((dynamic)right.Eval(c));
             };
 
+            PlasticMacro not = (c, a) =>
+            {
+                var exp = a.ElementAt(0);
+
+                return !((dynamic) exp.Eval(c));
+            };
+
             PlasticMacro dotop = (c, a) =>
             {
                 var left = a.ElementAt(0);
@@ -573,6 +580,7 @@ quote := func(@q)
             context.Declare("_band", booland);
             context.Declare("_bor", boolor);
             context.Declare("_dot", dotop);
+            context.Declare("_not", not);
            
             
             BootstrapLib(context);
