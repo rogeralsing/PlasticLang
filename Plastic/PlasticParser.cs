@@ -77,7 +77,7 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> NotExpression =
             from not in Parse.Char('!').PlasticToken()
-            from exp in Parse.Ref(() => BooleanLogic)
+            from exp in Parse.Ref(() => Dot)
             select ListValue.CallFunction("_not", exp);
 
         public static readonly Parser<IExpression> IdentifierInc =
