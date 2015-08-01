@@ -33,7 +33,11 @@ namespace PlasticLang
         private static Parser<StringLiteral> MakeString(char quote)
         {
             return (from str in Parse.CharExcept(quote).Many().Contained(Parse.Char(quote), Parse.Char(quote))
-                select new StringLiteral(new string(str.ToArray()))).PlasticToken();
+                select new StringLiteral(new string(str.ToArray())))
+                .Or(from colon in Parse.Char(':')
+                    from id in Parse.Ref(() => Symbol)
+                    select new StringLiteral(":" + id.Value)
+                ).PlasticToken();
         }
 
         private static IExpression CreateInvocations(IExpression head, IExpression[][] argsList, Statements body)
