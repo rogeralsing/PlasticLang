@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using PlasticLang.Ast;
 using Sprache;
@@ -150,6 +151,11 @@ switch :=  func(exp, @body)
     body();
 }
 
+quote := func(@q)
+{
+    q
+}
+
 ";
 
 
@@ -283,19 +289,24 @@ switch :=  func(exp, @body)
                     {
                         //create context for this invocation
                         var invocationScope =  new PlasticContextImpl(callingContext);
+                        var arguments = new List<object>();
                         for (var i = 0; i < args.Length; i++)
                         {
                             var arg = Args[i];
                             if (arg.Type == ArgumentType.Expression)
                             {
                                 //copy args from caller to this context
-                                invocationScope.Declare(arg.Name, args[i]);
+                                var value = args[i];
+                                invocationScope.Declare(arg.Name, value);
+                                arguments.Add(value);
                             }
                             else if (arg.Type == ArgumentType.Value)
                             {
                                 var value = args[i].Eval(callingContext);
                                 invocationScope.Declare(arg.Name, value);
+                                arguments.Add(value);
                             }
+                            invocationScope.Declare("args", arguments.ToArray());
                         }
 
                         var m = Body.Eval(invocationScope);
@@ -515,13 +526,6 @@ switch :=  func(exp, @body)
                 return right.Eval(objContext);
             };
 
-            PlasticMacro quote = (c, a) =>
-            {
-                var q = a.First();
-
-                return q;
-            };
-
             context.Declare("print", print);
             context.Declare("while", @while);
             context.Declare("each", each);
@@ -551,7 +555,7 @@ switch :=  func(exp, @body)
             context.Declare("_lt", lt);
             context.Declare("_lteq", lteq);
             context.Declare("_dot", dotop);
-            context.Declare("quote", quote);
+           
             
             BootstrapLib(context);
 
