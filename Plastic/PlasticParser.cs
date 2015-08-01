@@ -75,9 +75,9 @@ namespace PlasticLang
                 .Or(Number)
                 .Or(QuotedString);
 
-        public static readonly Parser<IExpression> NegatedValue =
+        public static readonly Parser<IExpression> NotExpression =
             from not in Parse.Char('!').PlasticToken()
-            from exp in Parse.Ref(() => Expression)
+            from exp in Parse.Ref(() => BooleanLogic)
             select ListValue.CallFunction("_not", exp);
 
         public static readonly Parser<IExpression> IdentifierInc =
@@ -92,7 +92,7 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> Value =
             Parse.Ref(() => TupleValue)
-                .Or(Parse.Ref(() => NegatedValue))
+                .Or(Parse.Ref(() => NotExpression))
                 .Or(Parse.Ref(() => ArrayValue))
                 .Or(Parse.Ref(() => IdentifierInc))
                 .Or(Parse.Ref(() => IdentifierDec))
