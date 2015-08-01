@@ -36,13 +36,13 @@ namespace PlasticLang
                 select new StringLiteral(new string(str.ToArray()))).PlasticToken();
         }
 
-        private static IExpression CreateInvocations(IExpression head, TupleValue[] argsList, Statements body)
+        private static IExpression CreateInvocations(IExpression head, IExpression[][] argsList, Statements body)
         {
             var current = head;
             for (var i = 0; i < argsList.Length; i++)
             {
                 var tuple = argsList[i];
-                var args = tuple.Items;
+                var args = tuple;
                 if (i == argsList.Length - 1 && body != null)
                 {
                     args = args.Union(Enumerable.Repeat(body, 1)).ToArray();
@@ -172,12 +172,22 @@ namespace PlasticLang
             from body in Parse.Ref(() => LambdaBody).Once()
             select ListValue.CallFunction("func", args.Union(body).ToArray());
 
-        public static readonly Parser<TupleValue> TupleValue =
+        public static readonly Parser<IExpression> TupleValue =
+            Parse.Ref(() => Expression)
+                .DelimitedBy(Separator)
+                .Contained(Parse.Char('(').PlasticToken(), Parse.Char(')').PlasticToken())
+                .Select(o =>
+                {
+                    var args = o.ToArray(); //if a single value, return the value itself. tuples are at least 2 or m
+                    return args.Length == 1 ? o.First() : new TupleValue(o);
+                });
+
+        public static readonly Parser<IExpression[]> InvocationArgs =
             Parse.Ref(() => Expression)
                 .DelimitedBy(Separator)
                 .Optional()
                 .Contained(Parse.Char('(').PlasticToken(), Parse.Char(')').PlasticToken())
-                .Select(o => new TupleValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
+                .Select(o => (o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()).ToArray());
 
         public static readonly Parser<IExpression> ArrayValue =
             Parse.Ref(() => Expression)
@@ -188,7 +198,7 @@ namespace PlasticLang
 
         public static readonly Parser<IExpression> InvocationOrValue =
             from head in Parse.Ref(() => Value)
-            from args in TupleValue.Many()
+            from args in InvocationArgs.Many()
             from body in Body.Optional()
             select CreateInvocations(head, args.ToArray(), body.GetOrDefault());
     }

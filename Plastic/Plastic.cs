@@ -19,7 +19,6 @@ namespace PlasticLang
         public static object Run(string code,PlasticContext context)
         {
             var res = PlasticParser.Statements.Parse(code);
-            Console.WriteLine(res);
             return res.Eval(context);
         }
 
