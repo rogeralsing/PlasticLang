@@ -401,10 +401,10 @@ quote := func(@q)
                 }
 
                 var tuple = left as TupleValue;
-                var arr = value as TupleValue;
+                var arr = value as TupleInstance;
                 if (tuple != null)
                 {
-                    Func<TupleValue, TupleValue, bool> match = null;
+                    Func<TupleValue, TupleInstance, bool> match = null;
                     match = (t, values) =>
                     {
                         if (t.Items.Length != values.Items.Length)
@@ -421,10 +421,10 @@ quote := func(@q)
                             }
                             else if (l is TupleValue)
                             {
-                                if (r is TupleValue)
+                                if (r is TupleInstance)
                                 {
                                     //right is a sub tuple, recursive match
-                                    var subMatch = match(l as TupleValue, r as TupleValue);
+                                    var subMatch = match(l as TupleValue, r as TupleInstance);
                                     if (!subMatch)
                                         return false;
                                 }
