@@ -60,7 +60,7 @@ namespace PlasticLang
             return current;
         }
 
-        public static Parser<IOption<char>> Separator = Parse.Char(',').Or(Parse.Char(';')).Optional().PlasticToken();
+        public static Parser<char> Separator = Parse.Char(',').Or(Parse.Char(';')).PlasticToken();
 
         public static readonly Parser<Symbol> Symbol =
             (from first in Parse.Letter.Or(Parse.Chars('_', '@')).Once().Text()
