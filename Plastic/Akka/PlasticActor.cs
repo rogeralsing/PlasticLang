@@ -31,6 +31,7 @@ namespace PlasticLang.Akka
                     var c = new PlasticContextImpl(ctx.Parent);
                     
                     var actorState = new PlasticObject(c);
+                    c.Declare("this",actorState);
                     var body = args.First();
                     Action<object> a = msg =>
                     {

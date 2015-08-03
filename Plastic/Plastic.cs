@@ -417,6 +417,9 @@ ActorSystem :=  func(name)
                     Func<TupleValue, TupleInstance, bool> match = null;
                     match = (t, values) =>
                     {
+                        if (values == null)
+                            return false;
+
                         if (t.Items.Length != values.Items.Length)
                             return false;
 
@@ -515,10 +518,22 @@ ActorSystem :=  func(name)
 
             PlasticMacro eq = (c, a) =>
             {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
+                dynamic left = a.ElementAt(0).Eval(c);
+                dynamic right = a.ElementAt(1).Eval(c);
 
-                return ((dynamic)left.Eval(c)) == ((dynamic)right.Eval(c));
+                if (left == null)
+                {
+                    if (right != null)
+                        return false;
+                    return true;
+                }
+                if (right == null)
+                    return false;
+
+                if (left.GetType() != right.GetType())
+                    return false;
+
+                return left == right;
             };
 
             PlasticMacro neq = (c, a) =>
