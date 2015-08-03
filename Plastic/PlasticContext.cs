@@ -8,6 +8,12 @@ namespace PlasticLang
 
     public abstract class PlasticContext
     {
+        public PlasticContext Parent { get; private set; }
+
+        protected PlasticContext(PlasticContext parent)
+        {
+            Parent = parent;
+        }
         public abstract object Number(NumberLiteral numberLiteral);
 
         public abstract object QuotedString(StringLiteral stringLiteral);
@@ -26,15 +32,14 @@ namespace PlasticLang
     public class PlasticContextImpl : PlasticContext
     {
         private readonly Dictionary<string, object> _cells = new Dictionary<string, object>();
-        public PlasticContext Parent { get; private set; }
+        
 
-        public PlasticContextImpl()
+        public PlasticContextImpl() : base(null)
         {
         }
 
-        public PlasticContextImpl(PlasticContext parentContext)
+        public PlasticContextImpl(PlasticContext parentContext) : base(parentContext)
         {
-            Parent = parentContext;
         }
 
         public override object this[string name]
@@ -97,7 +102,6 @@ namespace PlasticLang
             var expression = target as IExpression;
             var array = target as object[];
 
-
             if (macro != null)
             {
                 return InvokeMacro(this, macro, args);
@@ -130,12 +134,10 @@ namespace PlasticLang
     public class TypeContext : PlasticContext
     {
         private readonly Type _type;
-        private readonly PlasticContext _owner;
 
-        public TypeContext(Type type,PlasticContext owner)
+        public TypeContext(Type type,PlasticContext owner) : base(owner)
         {
             _type = type;
-            _owner = owner;           
         }
 
         public override object this[string name]
@@ -165,7 +167,7 @@ namespace PlasticLang
         {
 
             var memberName = (head as Symbol).Value;
-            var evaluatedArgs = args.Select(a => a.Eval(_owner)).ToArray();
+            var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
             var members = _type.GetMethods().Where(m => m.Name == memberName);
             foreach (var member in members)
             {
@@ -196,18 +198,16 @@ namespace PlasticLang
     public class ArrayContext : PlasticContext
     {
         private readonly object[] _array;
-        private readonly PlasticContext _owner;
 
-        public ArrayContext(object[] array, PlasticContext owner)
+        public ArrayContext(object[] array, PlasticContext owner) : base(owner)
         {
             _array = array;
-            _owner = owner;
         }
 
         public override object Invoke(IExpression head, IExpression[] args)
         {
             var index = (int)(head as NumberLiteral).Value;
-            var evaluatedArgs = args.Select(a => a.Eval(_owner)).ToArray();
+            var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
 
             return _array[index];
         }
@@ -251,12 +251,10 @@ namespace PlasticLang
     public class InstanceContext : PlasticContext
     {
         private readonly object _obj;
-        private readonly PlasticContext _owner;
 
-        public InstanceContext(object obj, PlasticContext owner)
+        public InstanceContext(object obj, PlasticContext owner):base(owner)
         {
             _obj = obj;
-            _owner = owner;
         }
 
         public override object Invoke(IExpression head, IExpression[] args)
@@ -267,14 +265,33 @@ namespace PlasticLang
                 memberName = (head as IStringLiteral).Value;
             }
 
-            var evaluatedArgs = args.Select(a => a.Eval(_owner)).ToArray();
 
-            var members = _obj.GetType().GetMethods().Where(m => m.Name == memberName);
-            foreach (var member in members)
+
+            var methods = _obj.GetType().GetMethods().Where(m => m.Name == memberName);
+            if (methods.Any())
+            {
+                 var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
+                foreach (var method in methods)
+                {
+                    try
+                    {
+                        var res = method.Invoke(_obj, evaluatedArgs);
+                        return res;
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+
+            var properties = _obj.GetType().GetProperties().Where(m => m.Name == memberName);
+            foreach (var property in properties)
             {
                 try
                 {
-                    var res = member.Invoke(_obj, evaluatedArgs);
+                    var m = property.GetGetMethod().Invoke(_obj, null) as PlasticMacro;
+                    var res = m(this, args);
                     return res;
                 }
                 catch

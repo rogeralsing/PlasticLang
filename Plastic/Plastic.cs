@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Akka.Actor;
 using PlasticLang.Ast;
 using Sprache;
 
@@ -153,6 +154,15 @@ switch :=  func(exp, @body)
 quote := func(@q)
 {
     q
+}
+
+
+
+ActorSystem :=  func(name)
+{
+    system := using('PlasticLang.Akka.AkkaIntegration').CreateSystem(name);
+    print (system);
+    system;
 }
 
 ";
@@ -606,6 +616,15 @@ quote := func(@q)
                 return right.Eval(objContext);
             };
 
+            //PlasticMacro actorSystem = (c, a) =>
+            //{
+            //    var name = a.First().Eval(c) as string;
+            //    var system = ActorSystem.Create(name);
+
+
+            ////    return res;
+            //};
+
             context.Declare("print", print);
             context.Declare("while", @while);
             context.Declare("each", each);
@@ -638,6 +657,7 @@ quote := func(@q)
             context.Declare("_bor", boolor);
             context.Declare("_dot", dotop);
             context.Declare("_not", not);
+            //context.Declare("ActorSystem", actorSystem);
            
             
             BootstrapLib(context);
