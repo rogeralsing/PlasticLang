@@ -44,11 +44,6 @@ namespace PlasticLang.Akka
                 return m;
             }
         }
-
-        private void Nop()
-        {
-            
-        }
     }
 
     public class PlasticActor : UntypedActor

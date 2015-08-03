@@ -106,11 +106,11 @@ namespace PlasticLang
         public static readonly Parser<IExpression> Dot = Parse.ChainOperator(DotOperator,
             Parse.Ref(() => InvocationOrValue), (o, l, r) =>  ListValue.CallFunction("_dot",l,r));
 
-        public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
-            Parse.Ref(() => Dot), (o, l, r) => ListValue.CallFunction(o, l, r));
+        public static readonly Parser<IExpression> Term = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
+            Parse.Ref(() => InnerTerm), (o, l, r) => ListValue.CallFunction(o, l, r));
 
-        public static readonly Parser<IExpression> Term = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
-            InnerTerm, (o, l, r) => ListValue.CallFunction(o, l, r));
+        public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
+            Parse.Ref(() => Dot), (o, l, r) => ListValue.CallFunction(o, l, r));
 
         public static readonly Parser<IExpression> Compare =
             Parse.ChainOperator(
