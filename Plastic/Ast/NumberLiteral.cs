@@ -17,7 +17,7 @@ namespace PlasticLang.Ast
             Value = decimal.Parse(numb, NumberFormatInfo.InvariantInfo);
         }
 
-        public decimal Value { get; private set; }
+        public decimal Value { get; }
 
         public Task<object> Eval(PlasticContext context)
         {

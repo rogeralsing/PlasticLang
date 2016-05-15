@@ -46,7 +46,7 @@ namespace PlasticLang.Ast
 
         public override string ToString()
         {
-            return string.Format("({0})", string.Join(",", Items.Select(i => i.ToString())));
+            return $"({string.Join(",", Items.Select(i => i.ToString()))})";
         }
     }
 }

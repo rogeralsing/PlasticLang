@@ -15,17 +15,11 @@ namespace PlasticLang.Ast
             Elements = elements;
         }
 
-        public IExpression[] Elements { get; private set; }
+        public IExpression[] Elements { get; }
 
-        public IExpression[] Args
-        {
-            get { return Elements.Skip(1).ToArray(); }
-        }
+        public IExpression[] Args => Elements.Skip(1).ToArray();
 
-        public IExpression Head
-        {
-            get { return Elements.First(); }
-        }
+        public IExpression Head => Elements.First();
 
         public Task<object> Eval(PlasticContext context)
         {
@@ -34,7 +28,7 @@ namespace PlasticLang.Ast
 
         public override string ToString()
         {
-            return string.Format("{0}({1})", Head, string.Join(",", Args.Select(a => a.ToString())));
+            return $"{Head}({string.Join(",", Args.Select(a => a.ToString()))})";
         }
     }
 }

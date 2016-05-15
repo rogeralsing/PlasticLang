@@ -9,7 +9,7 @@ namespace PlasticLang.Ast
             Value = value;
         }
 
-        public string Value { get; private set; }
+        public string Value { get; }
 
         public Task<object> Eval(PlasticContext context)
         {

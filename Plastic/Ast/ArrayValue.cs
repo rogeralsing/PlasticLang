@@ -13,10 +13,14 @@ namespace PlasticLang.Ast
 
         public IExpression[] Items { get; set; }
 
-        public Task<object> Eval(PlasticContext context)
+        public async Task<object> Eval(PlasticContext context)
         {
-            var res = Items.Select(i => i.Eval(context)).ToArray();
-            return Task.FromResult((object) res);
+            var items = new object[Items.Length];
+            for (int i = 0; i < Items.Length; i++)
+            {
+                items[i] = await Items[i].Eval(context);
+            }
+            return items;
         }
 
         public override string ToString()

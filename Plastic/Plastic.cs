@@ -45,15 +45,15 @@ repeat := func (times, @body)
     }
 }
 
-LinkedList = class 
+LinkedList := class 
 {
-    Node = class (value) { next = null; }
+    Node := class (value) { next = null; }
 
-    head = null;
-    tail = null;
-    add = func (value)
+    head := null;
+    tail := null;
+    add := func (value)
     {
-        node = Node(value);
+        node := Node(value);
         if (head == null)
         {         
             head = node;
@@ -66,9 +66,9 @@ LinkedList = class
         }        
     }
 
-    each = func ( lambda)
+    each := func ( lambda)
     {
-        current = head;
+        current := head;
         while(current != null)
         {
             lambda(current.value);
@@ -77,13 +77,13 @@ LinkedList = class
     }
 }
 
-Stack = class
+Stack := class
 {
-    Node = class (value,prev) { next = null; }
+    Node := class (value,prev) { next = null; }
 
-    head = null;
-    tail = null;
-    push = func (value)
+    head := null;
+    tail := null;
+    push := func (value)
     {
         node = Node(value,tail);
         if (head == null)
@@ -98,7 +98,7 @@ Stack = class
         }        
     }
 
-    each = func (lambda)
+    each := func (lambda)
     {
         current = tail;
         while(current != null)
@@ -108,12 +108,12 @@ Stack = class
         }
     }
 
-    peek = func()
+    peek := func()
     {
         tail.value;
     }
 
-    pop = func()
+    pop := func()
     {
         res = tail.value;
         tail = tail.prev;
@@ -132,7 +132,7 @@ Stack = class
 
 switch :=  func(exp, @body)
 {
-    matched = false;
+    matched := false;
     case := func (value, @caseBody)
     {   
         if (exp == value)
