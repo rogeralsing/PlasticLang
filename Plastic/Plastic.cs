@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Akka.Actor;
 using PlasticLang.Ast;
 using Sprache;
 
@@ -17,7 +16,7 @@ namespace PlasticLang
             Run(code, userContext);
         }
 
-        public static object Run(string code,PlasticContext context)
+        public static object Run(string code, PlasticContext context)
         {
             var res = PlasticParser.Statements.Parse(code);
             return res.Eval(context);
@@ -157,14 +156,6 @@ quote := func(@q)
 }
 
 
-
-ActorSystem :=  func(name)
-{
-    system := using('PlasticLang.Akka.AkkaIntegration').CreateSystem(name);
-    print (system);
-    system;
-}
-
 ";
 
 
@@ -269,39 +260,39 @@ ActorSystem :=  func(name)
                 foreach (var element in enumerable)
                 {
                     c.Declare(v.Value, element);
-                    body.Eval(c);
+                    result = body.Eval(c);
                 }
                 return result;
             };
 
             PlasticMacro func = (_, a) =>
-            {      
-                var Args = a.Take(a.Length - 1).Select(arg =>
+            {
+                var argsMinusOne = a.Take(a.Length - 1).Select(arg =>
                 {
                     var symbol = arg as Symbol;
                     if (symbol != null)
                     {
-                        if(!symbol.Value.StartsWith("@"))
+                        if (!symbol.Value.StartsWith("@"))
                             return new Argument(symbol.Value, ArgumentType.Value);
                         return new Argument(symbol.Value.Substring(1), ArgumentType.Expression);
                     }
 
                     throw new NotSupportedException();
                 }).ToArray();
-                var Body = a.Last();
+                var body = a.Last();
 
                 PlasticMacro op = null;
                 op = (callingContext, args) =>
                 {
                     //full application
-                    if (args.Length >= Args.Length)
+                    if (args.Length >= argsMinusOne.Length)
                     {
                         //create context for this invocation
-                        var invocationScope =  new PlasticContextImpl(callingContext);
+                        var invocationScope = new PlasticContextImpl(callingContext);
                         var arguments = new List<object>();
                         for (var i = 0; i < args.Length; i++)
                         {
-                            var arg = Args[i];
+                            var arg = argsMinusOne[i];
                             if (arg.Type == ArgumentType.Expression)
                             {
                                 //copy args from caller to this context
@@ -318,7 +309,7 @@ ActorSystem :=  func(name)
                             invocationScope.Declare("args", arguments.ToArray());
                         }
 
-                        var m = Body.Eval(invocationScope);
+                        var m = body.Eval(invocationScope);
                         return m;
                     }
                     //partial application
@@ -377,7 +368,7 @@ ActorSystem :=  func(name)
             PlasticMacro @using = (c, a) =>
             {
                 var path = a.First() as StringLiteral;
-                Type type = Type.GetType(path.Value);
+                var type = Type.GetType(path.Value);
                 return type;
             };
 
@@ -394,7 +385,7 @@ ActorSystem :=  func(name)
                 var right = a.ElementAt(1);
 
                 var value = right.Eval(c);
-                
+
                 var assignee = left as Symbol;
 
                 if (assignee != null)
@@ -423,7 +414,7 @@ ActorSystem :=  func(name)
                         if (t.Items.Length != values.Items.Length)
                             return false;
 
-                        for (int i = 0; i < values.Items.Length; i++)
+                        for (var i = 0; i < values.Items.Length; i++)
                         {
                             var l = t.Items[i];
                             var r = values.Items[i];
@@ -467,7 +458,7 @@ ActorSystem :=  func(name)
 
                         return true;
                     };
-                        
+
                     return match(tuple, arr);
                 }
 
@@ -489,7 +480,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) + ((dynamic)right.Eval(c));                
+                return (dynamic) left.Eval(c) + (dynamic) right.Eval(c);
             };
 
             PlasticMacro sub = (c, a) =>
@@ -497,7 +488,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) - ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c) - (dynamic) right.Eval(c);
             };
 
             PlasticMacro mul = (c, a) =>
@@ -505,7 +496,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) * ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c)*(dynamic) right.Eval(c);
             };
 
             PlasticMacro div = (c, a) =>
@@ -513,7 +504,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) / ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c)/(dynamic) right.Eval(c);
             };
 
             PlasticMacro eq = (c, a) =>
@@ -541,7 +532,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) != ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c) != (dynamic) right.Eval(c);
             };
 
             PlasticMacro gt = (c, a) =>
@@ -549,7 +540,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) > ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c) > (dynamic) right.Eval(c);
             };
 
             PlasticMacro gteq = (c, a) =>
@@ -557,7 +548,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) >= ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c) >= (dynamic) right.Eval(c);
             };
 
             PlasticMacro lt = (c, a) =>
@@ -565,7 +556,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) < ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c) < (dynamic) right.Eval(c);
             };
 
             PlasticMacro lteq = (c, a) =>
@@ -573,7 +564,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) <= ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c) <= (dynamic) right.Eval(c);
             };
 
             PlasticMacro booland = (c, a) =>
@@ -581,7 +572,7 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) && ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c) && (dynamic) right.Eval(c);
             };
 
             PlasticMacro boolor = (c, a) =>
@@ -589,14 +580,14 @@ ActorSystem :=  func(name)
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return ((dynamic)left.Eval(c)) || ((dynamic)right.Eval(c));
+                return (dynamic) left.Eval(c) || (dynamic) right.Eval(c);
             };
 
             PlasticMacro not = (c, a) =>
             {
                 var exp = a.ElementAt(0);
 
-                return !((dynamic) exp.Eval(c));
+                return !(dynamic) exp.Eval(c);
             };
 
             PlasticMacro dotop = (c, a) =>
@@ -631,15 +622,6 @@ ActorSystem :=  func(name)
                 return right.Eval(objContext);
             };
 
-            //PlasticMacro actorSystem = (c, a) =>
-            //{
-            //    var name = a.First().Eval(c) as string;
-            //    var system = ActorSystem.Create(name);
-
-
-            ////    return res;
-            //};
-
             context.Declare("print", print);
             context.Declare("while", @while);
             context.Declare("each", each);
@@ -673,8 +655,8 @@ ActorSystem :=  func(name)
             context.Declare("_dot", dotop);
             context.Declare("_not", not);
             //context.Declare("ActorSystem", actorSystem);
-           
-            
+
+
             BootstrapLib(context);
 
             return context;
