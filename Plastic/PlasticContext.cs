@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using PlasticLang.Ast;
 
 namespace PlasticLang
@@ -8,18 +9,18 @@ namespace PlasticLang
 
     public abstract class PlasticContext
     {
-        public PlasticContext Parent { get; private set; }
+        public PlasticContext Parent { get; }
 
         protected PlasticContext(PlasticContext parent)
         {
             Parent = parent;
         }
-        public abstract object Number(NumberLiteral numberLiteral);
+        public abstract Task<object> Number(NumberLiteral numberLiteral);
 
-        public abstract object QuotedString(StringLiteral stringLiteral);
+        public abstract Task<object> QuotedString(StringLiteral stringLiteral);
 
 
-        public abstract object Invoke(IExpression head, IExpression[] args);
+        public abstract Task<object> Invoke(IExpression head, IExpression[] args);
 
         public abstract object this[string name] { get; set; }
 
@@ -87,24 +88,23 @@ namespace PlasticLang
             _cells[name] = value;
         }
 
-        private object InvokeMacro(PlasticContext context, PlasticMacro macro, IExpression[] Args)
+        private static async Task<object> InvokeMacro(PlasticContext context, PlasticMacro macro, IExpression[] args)
         {
-            var args = Args;
-            var res = macro(context, args);
+            var res = await macro(context, args);
             context.Declare("last", res);
             return res;
         }
 
-        public override object Invoke(IExpression head, IExpression[] args)
+        public override async Task<object> Invoke(IExpression head, IExpression[] args)
         {
-            var target = head.Eval(this);
+            var target = await head.Eval(this);
             var macro = target as PlasticMacro;
             var expression = target as IExpression;
             var array = target as object[];
 
             if (macro != null)
             {
-                return InvokeMacro(this, macro, args);
+                return await InvokeMacro(this, macro, args);
             }
 
             if (expression != null)
@@ -114,20 +114,22 @@ namespace PlasticLang
 
             if (array != null)
             {
-                var index = (int)(decimal)args.First().Eval(this);
+                var index = (int)(decimal) await args.First().Eval(this);
                 return array[index];
             }
             throw new NotImplementedException();
         }
 
-        public override object Number(NumberLiteral numberLiteral)
+        public override Task<object> Number(NumberLiteral numberLiteral)
         {
-            return numberLiteral.Value;
+            var res= numberLiteral.Value;
+            return Task.FromResult((object) res);
         }
 
-        public override object QuotedString(StringLiteral stringLiteral)
+        public override Task<object> QuotedString(StringLiteral stringLiteral)
         {
-            return stringLiteral.Value;
+            var res = stringLiteral.Value;
+            return Task.FromResult((object) res);
         }
     }
 
@@ -163,11 +165,11 @@ namespace PlasticLang
             throw new NotSupportedException();
         }
 
-        public override object Invoke(IExpression head, IExpression[] args)
+        public override async Task<object> Invoke(IExpression head, IExpression[] args)
         {
 
             var memberName = (head as Symbol).Value;
-            var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
+            var evaluatedArgs = args.Select(async a => await a.Eval(Parent)).ToArray();
             var members = _type.GetMethods().Where(m => m.Name == memberName);
             foreach (var member in members)
             {
@@ -184,12 +186,12 @@ namespace PlasticLang
             throw new Exception("No matching method found.");
         }
 
-        public override object Number(NumberLiteral numberLiteral)
+        public override Task<object> Number(NumberLiteral numberLiteral)
         {
             throw new NotImplementedException();
         }
 
-        public override object QuotedString(StringLiteral stringLiteral)
+        public override Task<object> QuotedString(StringLiteral stringLiteral)
         {
             throw new NotImplementedException();
         }
@@ -204,12 +206,13 @@ namespace PlasticLang
             _array = array;
         }
 
-        public override object Invoke(IExpression head, IExpression[] args)
+        public override Task<object> Invoke(IExpression head, IExpression[] args)
         {
             var index = (int)(head as NumberLiteral).Value;
             var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
 
-            return _array[index];
+            var res = _array[index];
+            return Task.FromResult(res);
         }
 
         public override object this[string name]
@@ -236,15 +239,17 @@ namespace PlasticLang
             throw new NotImplementedException();
         }
 
-        public override object Number(NumberLiteral numberLiteral)
+        public override Task<object> Number(NumberLiteral numberLiteral)
         {
             var index = (int) numberLiteral.Value;
-            return _array[index];
+            var res= _array[index];
+            return Task.FromResult(res);
         }
 
-        public override object QuotedString(StringLiteral stringLiteral)
+        public override Task<object> QuotedString(StringLiteral stringLiteral)
         {
-            return this[stringLiteral.Value];
+            var res= this[stringLiteral.Value];
+            return Task.FromResult(res);
         }
     }
 
@@ -257,7 +262,7 @@ namespace PlasticLang
             _obj = obj;
         }
 
-        public override object Invoke(IExpression head, IExpression[] args)
+        public override Task<object> Invoke(IExpression head, IExpression[] args)
         {
             var memberName = "";
             if (head is IStringLiteral)
@@ -276,7 +281,7 @@ namespace PlasticLang
                     try
                     {
                         var res = method.Invoke(_obj, evaluatedArgs);
-                        return res;
+                        return Task.FromResult(res);
                     }
                     catch
                     {
@@ -326,14 +331,15 @@ namespace PlasticLang
             throw new NotImplementedException();
         }
 
-        public override object Number(NumberLiteral numberLiteral)
+        public override Task<object> Number(NumberLiteral numberLiteral)
         {
             throw new NotImplementedException();
         }
 
-        public override object QuotedString(StringLiteral stringLiteral)
+        public override Task<object> QuotedString(StringLiteral stringLiteral)
         {
-            return this[stringLiteral.Value];
+            var res = this[stringLiteral.Value];
+            return Task.FromResult(res);
         }
     }
 }

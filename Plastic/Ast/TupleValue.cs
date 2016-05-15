@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
@@ -17,14 +18,15 @@ namespace PlasticLang.Ast
 
         public IExpression[] Items { get; set; }
 
-        public object Eval(PlasticContext context)
+        public Task<object> Eval(PlasticContext context)
         {
-            return new TupleInstance(Items.Select(i => i.Eval(context)));
+            var res = new TupleInstance(Items.Select(i => i.Eval(context)));
+            return Task.FromResult((object) res);
         }
 
         public override string ToString()
         {
-            return string.Format("({0})", string.Join(",", Items.Select(i => i.ToString())));
+            return $"({string.Join(",", Items.Select(i => i.ToString()))})";
         }
     }
 

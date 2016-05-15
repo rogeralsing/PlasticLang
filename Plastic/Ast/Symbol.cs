@@ -1,4 +1,6 @@
-﻿namespace PlasticLang.Ast
+﻿using System.Threading.Tasks;
+
+namespace PlasticLang.Ast
 {
     public class Symbol : IExpression , IStringLiteral
     {
@@ -9,9 +11,9 @@
 
         public string Value { get; set; }
 
-        public object Eval(PlasticContext context)
+        public Task<object> Eval(PlasticContext context)
         {
-            return context[Value];
+            return Task.FromResult(context[Value]);
         }
 
         public override string ToString()

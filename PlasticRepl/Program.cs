@@ -7,7 +7,8 @@ namespace PlasticRepl
     {
         static void Main(string[] args)
         {
-            PlasticContext context = Plastic.SetupCoreSymbols();
+            PlasticContext context = Plastic.SetupCoreSymbols().Result;
+            
             var userContext = new PlasticContextImpl(context);
             while (true)
             {
@@ -17,8 +18,8 @@ namespace PlasticRepl
                 var input = Console.ReadLine();
                 try
                 {
-                    
-                    var res = Plastic.Run(input, userContext);
+
+                    var res = Plastic.Run(input, userContext).Result;
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("{0}", res);
                     Console.ForegroundColor = ConsoleColor.DarkGray;

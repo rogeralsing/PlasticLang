@@ -1,7 +1,9 @@
-﻿namespace PlasticLang.Ast
+﻿using System.Threading.Tasks;
+
+namespace PlasticLang.Ast
 {
     public interface IExpression
     {
-        object Eval(PlasticContext context);
+        Task<object> Eval(PlasticContext context);
     }
 }

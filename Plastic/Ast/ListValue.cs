@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
@@ -26,7 +27,7 @@ namespace PlasticLang.Ast
             get { return Elements.First(); }
         }
 
-        public object Eval(PlasticContext context)
+        public Task<object> Eval(PlasticContext context)
         {
             return context.Invoke(Head, Args);
         }

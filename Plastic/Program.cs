@@ -18,8 +18,6 @@ namespace PlasticLang
             },error => 1);
             Console.ReadLine();
             return returnvalue;
-
-
         }
     }
 

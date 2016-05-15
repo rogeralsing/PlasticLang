@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
@@ -18,7 +19,7 @@ namespace PlasticLang.Ast
 
         public decimal Value { get; private set; }
 
-        public object Eval(PlasticContext context)
+        public Task<object> Eval(PlasticContext context)
         {
             return context.Number(this);
         }

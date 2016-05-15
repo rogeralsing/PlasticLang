@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
@@ -13,9 +14,9 @@ namespace PlasticLang.Ast
             _statements = statements;
         }
 
-        public object Eval(PlasticContext context)
+        public Task<object> Eval(PlasticContext context)
         {
-            object result = null;
+            Task<object> result = null;
             foreach (var statement in _statements)
             {
                 result = statement.Eval(context);

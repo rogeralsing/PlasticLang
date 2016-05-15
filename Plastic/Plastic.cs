@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using PlasticLang.Ast;
 using Sprache;
 
@@ -11,12 +12,12 @@ namespace PlasticLang
     {
         public static void Run(string code)
         {
-            var context = SetupCoreSymbols();
+            var context = SetupCoreSymbols().Result;
             var userContext = new PlasticContextImpl(context);
             Run(code, userContext);
         }
 
-        public static object Run(string code, PlasticContext context)
+        public static Task<object> Run(string code, PlasticContext context)
         {
             var res = PlasticParser.Statements.Parse(code);
             return res.Eval(context);
@@ -163,14 +164,14 @@ quote := func(@q)
             libCode.Eval(context);
         }
 
-        public static PlasticContext SetupCoreSymbols()
+        public static async Task<PlasticContext> SetupCoreSymbols()
         {
             var exit = new object();
             var context = new PlasticContextImpl();
-            PlasticMacro print = (c, a) =>
+            PlasticMacro print = async (c, a) =>
             {
-                var obj = a.First().Eval(c);
-                var args = a.Skip(1).Select(o => o.Eval(c)).ToArray();
+                var obj = await a.First().Eval(c);
+                var args = a.Skip(1).Select(async o => await o.Eval(c)).ToArray();
                 if (args.Any())
                 {
                     Console.WriteLine(obj.ToString(), args);
@@ -182,28 +183,28 @@ quote := func(@q)
                 return obj;
             };
 
-            PlasticMacro @while = (c, a) =>
+            PlasticMacro @while = async (c, a) =>
             {
                 var result = exit;
                 var cond = a[0];
                 var body = a[1];
 
-                while ((bool) cond.Eval(c))
+                while ((bool) await cond.Eval(c))
                 {
-                    result = body.Eval(c);
+                    result =await body.Eval(c);
                 }
 
                 return result;
             };
 
-            PlasticMacro @if = (c, a) =>
+            PlasticMacro @if = async (c, a) =>
             {
                 var cond = a[0];
                 var body = a[1];
 
-                if ((bool) cond.Eval(c))
+                if ((bool) await cond.Eval(c))
                 {
-                    var res = body.Eval(c);
+                    var res = await body.Eval(c);
                     if (res == exit)
                         return null;
                     return res;
@@ -212,7 +213,7 @@ quote := func(@q)
                 return exit;
             };
 
-            PlasticMacro @elif = (c, a) =>
+            PlasticMacro @elif = async (c, a) =>
             {
                 var last = c["last"];
                 if (last != exit)
@@ -221,9 +222,9 @@ quote := func(@q)
                 var cond = a[0];
                 var body = a[1];
 
-                if ((bool) cond.Eval(c))
+                if ((bool) await cond.Eval(c))
                 {
-                    var res = body.Eval(c);
+                    var res = await body.Eval(c);
                     if (res == exit)
                         return null;
                     return res;
@@ -232,7 +233,7 @@ quote := func(@q)
                 return exit;
             };
 
-            PlasticMacro @else = (c, a) =>
+            PlasticMacro @else = async (c, a) =>
             {
                 var last = c["last"];
                 if (last != exit)
@@ -240,19 +241,19 @@ quote := func(@q)
 
                 var body = a[0];
 
-                var res = body.Eval(c);
+                var res = await body.Eval(c);
                 if (res == exit)
                     return null;
 
                 return res;
             };
 
-            PlasticMacro each = (c, a) =>
+            PlasticMacro each = async (c, a) =>
             {
                 var v = a[0] as Symbol;
                 var body = a[2];
 
-                var enumerable = a[1].Eval(c) as IEnumerable;
+                var enumerable = await a[1].Eval(c) as IEnumerable;
                 if (enumerable == null)
                     return exit;
 
@@ -260,7 +261,7 @@ quote := func(@q)
                 foreach (var element in enumerable)
                 {
                     c.Declare(v.Value, element);
-                    result = body.Eval(c);
+                    result = await body.Eval(c);
                 }
                 return result;
             };
@@ -282,7 +283,7 @@ quote := func(@q)
                 var body = a.Last();
 
                 PlasticMacro op = null;
-                op = (callingContext, args) =>
+                op = async (callingContext, args) =>
                 {
                     //full application
                     if (args.Length >= argsMinusOne.Length)
@@ -302,14 +303,14 @@ quote := func(@q)
                             }
                             else if (arg.Type == ArgumentType.Value)
                             {
-                                var value = args[i].Eval(callingContext);
+                                var value = await args[i].Eval(callingContext);
                                 invocationScope.Declare(arg.Name, value);
                                 arguments.Add(value);
                             }
                             invocationScope.Declare("args", arguments.ToArray());
                         }
 
-                        var m = body.Eval(invocationScope);
+                        var m = await body.Eval(invocationScope);
                         return m;
                     }
                     //partial application
@@ -317,74 +318,75 @@ quote := func(@q)
 
                     PlasticMacro partial = (ctx, pargs) => op(ctx, partialArgs.Union(pargs).ToArray());
 
-                    return partial;
+                    return Task.FromResult((object)partial);
                 };
-                return op;
+                return Task.FromResult((object)op);
             };
 
 
             PlasticMacro @class = (c, a) =>
             {
                 var body = a.Last();
-                PlasticMacro f = (ctx, args) =>
+                PlasticMacro f = async (ctx, args) =>
                 {
                     var thisContext = new PlasticContextImpl(c);
 
                     for (var i = 0; i < a.Length - 1; i++)
                     {
                         var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
-                        thisContext.Declare(argName.Value, args[i].Eval(ctx));
+                        var arg = await args[i].Eval(ctx);
+                        thisContext.Declare(argName.Value, arg);
                     }
 
                     var self = new PlasticObject(thisContext);
                     thisContext.Declare("this", self);
-                    body.Eval(thisContext);
+                    await body.Eval(thisContext);
 
                     return self;
                 };
-                return f;
+                return Task.FromResult((object)f);
             };
 
             PlasticMacro mixin = (c, a) =>
             {
                 var body = a.Last();
-                PlasticMacro f = (ctx, args) =>
+                PlasticMacro f = async (ctx, args) =>
                 {
                     var thisContext = ctx;
 
                     for (var i = 0; i < a.Length - 1; i++)
                     {
                         var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
-                        thisContext.Declare(argName.Value, args[i].Eval(ctx));
+                        thisContext.Declare(argName.Value, await args[i].Eval(ctx));
                     }
 
-                    body.Eval(thisContext);
+                    await body.Eval(thisContext);
 
                     return null;
                 };
-                return f;
+                return Task.FromResult((object)f);
             };
 
             PlasticMacro @using = (c, a) =>
             {
                 var path = a.First() as StringLiteral;
                 var type = Type.GetType(path.Value);
-                return type;
+                return Task.FromResult((object)type);
             };
 
-            PlasticMacro eval = (c, a) =>
+            PlasticMacro eval = async (c, a) =>
             {
-                var code = a.First().Eval(c) as string;
+                var code = await a.First().Eval(c) as string;
                 var res = Run(code, c);
                 return res;
             };
 
-            PlasticMacro assign = (c, a) =>
+            PlasticMacro assign = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                var value = right.Eval(c);
+                var value = await right.Eval(c);
 
                 var assignee = left as Symbol;
 
@@ -396,7 +398,7 @@ quote := func(@q)
                 var dot = left as ListValue;
                 if (dot != null)
                 {
-                    var obj = dot.Args.ElementAt(0).Eval(c) as PlasticObject;
+                    var obj = await dot.Args.ElementAt(0).Eval(c) as PlasticObject;
                     var memberId = dot.Args.ElementAt(1) as Symbol;
                     obj[memberId.Value] = value;
                 }
@@ -465,52 +467,52 @@ quote := func(@q)
                 return value;
             };
 
-            PlasticMacro def = (c, a) =>
+            PlasticMacro def = async (c, a) =>
             {
                 var left = a.ElementAt(0) as Symbol;
                 var right = a.ElementAt(1);
 
-                var value = right.Eval(c);
+                var value = await right.Eval(c);
                 context.Declare(left.Value, value);
                 return value;
             };
 
-            PlasticMacro add = (c, a) =>
+            PlasticMacro add = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c) + (dynamic) right.Eval(c);
+                return (dynamic)  await left.Eval(c) + (dynamic) await right.Eval(c);
             };
 
-            PlasticMacro sub = (c, a) =>
+            PlasticMacro sub = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c) - (dynamic) right.Eval(c);
+                return (dynamic) await left.Eval(c) - (dynamic) await right.Eval(c);
             };
 
-            PlasticMacro mul = (c, a) =>
+            PlasticMacro mul = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c)*(dynamic) right.Eval(c);
+                return (dynamic) await left.Eval(c)*(dynamic) await right.Eval(c);
             };
 
-            PlasticMacro div = (c, a) =>
+            PlasticMacro div = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c)/(dynamic) right.Eval(c);
+                return (dynamic) await left.Eval(c)/(dynamic) await right.Eval(c);
             };
 
-            PlasticMacro eq = (c, a) =>
+            PlasticMacro eq = async (c, a) =>
             {
-                dynamic left = a.ElementAt(0).Eval(c);
-                dynamic right = a.ElementAt(1).Eval(c);
+                dynamic left = await a.ElementAt(0).Eval(c);
+                dynamic right = await a.ElementAt(1).Eval(c);
 
                 if (left == null)
                 {
@@ -527,99 +529,97 @@ quote := func(@q)
                 return left == right;
             };
 
-            PlasticMacro neq = (c, a) =>
+            PlasticMacro neq = async (c, a) =>
+            {
+                var res = await eq(c, a);
+                return !(bool)res;
+            };
+
+            PlasticMacro gt = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c) != (dynamic) right.Eval(c);
+                return (dynamic) await left.Eval(c) > (dynamic) await right.Eval(c);
             };
 
-            PlasticMacro gt = (c, a) =>
+            PlasticMacro gteq = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c) > (dynamic) right.Eval(c);
+                return (dynamic) await left.Eval(c) >= (dynamic) await right.Eval(c);
             };
 
-            PlasticMacro gteq = (c, a) =>
+            PlasticMacro lt = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c) >= (dynamic) right.Eval(c);
+                return (dynamic) await left.Eval(c) < (dynamic) await right.Eval(c);
             };
 
-            PlasticMacro lt = (c, a) =>
+            PlasticMacro lteq = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c) < (dynamic) right.Eval(c);
+                return (dynamic) await left.Eval(c) <= (dynamic) await right.Eval(c);
             };
 
-            PlasticMacro lteq = (c, a) =>
+            PlasticMacro booland = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c) <= (dynamic) right.Eval(c);
+                return (dynamic) await left.Eval(c) && (dynamic) await right.Eval(c);
             };
 
-            PlasticMacro booland = (c, a) =>
+            PlasticMacro boolor = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) left.Eval(c) && (dynamic) right.Eval(c);
+                return (dynamic) await left.Eval(c) || (dynamic) await right.Eval(c);
             };
 
-            PlasticMacro boolor = (c, a) =>
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
-
-                return (dynamic) left.Eval(c) || (dynamic) right.Eval(c);
-            };
-
-            PlasticMacro not = (c, a) =>
+            PlasticMacro not = async (c, a) =>
             {
                 var exp = a.ElementAt(0);
 
-                return !(dynamic) exp.Eval(c);
+                return !(dynamic) await exp.Eval(c);
             };
 
-            PlasticMacro dotop = (c, a) =>
+            PlasticMacro dotop = async (c, a) =>
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                var l = left.Eval(c);
+                var l = await left.Eval(c);
 
                 var arr = l as object[];
                 if (arr != null)
                 {
                     var arrayContext = new ArrayContext(arr, c);
-                    return right.Eval(arrayContext);
+                    return await right.Eval(arrayContext);
                 }
 
                 var pobj = l as PlasticObject;
                 if (pobj != null)
                 {
-                    return right.Eval(pobj.Context);
+                    return await right.Eval(pobj.Context);
                 }
 
                 var type = l as Type;
                 if (type != null)
                 {
                     var typeContext = new TypeContext(type, c);
-                    return right.Eval(typeContext);
+                    return await right.Eval(typeContext);
                 }
 
 
                 var objContext = new InstanceContext(l, c);
-                return right.Eval(objContext);
+                return await right.Eval(objContext);
             };
 
             context.Declare("print", print);
