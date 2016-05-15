@@ -26,103 +26,83 @@ namespace PlasticLang
         public static void BootstrapLib(PlasticContext context)
         {
             var lib = @"
-for := func (@init , @guard, @step, @body)
-{
+for := func (@init , @guard, @step, @body) {
     init()
-    while(guard())
-    {
+    while(guard()) {
         body()
         step()
     }
 }
 
-repeat := func (times, @body)
-{
-    while(times >= 0)
-    {
+repeat := func (times, @body) {
+    while(times >= 0) {
         body()
         times--
     }
 }
 
-LinkedList := class 
-{
+LinkedList := class {
     Node := class (value) { next = null; }
 
     head := null;
     tail := null;
-    add := func (value)
-    {
+    add := func (value) {
         node := Node(value);
-        if (head == null)
-        {         
+        if (head == null) {         
             head = node;
             tail = node;
         }
-        else
-        {
+        else {
             tail.next =  node;
             tail = node;  
         }        
     }
 
-    each := func ( lambda)
-    {
+    each := func (lambda) {
         current := head;
-        while(current != null)
-        {
+        while(current != null) {
             lambda(current.value);
             current = current.next;
         }
     }
 }
 
-Stack := class
-{
+Stack := class {
     Node := class (value,prev) { next = null; }
 
     head := null;
     tail := null;
-    push := func (value)
-    {
+    push := func (value) {
         node = Node(value,tail);
-        if (head == null)
-        {         
+        if (head == null) {         
             head = node;
             tail = node;
         }
-        else
-        {
+        else {
             tail.next =  node;
             tail = node;  
         }        
     }
 
-    each := func (lambda)
-    {
+    each := func (lambda) {
         current = tail;
-        while(current != null)
-        {
+        while(current != null) {
             lambda(current.value);
             current = current.prev;
         }
     }
 
-    peek := func()
-    {
+    peek := func() {
         tail.value;
     }
 
-    pop := func()
-    {
+    pop := func() {
         res = tail.value;
         tail = tail.prev;
-        if (tail != null)
-        {
+        if (tail != null) {
             tail.next = null;
         }
-        else
-        {
+        else {
             head = null;
         }
         res
@@ -130,29 +110,23 @@ Stack := class
 }
 
 
-switch :=  func(exp, @body)
-{
+switch :=  func(exp, @body) {
     matched := false;
-    case := func (value, @caseBody)
-    {   
-        if (exp == value)
-        {
+    case := func (value, @caseBody) {   
+        if (exp == value) {
             caseBody();
             matched = true;
         }
     }
-    default := func (@defaultBody)
-    {
-        if (matched == false)
-        {
+    default := func (@defaultBody) {
+        if (matched == false) {
             defaultBody();
         }
     }
     body();
 }
 
-quote := func(@q)
-{
+quote := func(@q) {
     q
 }
 
