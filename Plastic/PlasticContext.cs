@@ -109,7 +109,7 @@ namespace PlasticLang
 
             if (expression != null)
             {
-                return expression.Eval(this);
+                return await expression.Eval(this);
             }
 
             if (array != null)
