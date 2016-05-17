@@ -60,7 +60,7 @@ while (a < 5)
      a++
 }
 
-(x => print('lambda fun {0}', x))('yay')
+(x => print('lambda fun ' + x))('yay')
 
 if (true, print('hello'))
 

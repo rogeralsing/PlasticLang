@@ -18,10 +18,17 @@ namespace PlasticLang.Ast
 
         public IExpression[] Items { get; set; }
 
-        public Task<object> Eval(PlasticContext context)
+        public async Task<object> Eval(PlasticContext context)
         {
-            var res = new TupleInstance(Items.Select(i => i.Eval(context)));
-            return Task.FromResult((object) res);
+            var items = new object[Items.Length];
+            for (int i = 0; i < Items.Length; i++)
+            {
+                var v = await Items[i].Eval(context);
+                items[i] = v;
+            }
+          
+            var res = new TupleInstance(items);
+            return res;
         }
 
         public override string ToString()

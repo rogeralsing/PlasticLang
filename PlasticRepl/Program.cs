@@ -23,7 +23,7 @@ namespace PlasticRepl
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("{0}", res);
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine("{0}", res != null ? res.GetType().Name:"null");
+                    Console.WriteLine("{0}", res?.GetType().Name ?? "null");
                 }
                 catch (Exception x)
                 {

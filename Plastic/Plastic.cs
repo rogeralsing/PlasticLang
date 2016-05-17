@@ -145,7 +145,14 @@ quote := func(@q) {
             PlasticMacro print = async (c, a) =>
             {
                 var obj = await a.First().Eval(c);
-                var args = a.Skip(1).Select(async o => await o.Eval(c)).ToArray();
+                var source = a.Skip(1).ToArray();
+                var args = new object[source.Length];
+                for (int i = 0; i < source.Length; i++)
+                {
+                    var v = await source[i].Eval(c);
+                    args[i] = v;
+                }
+                
                 if (args.Any())
                 {
                     Console.WriteLine(obj.ToString(), args);
