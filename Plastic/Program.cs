@@ -7,17 +7,20 @@ namespace PlasticLang
 {
     internal class Program
     {
-        private static int Main(string[] args)
+        private static void Main(string[] args)
         {
-            var result = Parser.Default.ParseArguments<Options>(args);
-            var returnvalue = result.Return(options =>
-            {
-                var code = File.ReadAllText(options.InputFile);
-                Plastic.Run(code);
-                return 0;
-            },error => 1);
+            var code = File.ReadAllText("sample.pla");
+            Plastic.Run(code);
             Console.ReadLine();
-            return returnvalue;
+            //var result = Parser.Default.ParseArguments<Options>(args);
+            //var returnvalue = result.Return(options =>
+            //{
+            //    var code = File.ReadAllText("sample.pla");
+            //    Plastic.Run(code);
+            //    return 0;
+            //},error => 1);
+            //Console.ReadLine();
+            //return returnvalue;
         }
     }
 
