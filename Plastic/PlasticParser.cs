@@ -68,7 +68,7 @@ namespace PlasticLang
                 .Or(Parse.Ref(() => Body));
 
         public static readonly Parser<Syntax> Dot = Parse.ChainOperator(DotOperator,
-            Parse.Ref(() => InvocationOrValue), (o, l, r) => ListValue.CallFunction("_dot", l, r));
+            Parse.Ref(() => InvocationOrValue), (_, l, r) => ListValue.CallFunction("_dot", l, r));
 
         public static readonly Parser<Syntax> Term = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
             Parse.Ref(() => InnerTerm), (o, l, r) => ListValue.CallFunction(o, l, r));
@@ -92,7 +92,7 @@ namespace PlasticLang
                 Compare, (o, l, r) => ListValue.CallFunction(o, l, r));
 
         public static readonly Parser<Syntax> Assignment = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
-            Parse.Ref(() => BooleanLogic), (o, l, r) =>
+            Parse.Ref(() => BooleanLogic), (_, l, r) =>
                 ListValue.CallFunction("assign", l, r));
 
         public static readonly Parser<Syntax> LetAssign =
@@ -147,7 +147,7 @@ namespace PlasticLang
                 .Select(o =>
                 {
                     var args = o.ToArray(); //if a single value, return the value itself. tuples are at least 2 or m
-                    return args.Length == 1 ? o.First() : new TupleValue(o.ToArray());
+                    return args.Length == 1 ? args.First() : new TupleValue(args.ToArray());
                 });
 
         public static readonly Parser<Syntax[]> InvocationArgs =
@@ -179,10 +179,10 @@ namespace PlasticLang
         private static Parser<StringLiteral> MakeString(char quote)
         {
             return (from str in Parse.CharExcept(quote).Many().Contained(Parse.Char(quote), Parse.Char(quote))
-                    select new StringLiteral(new string(str.ToArray())))
+                    select string.Concat(str.ToArray()).ToLiteral())
                 .Or(from colon in Parse.Char(':')
                     from id in Parse.Ref(() => Symbol)
-                    select new StringLiteral(":" + id.Value)
+                    select (":" + id.Value).ToLiteral()
                 ).PlasticToken();
         }
 

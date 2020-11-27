@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
 
-namespace PlasticLang
+namespace PlasticLang.Contexts
 {
     public class ArrayContext : PlasticContext
     {
@@ -13,7 +13,7 @@ namespace PlasticLang
             _array = array;
         }
 
-        public override object this[string name]
+        public override object? this[string name]
         {
             get
             {

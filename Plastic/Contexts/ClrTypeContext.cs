@@ -2,19 +2,20 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
+using PlasticLang.Visitors;
 
-namespace PlasticLang
+namespace PlasticLang.Contexts
 {
-    public class TypeContext : PlasticContext
+    public class ClrTypeContext : PlasticContext
     {
         private readonly Type _type;
 
-        public TypeContext(Type type, PlasticContext owner) : base(owner)
+        public ClrTypeContext(Type type, PlasticContext owner) : base(owner)
         {
             _type = type;
         }
 
-        public override object this[string name]
+        public override object? this[string name]
         {
             get
             {
@@ -52,14 +53,8 @@ namespace PlasticLang
             throw new Exception("No matching method found.");
         }
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral)
-        {
-            throw new NotImplementedException();
-        }
+        public override ValueTask<object> Number(NumberLiteral numberLiteral) => throw new NotImplementedException();
 
-        public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
-        {
-            throw new NotImplementedException();
-        }
+        public override ValueTask<object> QuotedString(StringLiteral stringLiteral) => throw new NotImplementedException();
     }
 }

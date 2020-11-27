@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
+using PlasticLang.Visitors;
 
-namespace PlasticLang
+namespace PlasticLang.Contexts
 {
     public class PlasticContextImpl : PlasticContext
     {
         private readonly Dictionary<string, object> _cells = new();
-
-
+        
         public PlasticContextImpl() : base(null)
         {
         }
@@ -19,15 +19,11 @@ namespace PlasticLang
         {
         }
 
-        public override object this[string name]
+        public override object? this[string name]
         {
-            get
-            {
+            get =>
                 //if cell is not populated in this context, fetch from parent
-                if (!_cells.ContainsKey(name)) return Parent?[name];
-
-                return _cells[name];
-            }
+                !_cells.ContainsKey(name) ? Parent?[name] : _cells[name];
             set
             {
                 if (!HasProperty(name))
@@ -36,7 +32,7 @@ namespace PlasticLang
                     return;
                 }
 
-                if (!_cells.ContainsKey(name) && Parent != null)
+                if (!_cells.ContainsKey(name) && Parent is not null)
                     Parent[name] = value;
                 else
                     _cells[name] = value;

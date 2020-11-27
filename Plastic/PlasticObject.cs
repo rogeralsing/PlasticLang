@@ -1,4 +1,6 @@
-﻿namespace PlasticLang
+﻿using PlasticLang.Contexts;
+
+namespace PlasticLang
 {
     public class PlasticObject
     {
@@ -11,7 +13,6 @@
 
         public object this[string property]
         {
-            get => Context[property];
             set => Context.Declare(property, value);
         }
     }

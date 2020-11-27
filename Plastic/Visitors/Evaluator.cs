@@ -1,24 +1,24 @@
 using System;
 using System.Threading.Tasks;
+using PlasticLang.Ast;
+using PlasticLang.Contexts;
 
-namespace PlasticLang.Ast
+namespace PlasticLang.Visitors
 {
     public static class Evaluator
     {
-        public static ValueTask<object> Eval(this Syntax syn, PlasticContext context)
-        {
-            return syn switch
-                   {
-                       ArrayValue arrayValue       => EvalArray(context, arrayValue),
-                       StringLiteral str           => EvalStringLiteral(context, str),
-                       Symbol symbol               => EvalSymbol(context, symbol),
-                       ListValue listValue         => EvalListValue(context, listValue),
-                       NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
-                       Statements statements       => EvalStatements(context, statements),
-                       TupleValue tupleValue       => EvalTupleValue(context, tupleValue),
-                       _                           => throw new ArgumentOutOfRangeException(nameof(syn))
-                   };
-        }
+        public static ValueTask<object> Eval(this Syntax syn, PlasticContext context) =>
+            syn switch
+            {
+                ArrayValue arrayValue       => EvalArray(context, arrayValue),
+                StringLiteral str           => EvalStringLiteral(context, str),
+                Symbol symbol               => EvalSymbol(context, symbol),
+                ListValue listValue         => EvalListValue(context, listValue),
+                NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
+                Statements statements       => EvalStatements(context, statements),
+                TupleValue tupleValue       => EvalTupleValue(context, tupleValue),
+                _                           => throw new ArgumentOutOfRangeException(nameof(syn))
+            };
 
         private static async ValueTask<object> EvalTupleValue(PlasticContext context, TupleValue tupleValue)
         {

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
+using PlasticLang.Contexts;
+using PlasticLang.Visitors;
 using Sprache;
 
 namespace PlasticLang
@@ -586,12 +588,12 @@ quote := func(@q) {
                 var type = l as Type;
                 if (type != null)
                 {
-                    var typeContext = new TypeContext(type, c);
+                    var typeContext = new ClrTypeContext(type, c);
                     return await right.Eval(typeContext);
                 }
 
 
-                var objContext = new InstanceContext(l, c);
+                var objContext = new ClrInstanceContext(l, c);
                 return await right.Eval(objContext);
             };
 

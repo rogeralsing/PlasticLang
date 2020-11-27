@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
+using PlasticLang.Visitors;
 
-namespace PlasticLang
+namespace PlasticLang.Contexts
 {
-    public class InstanceContext : PlasticContext
+    public class ClrInstanceContext : PlasticContext
     {
         private readonly object _obj;
 
-        public InstanceContext(object obj, PlasticContext owner) : base(owner)
+        public ClrInstanceContext(object obj, PlasticContext owner) : base(owner)
         {
             _obj = obj;
         }
 
-        public override object this[string name]
+        public override object? this[string name]
         {
             get
             {
@@ -68,20 +69,11 @@ namespace PlasticLang
             throw new Exception("No matching method found.");
         }
 
-        public override bool HasProperty(string name)
-        {
-            throw new NotImplementedException();
-        }
+        public override bool HasProperty(string name) => throw new NotImplementedException();
 
-        public override void Declare(string name, object value)
-        {
-            throw new NotImplementedException();
-        }
+        public override void Declare(string name, object value) => throw new NotImplementedException();
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral)
-        {
-            throw new NotImplementedException();
-        }
+        public override ValueTask<object> Number(NumberLiteral numberLiteral) => throw new NotImplementedException();
 
         public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
         {
