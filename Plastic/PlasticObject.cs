@@ -7,12 +7,12 @@
             Context = context;
         }
 
-        public PlasticContext Context { get; private set; }
+        public PlasticContext Context { get; }
 
         public object this[string property]
         {
-            get { return Context[property]; }
-            set { Context.Declare(property, value); }
+            get => Context[property];
+            set => Context.Declare(property, value);
         }
     }
 }

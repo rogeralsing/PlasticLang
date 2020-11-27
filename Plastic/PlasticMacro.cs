@@ -1,7 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿
+using System.Threading.Tasks;
 using PlasticLang.Ast;
 
 namespace PlasticLang
 {
-    public delegate Task<object> PlasticMacro(PlasticContext context, IExpression[] args);
+    public delegate ValueTask<object> PlasticMacro(PlasticContext context, Syntax[] args);
 }

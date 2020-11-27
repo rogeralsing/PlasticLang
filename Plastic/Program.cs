@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using CommandLine;
 
 namespace PlasticLang
 {
@@ -22,12 +20,6 @@ namespace PlasticLang
             //Console.ReadLine();
             //return returnvalue;
         }
-    }
-
-    internal class Options
-    {
-        [Option('r', "run", Required = true, HelpText = "Input file to be processed.")]
-        public string InputFile { get; set; }
     }
 }
 

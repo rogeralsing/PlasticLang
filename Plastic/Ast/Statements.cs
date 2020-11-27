@@ -5,22 +5,19 @@ using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
-    public class Statements : IExpression
+    public record Statements : Syntax
     {
-        private readonly IEnumerable<IExpression> _statements;
+        private readonly IEnumerable<Syntax> _statements;
 
-        public Statements(IEnumerable<IExpression> statements)
+        public Statements(IEnumerable<Syntax> statements)
         {
             _statements = statements;
         }
 
-        public Task<object> Eval(PlasticContext context)
+        public override ValueTask<object> Eval(PlasticContext context)
         {
-            Task<object> result = null;
-            foreach (var statement in _statements)
-            {
-                result = statement.Eval(context);
-            }
+            ValueTask<object> result = default;
+            foreach (var statement in _statements) result = statement.Eval(context);
             return result;
         }
 

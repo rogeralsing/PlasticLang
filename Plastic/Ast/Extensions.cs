@@ -5,7 +5,7 @@ namespace PlasticLang.Ast
 {
     public static class ExpressionExtensions
     {
-        public static T[] Union<T>(this T self, IEnumerable<T> rest) where T : IExpression
+        public static T[] Union<T>(this T self, IEnumerable<T> rest) where T : Syntax
         {
             return Enumerable.Repeat(self, 1).Union(rest).ToArray();
         }

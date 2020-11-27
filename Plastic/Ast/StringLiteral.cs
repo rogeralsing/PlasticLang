@@ -2,7 +2,7 @@
 
 namespace PlasticLang.Ast
 {
-    public class StringLiteral : IExpression ,IStringLiteral
+    public record StringLiteral : Syntax, IStringLiteral
     {
         public StringLiteral(string value)
         {
@@ -11,7 +11,7 @@ namespace PlasticLang.Ast
 
         public string Value { get; }
 
-        public Task<object> Eval(PlasticContext context)
+        public override ValueTask<object> Eval(PlasticContext context)
         {
             return context.QuotedString(this);
         }

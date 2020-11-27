@@ -2,8 +2,8 @@
 
 namespace PlasticLang.Ast
 {
-    public interface IExpression
+    public abstract record Syntax
     {
-        Task<object> Eval(PlasticContext context);
+        public abstract ValueTask<object> Eval(PlasticContext context);
     }
 }

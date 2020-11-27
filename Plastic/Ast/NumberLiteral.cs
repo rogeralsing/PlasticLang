@@ -1,11 +1,12 @@
 ﻿using System.Globalization;
 using System.Threading.Tasks;
 
+
 namespace PlasticLang.Ast
 {
-    public class NumberLiteral : IExpression
+    public record NumberLiteral : Syntax
     {
-        public static readonly NumberLiteral One = new NumberLiteral(1m);
+        public static readonly NumberLiteral One = new(1m);
 
         public NumberLiteral(decimal numb)
         {
@@ -19,14 +20,8 @@ namespace PlasticLang.Ast
 
         public decimal Value { get; }
 
-        public Task<object> Eval(PlasticContext context)
-        {
-            return context.Number(this);
-        }
+        public override ValueTask<object> Eval(PlasticContext context) => context.Number(this);
 
-        public override string ToString()
-        {
-            return Value.ToString(CultureInfo.InvariantCulture);
-        }
+        public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
     }
 }

@@ -4,29 +4,24 @@ using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
-    public class TupleValue : IExpression
+    public record TupleValue : Syntax
     {
-        public TupleValue(params IExpression[] items)
-        {
-            Items = items;
-        }
-
-        public TupleValue(IEnumerable<IExpression> items)
+        public TupleValue(IEnumerable<Syntax> items)
         {
             Items = items.ToArray();
         }
 
-        public IExpression[] Items { get; set; }
+        public Syntax[] Items { get; }
 
-        public async Task<object> Eval(PlasticContext context)
+        public override async ValueTask<object> Eval(PlasticContext context)
         {
             var items = new object[Items.Length];
-            for (int i = 0; i < Items.Length; i++)
+            for (var i = 0; i < Items.Length; i++)
             {
                 var v = await Items[i].Eval(context);
                 items[i] = v;
             }
-          
+
             var res = new TupleInstance(items);
             return res;
         }
@@ -44,12 +39,7 @@ namespace PlasticLang.Ast
             Items = items;
         }
 
-        public TupleInstance(IEnumerable<object> items)
-        {
-            Items = items.ToArray();
-        }
-
-        public object[] Items { get; set; }
+        public object[] Items { get; }
 
         public override string ToString()
         {

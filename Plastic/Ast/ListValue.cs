@@ -3,25 +3,25 @@ using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
-    public class ListValue : IExpression
+    public record ListValue : Syntax
     {
-        public static ListValue CallFunction(string name, params IExpression[] args)
-        {
-            return new ListValue(new Symbol(name).Union(args));
-        }
-
-        public ListValue(params IExpression[] elements)
+        public ListValue(params Syntax[] elements)
         {
             Elements = elements;
         }
 
-        public IExpression[] Elements { get; }
+        public Syntax[] Elements { get; }
 
-        public IExpression[] Args => Elements.Skip(1).ToArray();
+        public Syntax[] Args => Elements.Skip(1).ToArray();
 
-        public IExpression Head => Elements.First();
+        public Syntax Head => Elements.First();
 
-        public Task<object> Eval(PlasticContext context)
+        public static ListValue CallFunction(string name, params Syntax[] args)
+        {
+            return new(new Symbol(name).Union(args));
+        }
+
+        public override ValueTask<object> Eval(PlasticContext context)
         {
             return context.Invoke(Head, Args);
         }

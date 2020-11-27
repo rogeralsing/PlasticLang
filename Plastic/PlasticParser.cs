@@ -24,49 +24,13 @@ namespace PlasticLang
 
         public static readonly Parser<string> DotOperator = BinOps(".", "_dot");
 
-
-        public static Parser<string> BinOps(string op, string name)
-        {
-            return Parse.String(op).PlasticToken().Return(name);
-        }
-
-        private static Parser<StringLiteral> MakeString(char quote)
-        {
-            return (from str in Parse.CharExcept(quote).Many().Contained(Parse.Char(quote), Parse.Char(quote))
-                select new StringLiteral(new string(str.ToArray())))
-                .Or(from colon in Parse.Char(':')
-                    from id in Parse.Ref(() => Symbol)
-                    select new StringLiteral(":" + id.Value)
-                ).PlasticToken();
-        }
-
-        private static IExpression CreateInvocations(IExpression head, IExpression[][] argsList, Statements body)
-        {
-            var current = head;
-            for (var i = 0; i < argsList.Length; i++)
-            {
-                var tuple = argsList[i];
-                var args = tuple;
-                if (i == argsList.Length - 1 && body != null)
-                {
-                    args = args.Union(Enumerable.Repeat(body, 1)).ToArray();
-                }
-                current = new ListValue(current.Union(args));
-            }
-            if (argsList.Length == 0 && body != null)
-            {
-                current = new ListValue(current, body);
-            }
-            return current;
-        }
-
         public static Parser<char> Separator = Parse.Char(',').Or(Parse.Char(';')).PlasticToken();
 
         public static readonly Parser<Symbol> Symbol =
             (from first in Parse.Letter.Or(Parse.Chars('_', '@')).Once().Text()
                 from rest in Parse.LetterOrDigit.Or(Parse.Chars('!', '?', '_')).Many().Text()
                 select new Symbol(first + rest))
-                .PlasticToken();
+            .PlasticToken();
 
         public static readonly Parser<NumberLiteral> Number =
             (from numb in Parse.DecimalInvariant
@@ -74,27 +38,27 @@ namespace PlasticLang
 
         public static readonly Parser<StringLiteral> QuotedString = MakeString('"').Or(MakeString('\''));
 
-        public static readonly Parser<IExpression> Literal =
-            Symbol.Select(x => x as IExpression)
+        public static readonly Parser<Syntax> Literal =
+            Symbol.Select(x => x as Syntax)
                 .Or(Number)
                 .Or(QuotedString);
 
-        public static readonly Parser<IExpression> NotExpression =
+        public static readonly Parser<Syntax> NotExpression =
             from not in Parse.Char('!').PlasticToken()
             from exp in Parse.Ref(() => Dot)
             select ListValue.CallFunction("_not", exp);
 
-        public static readonly Parser<IExpression> IdentifierInc =
+        public static readonly Parser<Syntax> IdentifierInc =
             from symbol in Symbol
             from plusplus in Parse.String("++").PlasticToken()
             select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_add", symbol, NumberLiteral.One));
 
-        public static readonly Parser<IExpression> IdentifierDec =
+        public static readonly Parser<Syntax> IdentifierDec =
             from symbol in Symbol
             from plusplus in Parse.String("--").PlasticToken()
             select ListValue.CallFunction("assign", symbol, ListValue.CallFunction("_sub", symbol, NumberLiteral.One));
 
-        public static readonly Parser<IExpression> Value =
+        public static readonly Parser<Syntax> Value =
             Parse.Ref(() => TupleOrParenValue)
                 .Or(Parse.Ref(() => NotExpression))
                 .Or(Parse.Ref(() => ArrayValue))
@@ -103,16 +67,16 @@ namespace PlasticLang
                 .Or(Parse.Ref(() => Literal))
                 .Or(Parse.Ref(() => Body));
 
-        public static readonly Parser<IExpression> Dot = Parse.ChainOperator(DotOperator,
-            Parse.Ref(() => InvocationOrValue), (o, l, r) =>  ListValue.CallFunction("_dot",l,r));
+        public static readonly Parser<Syntax> Dot = Parse.ChainOperator(DotOperator,
+            Parse.Ref(() => InvocationOrValue), (o, l, r) => ListValue.CallFunction("_dot", l, r));
 
-        public static readonly Parser<IExpression> Term = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
+        public static readonly Parser<Syntax> Term = Parse.ChainOperator(AddOperator.Or(SubtractOperator),
             Parse.Ref(() => InnerTerm), (o, l, r) => ListValue.CallFunction(o, l, r));
 
-        public static readonly Parser<IExpression> InnerTerm = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
+        public static readonly Parser<Syntax> InnerTerm = Parse.ChainOperator(MultiplyOperator.Or(DivideOperator),
             Parse.Ref(() => Dot), (o, l, r) => ListValue.CallFunction(o, l, r));
 
-        public static readonly Parser<IExpression> Compare =
+        public static readonly Parser<Syntax> Compare =
             Parse.ChainOperator(
                 EqualsOperator.Or(NotEqualsOperator)
                     .Or(GreateerOrEqualOperator)
@@ -122,32 +86,32 @@ namespace PlasticLang
                 Term, (o, l, r) => ListValue.CallFunction(o, l, r));
 
 
-        public static readonly Parser<IExpression> BooleanLogic =
+        public static readonly Parser<Syntax> BooleanLogic =
             Parse.ChainOperator(
                 BooleanOr.Or(BooleanAnd),
                 Compare, (o, l, r) => ListValue.CallFunction(o, l, r));
-       
-        public static readonly Parser<IExpression> Assignment = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
+
+        public static readonly Parser<Syntax> Assignment = Parse.ChainOperator(Parse.Char('=').PlasticToken(),
             Parse.Ref(() => BooleanLogic), (o, l, r) =>
                 ListValue.CallFunction("assign", l, r));
 
-        public static readonly Parser<IExpression> LetAssign =
+        public static readonly Parser<Syntax> LetAssign =
             from symbol in Symbol
             from assignOp in Parse.String(":=").PlasticToken()
             from expression in Parse.Ref(() => Expression)
             select ListValue.CallFunction("def", symbol, expression);
 
-        public static readonly Parser<IExpression> Expression =
+        public static readonly Parser<Syntax> Expression =
             Parse.Ref(() => LambdaDeclaration)
                 .Or(Parse.Ref(() => LetAssign))
                 .Or(Parse.Ref(() => Assignment));
 
-        public static readonly Parser<IExpression> TerminatedStatement =
+        public static readonly Parser<Syntax> TerminatedStatement =
             from exp in Parse.Ref(() => Expression)
             from _ in Separator.Optional().PlasticToken()
             select exp;
 
-        public static readonly Parser<IExpression> Statement =
+        public static readonly Parser<Syntax> Statement =
             Parse.Ref(() => TerminatedStatement);
 
         public static readonly Parser<Statements> Statements =
@@ -160,9 +124,9 @@ namespace PlasticLang
             from rbrace in Parse.Char('}').PlasticToken()
             select statements;
 
-        public static readonly Parser<IExpression> LambdaBody = Parse.Ref(() => Expression);
+        public static readonly Parser<Syntax> LambdaBody = Parse.Ref(() => Expression);
 
-        public static readonly Parser<IEnumerable<IExpression>> LambdaArgs =
+        public static readonly Parser<IEnumerable<Syntax>> LambdaArgs =
             Expression
                 .DelimitedBy(Separator)
                 .Optional()
@@ -170,13 +134,13 @@ namespace PlasticLang
                 .Select(o => o.GetOrDefault())
                 .Or(Symbol.Once());
 
-        public static readonly Parser<IExpression> LambdaDeclaration =
+        public static readonly Parser<Syntax> LambdaDeclaration =
             from args in LambdaArgs
             from arrow in Parse.String("=>").PlasticToken()
             from body in Parse.Ref(() => LambdaBody).Once()
             select ListValue.CallFunction("func", args.Union(body).ToArray());
 
-        public static readonly Parser<IExpression> TupleOrParenValue =
+        public static readonly Parser<Syntax> TupleOrParenValue =
             Parse.Ref(() => Expression)
                 .DelimitedBy(Separator)
                 .Contained(Parse.Char('(').PlasticToken(), Parse.Char(')').PlasticToken())
@@ -186,29 +150,68 @@ namespace PlasticLang
                     return args.Length == 1 ? o.First() : new TupleValue(o);
                 });
 
-        public static readonly Parser<IExpression[]> InvocationArgs =
+        public static readonly Parser<Syntax[]> InvocationArgs =
             Parse.Ref(() => Expression)
                 .DelimitedBy(Separator)
                 .Optional()
                 .Contained(Parse.Char('(').PlasticToken(), Parse.Char(')').PlasticToken())
-                .Select(o => (o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()).ToArray());
+                .Select(o => (o.IsDefined ? o.Get() : Enumerable.Empty<Syntax>()).ToArray());
 
-        public static readonly Parser<IExpression> ArrayValue =
+        public static readonly Parser<Syntax> ArrayValue =
             Parse.Ref(() => Expression)
                 .DelimitedBy(Separator)
                 .Optional()
                 .Contained(Parse.Char('[').PlasticToken(), Parse.Char(']').PlasticToken())
-                .Select(o => new ArrayValue(o.IsDefined ? o.Get() : Enumerable.Empty<IExpression>()));
+                .Select(o => new ArrayValue(o.IsDefined ? o.Get() : Enumerable.Empty<Syntax>()));
 
-        public static readonly Parser<IExpression> InvocationOrValue =
+        public static readonly Parser<Syntax> InvocationOrValue =
             from head in Parse.Ref(() => Value)
             from args in InvocationArgs.Many()
             from body in Body.Optional()
             select CreateInvocations(head, args.ToArray(), body.GetOrDefault());
+
+
+        public static Parser<string> BinOps(string op, string name)
+        {
+            return Parse.String(op).PlasticToken().Return(name);
+        }
+
+        private static Parser<StringLiteral> MakeString(char quote)
+        {
+            return (from str in Parse.CharExcept(quote).Many().Contained(Parse.Char(quote), Parse.Char(quote))
+                    select new StringLiteral(new string(str.ToArray())))
+                .Or(from colon in Parse.Char(':')
+                    from id in Parse.Ref(() => Symbol)
+                    select new StringLiteral(":" + id.Value)
+                ).PlasticToken();
+        }
+
+        private static Syntax CreateInvocations(Syntax head, Syntax[][] argsList, Statements body)
+        {
+            var current = head;
+            for (var i = 0; i < argsList.Length; i++)
+            {
+                var tuple = argsList[i];
+                var args = tuple;
+                if (i == argsList.Length - 1 && body != null) args = args.Union(Enumerable.Repeat(body, 1)).ToArray();
+                current = new ListValue(current.Union(args));
+            }
+
+            if (argsList.Length == 0 && body != null) current = new ListValue(current, body);
+            return current;
+        }
     }
 
     public static class ParseExtensions
     {
+        private static readonly CommentParser Comments = new("//", "/*", "*/", Environment.NewLine);
+
+        private static readonly Parser<string> Ws =
+            from _ in Parse.WhiteSpace.Many()
+            from c in Comments.AnyComment.Optional()
+            from __ in Parse.WhiteSpace.Many()
+            select "";
+
         public static Parser<T> PlasticToken<T>(this Parser<T> self)
         {
             return from _ in Ws
@@ -216,13 +219,5 @@ namespace PlasticLang
                 from __ in Ws
                 select item;
         }
-
-        private static readonly CommentParser Comments = new CommentParser("//", "/*", "*/", Environment.NewLine);
-
-        private static readonly Parser<string> Ws =
-            from _ in Parse.WhiteSpace.Many()
-            from c in Comments.AnyComment.Optional()
-            from __ in Parse.WhiteSpace.Many()
-            select "";
     }
 }

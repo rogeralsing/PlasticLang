@@ -17,7 +17,7 @@ namespace PlasticLang
             Run(code, userContext);
         }
 
-        public static Task<object> Run(string code, PlasticContext context)
+        public static ValueTask<object> Run(string code, PlasticContext context)
         {
             var res = PlasticParser.Statements.Parse(code);
             return res.Eval(context);
@@ -138,7 +138,7 @@ quote := func(@q) {
             libCode.Eval(context);
         }
 
-        public static async Task<PlasticContext> SetupCoreSymbols()
+        public static async ValueTask<PlasticContext> SetupCoreSymbols()
         {
             var exit = new object();
             var context = new PlasticContextImpl();
@@ -147,20 +147,16 @@ quote := func(@q) {
                 var obj = await a.First().Eval(c);
                 var source = a.Skip(1).ToArray();
                 var args = new object[source.Length];
-                for (int i = 0; i < source.Length; i++)
+                for (var i = 0; i < source.Length; i++)
                 {
                     var v = await source[i].Eval(c);
                     args[i] = v;
                 }
-                
+
                 if (args.Any())
-                {
                     Console.WriteLine(obj.ToString(), args);
-                }
                 else
-                {
                     Console.WriteLine(obj);
-                }
                 return obj;
             };
 
@@ -170,10 +166,7 @@ quote := func(@q) {
                 var cond = a[0];
                 var body = a[1];
 
-                while ((bool) await cond.Eval(c))
-                {
-                    result =await body.Eval(c);
-                }
+                while ((bool) await cond.Eval(c)) result = await body.Eval(c);
 
                 return result;
             };
@@ -194,7 +187,7 @@ quote := func(@q) {
                 return exit;
             };
 
-            PlasticMacro @elif = async (c, a) =>
+            PlasticMacro elif = async (c, a) =>
             {
                 var last = c["last"];
                 if (last != exit)
@@ -244,6 +237,7 @@ quote := func(@q) {
                     c.Declare(v.Value, element);
                     result = await body.Eval(c);
                 }
+
                 return result;
             };
 
@@ -288,20 +282,22 @@ quote := func(@q) {
                                 invocationScope.Declare(arg.Name, value);
                                 arguments.Add(value);
                             }
+
                             invocationScope.Declare("args", arguments.ToArray());
                         }
 
                         var m = await body.Eval(invocationScope);
                         return m;
                     }
+
                     //partial application
                     var partialArgs = args.ToArray();
 
                     PlasticMacro partial = (ctx, pargs) => op(ctx, partialArgs.Union(pargs).ToArray());
 
-                    return Task.FromResult((object)partial);
+                    return ValueTask.FromResult((object) partial);
                 };
-                return Task.FromResult((object)op);
+                return ValueTask.FromResult((object) op);
             };
 
 
@@ -325,7 +321,7 @@ quote := func(@q) {
 
                     return self;
                 };
-                return Task.FromResult((object)f);
+                return ValueTask.FromResult((object) f);
             };
 
             PlasticMacro mixin = (c, a) =>
@@ -345,14 +341,14 @@ quote := func(@q) {
 
                     return null;
                 };
-                return Task.FromResult((object)f);
+                return ValueTask.FromResult((object) f);
             };
 
             PlasticMacro @using = (c, a) =>
             {
                 var path = a.First() as StringLiteral;
                 var type = Type.GetType(path.Value);
-                return Task.FromResult((object)type);
+                return ValueTask.FromResult((object) type);
             };
 
             PlasticMacro eval = async (c, a) =>
@@ -371,10 +367,7 @@ quote := func(@q) {
 
                 var assignee = left as Symbol;
 
-                if (assignee != null)
-                {
-                    c[assignee.Value] = value;
-                }
+                if (assignee != null) c[assignee.Value] = value;
 
                 var dot = left as ListValue;
                 if (dot != null)
@@ -427,10 +420,7 @@ quote := func(@q) {
                                 var lv = l.Eval(c);
                                 if (lv == null)
                                 {
-                                    if (r != null)
-                                    {
-                                        return false;
-                                    }
+                                    if (r != null) return false;
                                 }
                                 else if (!lv.Equals(r))
                                 {
@@ -463,7 +453,7 @@ quote := func(@q) {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic)  await left.Eval(c) + (dynamic) await right.Eval(c);
+                return (dynamic) await left.Eval(c) + (dynamic) await right.Eval(c);
             };
 
             PlasticMacro sub = async (c, a) =>
@@ -479,7 +469,7 @@ quote := func(@q) {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) await left.Eval(c)*(dynamic) await right.Eval(c);
+                return (dynamic) await left.Eval(c) * (dynamic) await right.Eval(c);
             };
 
             PlasticMacro div = async (c, a) =>
@@ -487,7 +477,7 @@ quote := func(@q) {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
-                return (dynamic) await left.Eval(c)/(dynamic) await right.Eval(c);
+                return (dynamic) await left.Eval(c) / (dynamic) await right.Eval(c);
             };
 
             PlasticMacro eq = async (c, a) =>
@@ -501,6 +491,7 @@ quote := func(@q) {
                         return false;
                     return true;
                 }
+
                 if (right == null)
                     return false;
 
@@ -513,7 +504,7 @@ quote := func(@q) {
             PlasticMacro neq = async (c, a) =>
             {
                 var res = await eq(c, a);
-                return !(bool)res;
+                return !(bool) res;
             };
 
             PlasticMacro gt = async (c, a) =>
@@ -586,10 +577,7 @@ quote := func(@q) {
                 }
 
                 var pobj = l as PlasticObject;
-                if (pobj != null)
-                {
-                    return await right.Eval(pobj.Context);
-                }
+                if (pobj != null) return await right.Eval(pobj.Context);
 
                 var type = l as Type;
                 if (type != null)
@@ -607,7 +595,7 @@ quote := func(@q) {
             context.Declare("while", @while);
             context.Declare("each", each);
             context.Declare("if", @if);
-            context.Declare("elif", @elif);
+            context.Declare("elif", elif);
             context.Declare("else", @else);
             context.Declare("true", true);
             context.Declare("false", false);

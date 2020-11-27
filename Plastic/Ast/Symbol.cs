@@ -1,20 +1,19 @@
-﻿using System.Threading.Tasks;
+﻿
+
+using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
-    public class Symbol : IExpression , IStringLiteral
+    public record Symbol : Syntax, IStringLiteral
     {
         public Symbol(string value)
         {
             Value = value;
         }
 
-        public string Value { get; set; }
+        public string Value { get; }
 
-        public Task<object> Eval(PlasticContext context)
-        {
-            return Task.FromResult(context[Value]);
-        }
+        public override ValueTask<object> Eval(PlasticContext context) => ValueTask.FromResult(context[Value]);
 
         public override string ToString()
         {
