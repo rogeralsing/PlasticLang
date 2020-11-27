@@ -24,10 +24,7 @@ namespace PlasticLang
             get
             {
                 //if cell is not populated in this context, fetch from parent
-                if (!_cells.ContainsKey(name))
-                {
-                    return Parent?[name];
-                }
+                if (!_cells.ContainsKey(name)) return Parent?[name];
 
                 return _cells[name];
             }
@@ -71,17 +68,17 @@ namespace PlasticLang
 
         public override async ValueTask<object> Invoke(Syntax head, Syntax[] args)
         {
-            var target = await Evaluator.Eval( head,this);
+            var target = await head.Eval(this);
             var expression = target as Syntax;
             var array = target as object[];
 
             if (target is PlasticMacro macro) return await InvokeMacro(this, macro, args);
 
-            if (expression != null) return await Evaluator.Eval(expression,this);
+            if (expression != null) return await expression.Eval(this);
 
             if (array == null) throw new NotImplementedException();
-            
-            var index = (int) (decimal) await Evaluator.Eval( args.First(),this);
+
+            var index = (int) (decimal) await args.First().Eval(this);
             return array[index];
         }
 

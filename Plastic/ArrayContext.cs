@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
 
@@ -28,15 +27,21 @@ namespace PlasticLang
         public override ValueTask<object> Invoke(Syntax head, Syntax[] args)
         {
             var index = (int) (head as NumberLiteral)!.Value;
-         //   var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
+            //   var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
 
             var res = _array[index];
             return ValueTask.FromResult(res);
         }
 
-        public override bool HasProperty(string name) => throw new NotImplementedException();
+        public override bool HasProperty(string name)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override void Declare(string name, object value) => throw new NotImplementedException();
+        public override void Declare(string name, object value)
+        {
+            throw new NotImplementedException();
+        }
 
         public override ValueTask<object> Number(NumberLiteral numberLiteral)
         {

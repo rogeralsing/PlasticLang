@@ -1,8 +1,4 @@
-﻿
-
-using System.Threading.Tasks;
-
-namespace PlasticLang.Ast
+﻿namespace PlasticLang.Ast
 {
     public record Symbol(string Value) : Syntax
     {

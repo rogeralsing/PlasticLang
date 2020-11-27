@@ -21,7 +21,7 @@ namespace PlasticLang
         {
             var res = PlasticParser.Statements.Parse(code);
             ValueTask<object> result = default;
-            foreach (var statement in res.Elements) result = Evaluator.Eval(statement, context);
+            foreach (var statement in res.Elements) result = statement.Eval(context);
             return result;
         }
 
@@ -138,8 +138,8 @@ quote := func(@q) {
 
             var libCode = PlasticParser.Statements.Parse(lib);
             ValueTask<object> result = default;
-            foreach (var statement in libCode.Elements) result = Evaluator.Eval(statement, context);
-            ValueTask<object> temp = result;
+            foreach (var statement in libCode.Elements) result = statement.Eval(context);
+            var temp = result;
         }
 
         public static async ValueTask<PlasticContext> SetupCoreSymbols()
@@ -148,12 +148,12 @@ quote := func(@q) {
             var context = new PlasticContextImpl();
             PlasticMacro print = async (c, a) =>
             {
-                var obj = await Evaluator.Eval(a.First(),c);
+                var obj = await a.First().Eval(c);
                 var source = a.Skip(1).ToArray();
                 var args = new object[source.Length];
                 for (var i = 0; i < source.Length; i++)
                 {
-                    var v = await Evaluator.Eval(source[i],c);
+                    var v = await source[i].Eval(c);
                     args[i] = v;
                 }
 

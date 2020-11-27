@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
@@ -15,7 +14,7 @@ namespace PlasticLang.Ast
 
         public Syntax[] Args => Elements.Skip(1).ToArray();
 
-        public Syntax Head { get; } 
+        public Syntax Head { get; }
 
         public static ListValue CallFunction(string name, params Syntax[] args)
         {

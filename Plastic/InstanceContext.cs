@@ -38,7 +38,7 @@ namespace PlasticLang
                 var args2 = new List<object>();
                 foreach (var a in args)
                 {
-                    var r = Evaluator.Eval(a,Parent);
+                    var r = a.Eval(Parent);
                     args2.Add(r);
                 }
 
@@ -68,11 +68,20 @@ namespace PlasticLang
             throw new Exception("No matching method found.");
         }
 
-        public override bool HasProperty(string name) => throw new NotImplementedException();
+        public override bool HasProperty(string name)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override void Declare(string name, object value) => throw new NotImplementedException();
+        public override void Declare(string name, object value)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral) => throw new NotImplementedException();
+        public override ValueTask<object> Number(NumberLiteral numberLiteral)
+        {
+            throw new NotImplementedException();
+        }
 
         public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
         {

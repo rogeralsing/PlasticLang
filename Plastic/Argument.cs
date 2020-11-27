@@ -8,8 +8,8 @@
             Type = type;
         }
 
-        public ArgumentType Type { get;  }
-        public string Name { get;  }
+        public ArgumentType Type { get; }
+        public string Name { get; }
     }
 
     public enum ArgumentType

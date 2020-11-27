@@ -34,7 +34,7 @@ namespace PlasticLang
 
         public static readonly Parser<NumberLiteral> Number =
             (from numb in Parse.DecimalInvariant
-                select new NumberLiteral(Decimal.Parse(numb))).PlasticToken();
+                select new NumberLiteral(decimal.Parse(numb))).PlasticToken();
 
         public static readonly Parser<StringLiteral> QuotedString = MakeString('"').Or(MakeString('\''));
 

@@ -5,25 +5,27 @@ namespace PlasticLang.Ast
 {
     public static class Evaluator
     {
-        public static ValueTask<object> Eval(this Syntax syn, PlasticContext context) =>
-            syn switch
-            {
-                ArrayValue arrayValue       => EvalArray(context, arrayValue),
-                StringLiteral str           => EvalStringLiteral(context, str),
-                Symbol symbol               => EvalSymbol(context, symbol),
-                ListValue listValue         => EvalListValue(context, listValue),
-                NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
-                Statements statements       => EvalStatements(context, statements),
-                TupleValue tupleValue       => EvalTupleValue(context, tupleValue),
-                _                           => throw new ArgumentOutOfRangeException(nameof(syn)),
-            };
+        public static ValueTask<object> Eval(this Syntax syn, PlasticContext context)
+        {
+            return syn switch
+                   {
+                       ArrayValue arrayValue       => EvalArray(context, arrayValue),
+                       StringLiteral str           => EvalStringLiteral(context, str),
+                       Symbol symbol               => EvalSymbol(context, symbol),
+                       ListValue listValue         => EvalListValue(context, listValue),
+                       NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
+                       Statements statements       => EvalStatements(context, statements),
+                       TupleValue tupleValue       => EvalTupleValue(context, tupleValue),
+                       _                           => throw new ArgumentOutOfRangeException(nameof(syn))
+                   };
+        }
 
         private static async ValueTask<object> EvalTupleValue(PlasticContext context, TupleValue tupleValue)
         {
             var items = new object[tupleValue.Items.Length];
             for (var i = 0; i < tupleValue.Items.Length; i++)
             {
-                var v = await Eval(tupleValue.Items[i],context);
+                var v = await Eval(tupleValue.Items[i], context);
                 items[i] = v;
             }
 
