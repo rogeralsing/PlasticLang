@@ -34,7 +34,7 @@ namespace PlasticLang
 
         public static readonly Parser<NumberLiteral> Number =
             (from numb in Parse.DecimalInvariant
-                select new NumberLiteral(numb)).PlasticToken();
+                select new NumberLiteral(Decimal.Parse(numb))).PlasticToken();
 
         public static readonly Parser<StringLiteral> QuotedString = MakeString('"').Or(MakeString('\''));
 
@@ -147,7 +147,7 @@ namespace PlasticLang
                 .Select(o =>
                 {
                     var args = o.ToArray(); //if a single value, return the value itself. tuples are at least 2 or m
-                    return args.Length == 1 ? o.First() : new TupleValue(o);
+                    return args.Length == 1 ? o.First() : new TupleValue(o.ToArray());
                 });
 
         public static readonly Parser<Syntax[]> InvocationArgs =
@@ -162,7 +162,7 @@ namespace PlasticLang
                 .DelimitedBy(Separator)
                 .Optional()
                 .Contained(Parse.Char('[').PlasticToken(), Parse.Char(']').PlasticToken())
-                .Select(o => new ArrayValue(o.IsDefined ? o.Get() : Enumerable.Empty<Syntax>()));
+                .Select(o => new ArrayValue(o.IsDefined ? o.Get().ToArray() : Array.Empty<Syntax>()));
 
         public static readonly Parser<Syntax> InvocationOrValue =
             from head in Parse.Ref(() => Value)

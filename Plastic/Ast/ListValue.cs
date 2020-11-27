@@ -8,22 +8,18 @@ namespace PlasticLang.Ast
         public ListValue(params Syntax[] elements)
         {
             Elements = elements;
+            Head = Elements.First();
         }
 
         public Syntax[] Elements { get; }
 
         public Syntax[] Args => Elements.Skip(1).ToArray();
 
-        public Syntax Head => Elements.First();
+        public Syntax Head { get; } 
 
         public static ListValue CallFunction(string name, params Syntax[] args)
         {
             return new(new Symbol(name).Union(args));
-        }
-
-        public ValueTask<object> Eval(PlasticContext context)
-        {
-            return context.Invoke(Head, Args);
         }
 
         public override string ToString()

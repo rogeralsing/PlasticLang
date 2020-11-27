@@ -1,29 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
-    public record Statements : Syntax
+    public record Statements(IEnumerable<Syntax> Elements) : Syntax
     {
-        private readonly IEnumerable<Syntax> _statements;
-
-        public Statements(IEnumerable<Syntax> statements)
-        {
-            _statements = statements;
-        }
-
-        public ValueTask<object> Eval(PlasticContext context)
-        {
-            ValueTask<object> result = default;
-            foreach (var statement in _statements) result = Evaluator.Eval(statement, context);
-            return result;
-        }
-
         public override string ToString()
         {
-            return "{" + string.Join(Environment.NewLine, _statements.Select(s => s.ToString())) + "}";
+            return "{" + string.Join(Environment.NewLine, Elements.Select(s => s.ToString())) + "}";
         }
     }
 }

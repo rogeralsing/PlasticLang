@@ -20,7 +20,9 @@ namespace PlasticLang
         public static ValueTask<object> Run(string code, PlasticContext context)
         {
             var res = PlasticParser.Statements.Parse(code);
-            return res.Eval(context);
+            ValueTask<object> result = default;
+            foreach (var statement in res.Elements) result = Evaluator.Eval(statement, context);
+            return result;
         }
 
         public static void BootstrapLib(PlasticContext context)
@@ -135,7 +137,9 @@ quote := func(@q) {
 
 
             var libCode = PlasticParser.Statements.Parse(lib);
-            libCode.Eval(context);
+            ValueTask<object> result = default;
+            foreach (var statement in libCode.Elements) result = Evaluator.Eval(statement, context);
+            ValueTask<object> temp = result;
         }
 
         public static async ValueTask<PlasticContext> SetupCoreSymbols()

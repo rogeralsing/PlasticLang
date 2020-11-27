@@ -2,8 +2,5 @@
 
 namespace PlasticLang.Ast
 {
-    public abstract record Syntax
-    {
-       
-    }
+    public abstract record Syntax;
 }

@@ -4,28 +4,8 @@ using System.Threading.Tasks;
 
 namespace PlasticLang.Ast
 {
-    public record TupleValue : Syntax
+    public record TupleValue(Syntax[] Items) : Syntax
     {
-        public TupleValue(IEnumerable<Syntax> items)
-        {
-            Items = items.ToArray();
-        }
-
-        public Syntax[] Items { get; }
-
-        public async ValueTask<object> Eval(PlasticContext context)
-        {
-            var items = new object[Items.Length];
-            for (var i = 0; i < Items.Length; i++)
-            {
-                var v = await Evaluator.Eval(Items[i],context);
-                items[i] = v;
-            }
-
-            var res = new TupleInstance(items);
-            return res;
-        }
-
         public override string ToString()
         {
             return $"({string.Join(",", Items.Select(i => i.ToString()))})";
