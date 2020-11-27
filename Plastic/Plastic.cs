@@ -12,6 +12,8 @@ namespace PlasticLang
 {
     public static class Plastic
     {
+        private static readonly object exit = new();
+
         public static void Run(string code)
         {
             var context = SetupCoreSymbols().Result;
@@ -144,24 +146,21 @@ quote := func(@q) {
             var temp = result;
         }
 
-        private static object exit = new object();
         private static async ValueTask<PlasticContext> SetupCoreSymbols()
         {
             var context = new PlasticContextImpl();
 
-           
 
             async ValueTask<object?> Def(PlasticContext c, Syntax[] a)
             {
-                var left = a.ElementAt(0) as Symbol;
-                var right = a.ElementAt(1);
+                var left = a[0] as Symbol;
+                var right = a[1];
 
                 var value = await right.Eval(c);
                 context.Declare(left.Value, value);
                 return value;
             }
 
-            
 
             context.Declare("print", Print);
             context.Declare("while", While);
@@ -205,44 +204,45 @@ quote := func(@q) {
 
         private static async ValueTask<object?> Not(PlasticContext c, Syntax[] a)
         {
-            var exp = a.ElementAt(0);
+            var exp = a[0];
 
-            return !(dynamic) await exp.Eval(c);
+            return !await exp.Eval<dynamic>(c);
         }
 
         private static async ValueTask<object?> Dotop(PlasticContext c, Syntax[] a)
         {
-            var left = a.ElementAt(0);
-            var right = a.ElementAt(1);
+            var left = a[0];
+            var right = a[1];
 
             var l = await left.Eval(c);
 
-            var arr = l as object[];
-            if (arr != null)
+            switch (l)
             {
-                var arrayContext = new ArrayContext(arr, c);
-                return await right.Eval(arrayContext);
+                case object[] arr:
+                {
+                    var arrayContext = new ArrayContext(arr, c);
+                    return await right.Eval(arrayContext);
+                }
+                case PlasticObject pobj:
+                    return await right.Eval(pobj.Context);
+                case Type type:
+                {
+                    var typeContext = new ClrTypeContext(type, c);
+                    return await right.Eval(typeContext);
+                }
+                default:
+                {
+                    var objContext = new ClrInstanceContext(l, c);
+                    return await right.Eval(objContext);
+                }
             }
-
-            var pobj = l as PlasticObject;
-            if (pobj != null) return await right.Eval(pobj.Context);
-
-            var type = l as Type;
-            if (type != null)
-            {
-                var typeContext = new ClrTypeContext(type, c);
-                return await right.Eval(typeContext);
-            }
-
-
-            var objContext = new ClrInstanceContext(l, c);
-            return await right.Eval(objContext);
         }
 
         private static ValueTask<object?> Mixin(PlasticContext c, Syntax[] a)
         {
             var body = a.Last();
-            PlasticMacro f = async (ctx, args) =>
+
+            async ValueTask<object?> PlasticMacro(PlasticContext ctx, Syntax[] args)
             {
                 var thisContext = ctx;
 
@@ -255,379 +255,382 @@ quote := func(@q) {
                 await body.Eval(thisContext);
 
                 return null;
-            };
-            return ValueTask.FromResult((object) f);
+            }
+
+            return ValueTask.FromResult<object>( (PlasticMacro) PlasticMacro);
         }
-        
-         static async ValueTask<object?> Print(PlasticContext c, Syntax[] a)
-            {
-                var obj = await a.First().Eval(c);
-                var source = a.Skip(1).ToArray();
-                var args = new object[source.Length];
-                for (var i = 0; i < source.Length; i++)
-                {
-                    var v = await source[i].Eval(c);
-                    args[i] = v;
-                }
 
-                if (args.Any())
-                    Console.WriteLine(obj.ToString(), args);
-                else
-                    Console.WriteLine(obj);
-                return obj;
+        private static async ValueTask<object?> Print(PlasticContext c, Syntax[] a)
+        {
+            var obj = await a.First().Eval(c);
+            var source = a.Skip(1).ToArray();
+            var args = new object[source.Length];
+            for (var i = 0; i < source.Length; i++)
+            {
+                var v = await source[i].Eval(c);
+                args[i] = v;
             }
 
-            static async ValueTask<object?> While(PlasticContext c, Syntax[] a)
+            if (args.Any())
+                Console.WriteLine(obj.ToString(), args);
+            else
+                Console.WriteLine(obj);
+            return obj;
+        }
+
+        private static async ValueTask<object?> While(PlasticContext c, Syntax[] a)
+        {
+            var result = exit;
+            var cond = a[0];
+            var body = a[1];
+
+            while (await cond.Eval<bool>(c)) result = await body.Eval(c);
+
+            return result;
+        }
+
+        private static async ValueTask<object?> If(PlasticContext c, Syntax[] a)
+        {
+            var cond = a[0];
+            var body = a[1];
+
+            if (await cond.Eval<bool>(c))
             {
-                var result = exit;
-                var cond = a[0];
-                var body = a[1];
-
-                while ((bool) await cond.Eval(c)) result = await body.Eval(c);
-
-                return result;
-            }
-
-            static async ValueTask<object?> If(PlasticContext c, Syntax[] a)
-            {
-                var cond = a[0];
-                var body = a[1];
-
-                if ((bool) await cond.Eval(c))
-                {
-                    var res = await body.Eval(c);
-                    if (res == exit) return null;
-                    return res;
-                }
-
-                return exit;
-            }
-
-            static async ValueTask<object?> Elif(PlasticContext c, Syntax[] a)
-            {
-                var last = c["last"];
-                if (last != exit) return last;
-
-                var cond = a[0];
-                var body = a[1];
-
-                if ((bool) await cond.Eval(c))
-                {
-                    var res = await body.Eval(c);
-                    if (res == exit) return null;
-                    return res;
-                }
-
-                return exit;
-            }
-
-            static async ValueTask<object?> Else(PlasticContext c, Syntax[] a)
-            {
-                var last = c["last"];
-                if (last != exit) return last;
-
-                var body = a[0];
-
                 var res = await body.Eval(c);
                 if (res == exit) return null;
-
                 return res;
             }
 
-            static async ValueTask<object?> Each(PlasticContext c, Syntax[] a)
+            return exit;
+        }
+
+        private static async ValueTask<object?> Elif(PlasticContext c, Syntax[] a)
+        {
+            var last = c["last"];
+            if (last != exit) return last;
+
+            var cond = a[0];
+            var body = a[1];
+
+            if (await cond.Eval<bool>(c))
             {
-                var v = a[0] as Symbol;
-                var body = a[2];
-
-                if (!(await a[1].Eval(c) is IEnumerable enumerable)) return exit;
-
-                object result = null;
-                foreach (var element in enumerable)
-                {
-                    c.Declare(v.Value, element);
-                    result = await body.Eval(c);
-                }
-
-                return result;
-            }
-
-            static ValueTask<object?> Func(PlasticContext _, Syntax[] a)
-            {
-                var argsMinusOne = a.Take(a.Length - 1)
-                    .Select(arg =>
-                    {
-                        var symbol = arg as Symbol;
-                        if (symbol != null)
-                        {
-                            if (!symbol.Value.StartsWith("@")) return new Argument(symbol.Value, ArgumentType.Value);
-                            return new Argument(symbol.Value.Substring(1), ArgumentType.Expression);
-                        }
-
-                        throw new NotSupportedException();
-                    })
-                    .ToArray();
-                var body = a.Last();
-
-                async ValueTask<object?> Op(PlasticContext callingContext, Syntax[] args)
-                {
-                    //full application
-                    if (args.Length >= argsMinusOne.Length)
-                    {
-                        //create context for this invocation
-                        var invocationScope = new PlasticContextImpl(callingContext);
-                        var arguments = new List<object>();
-                        for (var i = 0; i < args.Length; i++)
-                        {
-                            var arg = argsMinusOne[i];
-                            if (arg.Type == ArgumentType.Expression)
-                            {
-                                //copy args from caller to this context
-                                var value = args[i];
-                                invocationScope.Declare(arg.Name, value);
-                                arguments.Add(value);
-                            }
-                            else if (arg.Type == ArgumentType.Value)
-                            {
-                                var value = await args[i].Eval(callingContext);
-                                invocationScope.Declare(arg.Name, value);
-                                arguments.Add(value);
-                            }
-
-                            invocationScope.Declare("args", arguments.ToArray());
-                        }
-
-                        var m = await body.Eval(invocationScope);
-                        return m;
-                    }
-
-                    //partial application
-                    var partialArgs = args.ToArray();
-
-                    PlasticMacro partial = (ctx, pargs) => Op(ctx, partialArgs.Union(pargs).ToArray());
-
-                    return ValueTask.FromResult((object) partial);
-                }
-
-                return ValueTask.FromResult((object) (PlasticMacro) Op);
-            }
-
-
-            static ValueTask<object?> Class(PlasticContext c, Syntax[] a)
-            {
-                var body = a.Last();
-                PlasticMacro f = async (ctx, args) =>
-                {
-                    var thisContext = new PlasticContextImpl(c);
-
-                    for (var i = 0; i < a.Length - 1; i++)
-                    {
-                        var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
-                        var arg = await args[i].Eval(ctx);
-                        thisContext.Declare(argName.Value, arg);
-                    }
-
-                    var self = new PlasticObject(thisContext);
-                    thisContext.Declare("this", self);
-                    await body.Eval(thisContext);
-
-                    return self;
-                };
-                return ValueTask.FromResult((object) f);
-            }
-
-            static ValueTask<object?> Using(PlasticContext c, Syntax[] a)
-            {
-                var path = a.First() as StringLiteral;
-                var type = Type.GetType(path.Value);
-                return ValueTask.FromResult((object) type);
-            }
-
-            static async ValueTask<object?> Eval(PlasticContext c, Syntax[] a)
-            {
-                var code = await a.First().Eval(c) as string;
-                var res = Run(code, c);
+                var res = await body.Eval(c);
+                if (res == exit) return null;
                 return res;
             }
 
-            static async ValueTask<object?> Assign(PlasticContext c, Syntax[] a)
+            return exit;
+        }
+
+        private static async ValueTask<object?> Else(PlasticContext c, Syntax[] a)
+        {
+            var last = c["last"];
+            if (last != exit) return last;
+
+            var body = a[0];
+
+            var res = await body.Eval(c);
+            if (res == exit) return null;
+
+            return res;
+        }
+
+        private static async ValueTask<object?> Each(PlasticContext c, Syntax[] a)
+        {
+            var v = a[0] as Symbol;
+            var body = a[2];
+
+            if (!(await a[1].Eval(c) is IEnumerable enumerable)) return exit;
+
+            object result = null;
+            foreach (var element in enumerable)
             {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
+                c.Declare(v.Value, element);
+                result = await body.Eval(c);
+            }
 
-                var value = await right.Eval(c);
+            return result;
+        }
 
-                switch (left)
+        private static ValueTask<object?> Func(PlasticContext _, Syntax[] a)
+        {
+            var argsMinusOne = a.Take(a.Length - 1)
+                .Select(arg =>
                 {
-                    case Symbol assignee:
-                        c[assignee.Value] = value;
-                        break;
-                    case ListValue dot:
+                    var symbol = arg as Symbol;
+                    if (symbol != null)
                     {
-                        var obj = await dot.Rest.ElementAt(0).Eval(c) as PlasticObject;
-                        var memberId = dot.Rest.ElementAt(1) as Symbol;
-                        obj[memberId.Value] = value;
-                        break;
+                        if (!symbol.Value.StartsWith("@")) return new Argument(symbol.Value, ArgumentType.Value);
+                        return new Argument(symbol.Value.Substring(1), ArgumentType.Expression);
                     }
+
+                    throw new NotSupportedException();
+                })
+                .ToArray();
+            var body = a.Last();
+
+            async ValueTask<object?> Op(PlasticContext callingContext, Syntax[] args)
+            {
+                //full application
+                if (args.Length >= argsMinusOne.Length)
+                {
+                    //create context for this invocation
+                    var invocationScope = new PlasticContextImpl(callingContext);
+                    var arguments = new List<object>();
+                    for (var i = 0; i < args.Length; i++)
+                    {
+                        var arg = argsMinusOne[i];
+                        if (arg.Type == ArgumentType.Expression)
+                        {
+                            //copy args from caller to this context
+                            var value = args[i];
+                            invocationScope.Declare(arg.Name, value);
+                            arguments.Add(value);
+                        }
+                        else if (arg.Type == ArgumentType.Value)
+                        {
+                            var value = await args[i].Eval(callingContext);
+                            invocationScope.Declare(arg.Name, value);
+                            arguments.Add(value);
+                        }
+
+                        invocationScope.Declare("args", arguments.ToArray());
+                    }
+
+                    var m = await body.Eval(invocationScope);
+                    return m;
                 }
 
+                //partial application
+                var partialArgs = args.ToArray();
 
-                var tuple = left as TupleValue;
-                var arr = value as TupleInstance;
-                if (tuple == null) return value;
+                ValueTask<object?> Partial(PlasticContext ctx, Syntax[] pargs) => Op(ctx, partialArgs.Union(pargs).ToArray());
 
-                bool Match(TupleValue t, TupleInstance values)
+                return ValueTask.FromResult<object>( (PlasticMacro) Partial);
+            }
+
+            return ValueTask.FromResult<object>( (PlasticMacro) Op);
+        }
+
+
+        private static ValueTask<object?> Class(PlasticContext c, Syntax[] a)
+        {
+            var body = a.Last();
+
+            async ValueTask<object?> PlasticMacro(PlasticContext ctx, Syntax[] args)
+            {
+                var thisContext = new PlasticContextImpl(c);
+
+                for (var i = 0; i < a.Length - 1; i++)
                 {
-                    if (values == null) return false;
+                    var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
+                    var arg = await args[i].Eval(ctx);
+                    thisContext.Declare(argName.Value, arg);
+                }
 
-                    if (t.Items.Length != values.Items.Length) return false;
+                var self = new PlasticObject(thisContext);
+                thisContext.Declare("this", self);
+                await body.Eval(thisContext);
 
-                    for (var i = 0; i < values.Items.Length; i++)
+                return self;
+            }
+
+            return ValueTask.FromResult<object>((PlasticMacro) PlasticMacro);
+        }
+
+        private static ValueTask<object> Using(PlasticContext c, Syntax[] a)
+        {
+            var path = a.First() as StringLiteral;
+            var type = Type.GetType(path.Value);
+            return ValueTask.FromResult<object>(type);
+        }
+
+        private static async ValueTask<object?> Eval(PlasticContext c, Syntax[] a)
+        {
+            var code = await a.First().Eval(c) as string;
+            var res = Run(code, c);
+            return res;
+        }
+
+        private static async ValueTask<object?> Assign(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
+
+            var value = await right.Eval(c);
+
+            switch (left)
+            {
+                case Symbol assignee:
+                    c[assignee.Value] = value;
+                    break;
+                case ListValue dot:
+                {
+                    var obj = await dot.Rest[0].Eval(c) as PlasticObject;
+                    var memberId = dot.Rest[1] as Symbol;
+                    obj[memberId.Value] = value;
+                    break;
+                }
+            }
+
+
+            var tuple = left as TupleValue;
+            var arr = value as TupleInstance;
+            if (tuple == null) return value;
+
+            bool Match(TupleValue t, TupleInstance values)
+            {
+                if (values == null) return false;
+
+                if (t.Items.Length != values.Items.Length) return false;
+
+                for (var i = 0; i < values.Items.Length; i++)
+                {
+                    var l = t.Items[i];
+                    var r = values.Items[i];
+
+                    switch (l)
                     {
-                        var l = t.Items[i];
-                        var r = values.Items[i];
-
-                        switch (l)
+                        //left is symbol, assign a value to it..
+                        case Symbol symbol:
+                            c[symbol.Value] = r;
+                            break;
+                        case TupleValue leftTuple when r is TupleInstance rightTuple:
                         {
-                            //left is symbol, assign a value to it..
-                            case Symbol symbol:
-                                c[symbol.Value] = r;
-                                break;
-                            case TupleValue leftTuple when r is TupleInstance rightTuple:
+                            //right is a sub tuple, recursive match
+                            var subMatch = Match(leftTuple, rightTuple);
+                            if (!subMatch) return false;
+                            break;
+                        }
+                        case TupleValue leftTuple:
+                            //left is tuple, right is not. just exit
+                            return false;
+                        default:
+                        {
+                            //left is a value, compare to right
+                            var lv = l.Eval(c);
+                            if (lv == null)
                             {
-                                //right is a sub tuple, recursive match
-                                var subMatch = Match(leftTuple, rightTuple);
-                                if (!subMatch) return false;
-                                break;
+                                if (r != null) return false;
                             }
-                            case TupleValue leftTuple:
-                                //left is tuple, right is not. just exit
+                            else if (!lv.Equals(r))
+                            {
                                 return false;
-                            default:
-                            {
-                                //left is a value, compare to right
-                                var lv = l.Eval(c);
-                                if (lv == null)
-                                {
-                                    if (r != null) return false;
-                                }
-                                else if (!lv.Equals(r))
-                                {
-                                    return false;
-                                }
-
-                                break;
                             }
+
+                            break;
                         }
                     }
-
-                    return true;
                 }
 
-                return Match(tuple, arr);
+                return true;
             }
-            
-            static async ValueTask<object?> Add(PlasticContext c, Syntax[] a)
+
+            return Match(tuple, arr);
+        }
+
+        private static async ValueTask<object?> Add(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
+
+            return await left.Eval<dynamic>(c) + await right.Eval<dynamic>(c);
+        }
+
+        private static async ValueTask<object?> Sub(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
+
+            return await left.Eval<dynamic>(c) - await right.Eval<dynamic>(c);
+        }
+
+        private static async ValueTask<object?> Mul(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
+
+            return await left.Eval<dynamic>(c) * await right.Eval<dynamic>(c);
+        }
+
+        private static async ValueTask<object?> Div(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
+
+            return await left.Eval<dynamic>(c) / await right.Eval<dynamic>(c);
+        }
+
+        private static async ValueTask<object?> Eq(PlasticContext c, Syntax[] a)
+        {
+            dynamic left = await a[0].Eval(c);
+            dynamic right = await a[1].Eval(c);
+
+            if (left == null)
             {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
-
-                return (dynamic) await left.Eval(c) + (dynamic) await right.Eval(c);
+                if (right != null) return false;
+                return true;
             }
 
-            static async ValueTask<object?> Sub(PlasticContext c, Syntax[] a)
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
+            if (right == null) return false;
 
-                return (dynamic) await left.Eval(c) - (dynamic) await right.Eval(c);
-            }
+            if (left.GetType() != right.GetType()) return false;
 
-            static async ValueTask<object?> Mul(PlasticContext c, Syntax[] a)
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
+            return left == right;
+        }
 
-                return (dynamic) await left.Eval(c) * (dynamic) await right.Eval(c);
-            }
+        private static async ValueTask<object?> Neq(PlasticContext c, Syntax[] a)
+        {
+            var res = await Eq(c, a);
+            return !(bool) res;
+        }
 
-            static async ValueTask<object?> Div(PlasticContext c, Syntax[] a)
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
+        private static async ValueTask<object?> Gt(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
 
-                return (dynamic) await left.Eval(c) / (dynamic) await right.Eval(c);
-            }
+            return await left.Eval<dynamic>(c) > await right.Eval<dynamic>(c);
+        }
 
-            static async ValueTask<object?> Eq(PlasticContext c, Syntax[] a)
-            {
-                dynamic left = await a.ElementAt(0).Eval(c);
-                dynamic right = await a.ElementAt(1).Eval(c);
+        private static async ValueTask<object?> Gteq(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
 
-                if (left == null)
-                {
-                    if (right != null) return false;
-                    return true;
-                }
+            return await left.Eval<dynamic>(c) >= await right.Eval<dynamic>(c);
+        }
 
-                if (right == null) return false;
+        private static async ValueTask<object?> Lt(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
 
-                if (left.GetType() != right.GetType()) return false;
+            return await left.Eval<dynamic>(c) < await right.Eval<dynamic>(c);
+        }
 
-                return left == right;
-            }
+        private static async ValueTask<object?> Lteq(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
 
-            static async ValueTask<object?> Neq(PlasticContext c, Syntax[] a)
-            {
-                var res = await Eq(c, a);
-                return !(bool) res;
-            }
+            return await left.Eval<dynamic>(c) <= await right.Eval<dynamic>(c);
+        }
 
-            static async ValueTask<object?> Gt(PlasticContext c, Syntax[] a)
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
+        private static async ValueTask<object?> Booland(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
 
-                return (dynamic) await left.Eval(c) > (dynamic) await right.Eval(c);
-            }
+            return await left.Eval<dynamic>(c) && await right.Eval<dynamic>(c);
+        }
 
-            static async ValueTask<object?> Gteq(PlasticContext c, Syntax[] a)
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
+        private static async ValueTask<object?> Boolor(PlasticContext c, Syntax[] a)
+        {
+            var left = a[0];
+            var right = a[1];
 
-                return (dynamic) await left.Eval(c) >= (dynamic) await right.Eval(c);
-            }
-
-            static async ValueTask<object?> Lt(PlasticContext c, Syntax[] a)
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
-
-                return (dynamic) await left.Eval(c) < (dynamic) await right.Eval(c);
-            }
-
-            static async ValueTask<object?> Lteq(PlasticContext c, Syntax[] a)
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
-
-                return (dynamic) await left.Eval(c) <= (dynamic) await right.Eval(c);
-            }
-
-            static async ValueTask<object?> Booland(PlasticContext c, Syntax[] a)
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
-
-                return (dynamic) await left.Eval(c) && (dynamic) await right.Eval(c);
-            }
-
-            static async ValueTask<object?> Boolor(PlasticContext c, Syntax[] a)
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
-
-                return (dynamic) await left.Eval(c) || (dynamic) await right.Eval(c);
-            }
+            return await left.Eval<dynamic>(c) || await right.Eval<dynamic>(c);
+        }
     }
 }

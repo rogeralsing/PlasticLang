@@ -7,6 +7,11 @@ namespace PlasticLang.Visitors
 {
     public static class Evaluator
     {
+        public static async ValueTask<T> Eval<T>(this Syntax syn, PlasticContext context)
+        {
+            var res = await syn.Eval(context);
+            return (T) res;
+        }
         public static ValueTask<object> Eval(this Syntax syn, PlasticContext context) =>
             syn switch
             {
