@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
@@ -34,13 +35,17 @@ namespace PlasticLang
             var methods = _obj.GetType().GetMethods().Where(m => m.Name == memberName).ToArray();
             if (methods.Any())
             {
-                ValueTask<object>[] evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
-                
-         
+                var args2 = new List<object>();
+                foreach (var a in args)
+                {
+                    var r = a.Eval(Parent);
+                    args2.Add(r);
+                }
+
                 foreach (var method in methods)
                     try
                     {
-                        var res = method.Invoke(_obj, evaluatedArgs);
+                        var res = method.Invoke(_obj, args2.ToArray());
                         return ValueTask.FromResult(res);
                     }
                     catch
