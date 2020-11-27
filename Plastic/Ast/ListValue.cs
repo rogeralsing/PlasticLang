@@ -21,7 +21,7 @@ namespace PlasticLang.Ast
             return new(new Symbol(name).Union(args));
         }
 
-        public override ValueTask<object> Eval(PlasticContext context)
+        public ValueTask<object> Eval(PlasticContext context)
         {
             return context.Invoke(Head, Args);
         }

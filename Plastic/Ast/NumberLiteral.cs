@@ -20,7 +20,7 @@ namespace PlasticLang.Ast
 
         public decimal Value { get; }
 
-        public override ValueTask<object> Eval(PlasticContext context) => context.Number(this);
+        public ValueTask<object> Eval(PlasticContext context) => context.Number(this);
 
         public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
     }

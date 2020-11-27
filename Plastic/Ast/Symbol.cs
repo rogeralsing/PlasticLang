@@ -13,7 +13,7 @@ namespace PlasticLang.Ast
 
         public string Value { get; }
 
-        public override ValueTask<object> Eval(PlasticContext context) => ValueTask.FromResult(context[Value]);
+        public ValueTask<object> Eval(PlasticContext context) => ValueTask.FromResult(context[Value]);
 
         public override string ToString()
         {

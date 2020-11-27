@@ -11,7 +11,7 @@ namespace PlasticLang.Ast
 
         public string Value { get; }
 
-        public override ValueTask<object> Eval(PlasticContext context)
+        public ValueTask<object> Eval(PlasticContext context)
         {
             return context.QuotedString(this);
         }

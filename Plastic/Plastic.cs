@@ -144,12 +144,12 @@ quote := func(@q) {
             var context = new PlasticContextImpl();
             PlasticMacro print = async (c, a) =>
             {
-                var obj = await a.First().Eval(c);
+                var obj = await Evaluator.Eval(a.First(),c);
                 var source = a.Skip(1).ToArray();
                 var args = new object[source.Length];
                 for (var i = 0; i < source.Length; i++)
                 {
-                    var v = await source[i].Eval(c);
+                    var v = await Evaluator.Eval(source[i],c);
                     args[i] = v;
                 }
 

@@ -69,19 +69,19 @@ namespace PlasticLang
             return res;
         }
 
-        public override async ValueTask<object?> Invoke(Syntax head, Syntax[] args)
+        public override async ValueTask<object> Invoke(Syntax head, Syntax[] args)
         {
-            var target = await head.Eval(this);
+            var target = await Evaluator.Eval( head,this);
             var expression = target as Syntax;
             var array = target as object[];
 
             if (target is PlasticMacro macro) return await InvokeMacro(this, macro, args);
 
-            if (expression != null) return await expression.Eval(this);
+            if (expression != null) return await Evaluator.Eval(expression,this);
 
             if (array == null) throw new NotImplementedException();
             
-            var index = (int) (decimal) await args.First().Eval(this);
+            var index = (int) (decimal) await Evaluator.Eval( args.First(),this);
             return array[index];
         }
 

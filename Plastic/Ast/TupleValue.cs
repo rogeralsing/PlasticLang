@@ -13,12 +13,12 @@ namespace PlasticLang.Ast
 
         public Syntax[] Items { get; }
 
-        public override async ValueTask<object> Eval(PlasticContext context)
+        public async ValueTask<object> Eval(PlasticContext context)
         {
             var items = new object[Items.Length];
             for (var i = 0; i < Items.Length; i++)
             {
-                var v = await Items[i].Eval(context);
+                var v = await Evaluator.Eval(Items[i],context);
                 items[i] = v;
             }
 

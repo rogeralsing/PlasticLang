@@ -14,10 +14,10 @@ namespace PlasticLang.Ast
             _statements = statements;
         }
 
-        public override ValueTask<object> Eval(PlasticContext context)
+        public ValueTask<object> Eval(PlasticContext context)
         {
             ValueTask<object> result = default;
-            foreach (var statement in _statements) result = statement.Eval(context);
+            foreach (var statement in _statements) result = Evaluator.Eval(statement, context);
             return result;
         }
 

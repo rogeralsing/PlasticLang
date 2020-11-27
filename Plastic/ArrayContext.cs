@@ -25,10 +25,10 @@ namespace PlasticLang
             set => throw new NotImplementedException();
         }
 
-        public override ValueTask<object?> Invoke(Syntax head, Syntax[] args)
+        public override ValueTask<object> Invoke(Syntax head, Syntax[] args)
         {
             var index = (int) (head as NumberLiteral)!.Value;
-            var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
+         //   var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
 
             var res = _array[index];
             return ValueTask.FromResult(res);

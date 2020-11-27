@@ -19,7 +19,7 @@ namespace PlasticLang
         public abstract ValueTask<object> QuotedString(StringLiteral stringLiteral);
 
 
-        public abstract ValueTask<object?> Invoke(Syntax head, Syntax[] args);
+        public abstract ValueTask<object> Invoke(Syntax head, Syntax[] args);
 
 
         public abstract bool HasProperty(string name);

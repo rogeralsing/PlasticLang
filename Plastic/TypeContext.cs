@@ -34,10 +34,10 @@ namespace PlasticLang
             throw new NotSupportedException();
         }
 
-        public override async ValueTask<object?> Invoke(Syntax head, Syntax[] args)
+        public override async ValueTask<object> Invoke(Syntax head, Syntax[] args)
         {
             var memberName = (head as Symbol)?.Value;
-            var evaluatedArgs = args.Select(async a => await a.Eval(Parent)).ToArray();
+            var evaluatedArgs = args.Select(async a => await Evaluator.Eval(a,Parent)).ToArray();
             var members = _type.GetMethods().Where(m => m.Name == memberName);
             foreach (var member in members)
                 try
