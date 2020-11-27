@@ -2,9 +2,6 @@
 {
     public record Symbol(string Value) : Syntax
     {
-        public override string ToString()
-        {
-            return Value;
-        }
+        public override string ToString() => Value;
     }
 }

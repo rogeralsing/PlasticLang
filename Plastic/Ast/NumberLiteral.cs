@@ -6,9 +6,6 @@ namespace PlasticLang.Ast
     {
         public static readonly NumberLiteral One = new(1m);
 
-        public override string ToString()
-        {
-            return Value.ToString(CultureInfo.InvariantCulture);
-        }
+        public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
     }
 }

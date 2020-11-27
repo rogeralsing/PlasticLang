@@ -376,8 +376,8 @@ quote := func(@q) {
                 var dot = left as ListValue;
                 if (dot != null)
                 {
-                    var obj = await dot.Args.ElementAt(0).Eval(c) as PlasticObject;
-                    var memberId = dot.Args.ElementAt(1) as Symbol;
+                    var obj = await dot.Rest.ElementAt(0).Eval(c) as PlasticObject;
+                    var memberId = dot.Rest.ElementAt(1) as Symbol;
                     obj[memberId.Value] = value;
                 }
 

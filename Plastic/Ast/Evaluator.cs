@@ -47,7 +47,7 @@ namespace PlasticLang.Ast
 
         private static async ValueTask<object> EvalListValue(PlasticContext context, ListValue listValue)
         {
-            return await context.Invoke(listValue.Head, listValue.Args);
+            return await context.Invoke(listValue.Head, listValue.Rest);
         }
 
         private static ValueTask<object> EvalSymbol(PlasticContext context, Symbol symbol)

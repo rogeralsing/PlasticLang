@@ -9,5 +9,7 @@ namespace PlasticLang.Ast
         {
             return Enumerable.Repeat(self, 1).Union(rest).ToArray();
         }
+
+        public static ListValue ToListValue(this IEnumerable<Syntax> self) => new(self.ToArray());
     }
 }

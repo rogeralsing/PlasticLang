@@ -8,22 +8,17 @@ namespace PlasticLang.Ast
         {
             Elements = elements;
             Head = Elements.First();
+            Rest = Elements.Skip(1).ToArray();
         }
 
-        public Syntax[] Elements { get; }
+        private Syntax[] Elements { get; }
 
-        public Syntax[] Args => Elements.Skip(1).ToArray();
+        public Syntax[] Rest { get; } 
 
         public Syntax Head { get; }
 
-        public static ListValue CallFunction(string name, params Syntax[] args)
-        {
-            return new(new Symbol(name).Union(args));
-        }
+        public static ListValue CallFunction(string name, params Syntax[] args) => new Symbol(name).Union(args).ToListValue();
 
-        public override string ToString()
-        {
-            return $"{Head}({string.Join(",", Args.Select(a => a.ToString()))})";
-        }
+        public override string ToString() => $"{Head}({string.Join(",", Rest.Select(a => a.ToString()))})";
     }
 }
