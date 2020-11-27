@@ -54,6 +54,11 @@ namespace PlasticLang.Contexts
         {
             _cells[name] = value;
         }
+        
+        public void Declare(string name, PlasticMacro value)
+        {
+            _cells[name] = value;
+        }
 
         private static async ValueTask<object> InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
         {
@@ -65,17 +70,20 @@ namespace PlasticLang.Contexts
         public override async ValueTask<object> Invoke(Syntax head, Syntax[] args)
         {
             var target = await head.Eval(this);
-            var expression = target as Syntax;
-            var array = target as object[];
+
+
 
             if (target is PlasticMacro macro) return await InvokeMacro(this, macro, args);
 
-            if (expression != null) return await expression.Eval(this);
+            if (target is Syntax expression) return await expression.Eval(this);
 
-            if (array == null) throw new NotImplementedException();
+            if (target is object[] array)
+            {
+                var index = (int) (decimal) await args.First().Eval(this);
+                return array[index];
+            }
 
-            var index = (int) (decimal) await args.First().Eval(this);
-            return array[index];
+            throw new NotImplementedException();
         }
 
         public override ValueTask<object> Number(NumberLiteral numberLiteral)

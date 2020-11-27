@@ -27,7 +27,7 @@ namespace PlasticLang.Contexts
             set => throw new NotImplementedException();
         }
 
-        public override ValueTask<object> Invoke(Syntax head, Syntax[] args)
+        public override async ValueTask<object> Invoke(Syntax head, Syntax[] args)
         {
             var memberName = "";
             if (head is StringLiteral sl) memberName = sl.Value;
@@ -39,7 +39,7 @@ namespace PlasticLang.Contexts
                 var args2 = new List<object>();
                 foreach (var a in args)
                 {
-                    var r = a.Eval(Parent);
+                    var r = await a.Eval(Parent);
                     args2.Add(r);
                 }
 

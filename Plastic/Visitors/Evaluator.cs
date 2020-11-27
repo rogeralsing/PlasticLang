@@ -10,11 +10,11 @@ namespace PlasticLang.Visitors
         public static ValueTask<object> Eval(this Syntax syn, PlasticContext context) =>
             syn switch
             {
-                ArrayValue arrayValue       => EvalArray(context, arrayValue),
+                NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
                 StringLiteral str           => EvalStringLiteral(context, str),
                 Symbol symbol               => EvalSymbol(context, symbol),
                 ListValue listValue         => EvalListValue(context, listValue),
-                NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
+                ArrayValue arrayValue       => EvalArray(context, arrayValue),
                 Statements statements       => EvalStatements(context, statements),
                 TupleValue tupleValue       => EvalTupleValue(context, tupleValue),
                 _                           => throw new ArgumentOutOfRangeException(nameof(syn))

@@ -144,11 +144,122 @@ quote := func(@q) {
             var temp = result;
         }
 
-        public static async ValueTask<PlasticContext> SetupCoreSymbols()
+        private static object exit = new object();
+        private static async ValueTask<PlasticContext> SetupCoreSymbols()
         {
-            var exit = new object();
             var context = new PlasticContextImpl();
-            PlasticMacro print = async (c, a) =>
+
+           
+
+            async ValueTask<object?> Def(PlasticContext c, Syntax[] a)
+            {
+                var left = a.ElementAt(0) as Symbol;
+                var right = a.ElementAt(1);
+
+                var value = await right.Eval(c);
+                context.Declare(left.Value, value);
+                return value;
+            }
+
+            
+
+            context.Declare("print", Print);
+            context.Declare("while", While);
+            context.Declare("each", Each);
+            context.Declare("if", If);
+            context.Declare("elif", Elif);
+            context.Declare("else", Else);
+            context.Declare("true", true);
+            context.Declare("false", false);
+            context.Declare("null", null);
+            context.Declare("exit", exit);
+            context.Declare("func", Func);
+            context.Declare("mixin", Mixin);
+            context.Declare("class", Class);
+            context.Declare("using", Using);
+            context.Declare("eval", Eval);
+            context.Declare("assign", Assign);
+            context.Declare("def", Def);
+            context.Declare("_add", Add);
+            context.Declare("_sub", Sub);
+            context.Declare("_mul", Mul);
+            context.Declare("_div", Div);
+            context.Declare("_div", Div);
+            context.Declare("_eq", Eq);
+            context.Declare("_neq", Neq);
+            context.Declare("_gt", Gt);
+            context.Declare("_gteq", Gteq);
+            context.Declare("_lt", Lt);
+            context.Declare("_lteq", Lteq);
+            context.Declare("_band", Booland);
+            context.Declare("_bor", Boolor);
+            context.Declare("_dot", Dotop);
+            context.Declare("_not", Not);
+            //context.Declare("ActorSystem", actorSystem);
+
+
+            BootstrapLib(context);
+
+            return context;
+        }
+
+        private static async ValueTask<object?> Not(PlasticContext c, Syntax[] a)
+        {
+            var exp = a.ElementAt(0);
+
+            return !(dynamic) await exp.Eval(c);
+        }
+
+        private static async ValueTask<object?> Dotop(PlasticContext c, Syntax[] a)
+        {
+            var left = a.ElementAt(0);
+            var right = a.ElementAt(1);
+
+            var l = await left.Eval(c);
+
+            var arr = l as object[];
+            if (arr != null)
+            {
+                var arrayContext = new ArrayContext(arr, c);
+                return await right.Eval(arrayContext);
+            }
+
+            var pobj = l as PlasticObject;
+            if (pobj != null) return await right.Eval(pobj.Context);
+
+            var type = l as Type;
+            if (type != null)
+            {
+                var typeContext = new ClrTypeContext(type, c);
+                return await right.Eval(typeContext);
+            }
+
+
+            var objContext = new ClrInstanceContext(l, c);
+            return await right.Eval(objContext);
+        }
+
+        private static ValueTask<object?> Mixin(PlasticContext c, Syntax[] a)
+        {
+            var body = a.Last();
+            PlasticMacro f = async (ctx, args) =>
+            {
+                var thisContext = ctx;
+
+                for (var i = 0; i < a.Length - 1; i++)
+                {
+                    var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
+                    thisContext.Declare(argName.Value, await args[i].Eval(ctx));
+                }
+
+                await body.Eval(thisContext);
+
+                return null;
+            };
+            return ValueTask.FromResult((object) f);
+        }
+        
+         static async ValueTask<object?> Print(PlasticContext c, Syntax[] a)
             {
                 var obj = await a.First().Eval(c);
                 var source = a.Skip(1).ToArray();
@@ -164,9 +275,9 @@ quote := func(@q) {
                 else
                     Console.WriteLine(obj);
                 return obj;
-            };
+            }
 
-            PlasticMacro @while = async (c, a) =>
+            static async ValueTask<object?> While(PlasticContext c, Syntax[] a)
             {
                 var result = exit;
                 var cond = a[0];
@@ -175,9 +286,9 @@ quote := func(@q) {
                 while ((bool) await cond.Eval(c)) result = await body.Eval(c);
 
                 return result;
-            };
+            }
 
-            PlasticMacro @if = async (c, a) =>
+            static async ValueTask<object?> If(PlasticContext c, Syntax[] a)
             {
                 var cond = a[0];
                 var body = a[1];
@@ -185,19 +296,17 @@ quote := func(@q) {
                 if ((bool) await cond.Eval(c))
                 {
                     var res = await body.Eval(c);
-                    if (res == exit)
-                        return null;
+                    if (res == exit) return null;
                     return res;
                 }
 
                 return exit;
-            };
+            }
 
-            PlasticMacro elif = async (c, a) =>
+            static async ValueTask<object?> Elif(PlasticContext c, Syntax[] a)
             {
                 var last = c["last"];
-                if (last != exit)
-                    return last;
+                if (last != exit) return last;
 
                 var cond = a[0];
                 var body = a[1];
@@ -205,37 +314,32 @@ quote := func(@q) {
                 if ((bool) await cond.Eval(c))
                 {
                     var res = await body.Eval(c);
-                    if (res == exit)
-                        return null;
+                    if (res == exit) return null;
                     return res;
                 }
 
                 return exit;
-            };
+            }
 
-            PlasticMacro @else = async (c, a) =>
+            static async ValueTask<object?> Else(PlasticContext c, Syntax[] a)
             {
                 var last = c["last"];
-                if (last != exit)
-                    return last;
+                if (last != exit) return last;
 
                 var body = a[0];
 
                 var res = await body.Eval(c);
-                if (res == exit)
-                    return null;
+                if (res == exit) return null;
 
                 return res;
-            };
+            }
 
-            PlasticMacro each = async (c, a) =>
+            static async ValueTask<object?> Each(PlasticContext c, Syntax[] a)
             {
                 var v = a[0] as Symbol;
                 var body = a[2];
 
-                var enumerable = await a[1].Eval(c) as IEnumerable;
-                if (enumerable == null)
-                    return exit;
+                if (!(await a[1].Eval(c) is IEnumerable enumerable)) return exit;
 
                 object result = null;
                 foreach (var element in enumerable)
@@ -245,26 +349,26 @@ quote := func(@q) {
                 }
 
                 return result;
-            };
+            }
 
-            PlasticMacro func = (_, a) =>
+            static ValueTask<object?> Func(PlasticContext _, Syntax[] a)
             {
-                var argsMinusOne = a.Take(a.Length - 1).Select(arg =>
-                {
-                    var symbol = arg as Symbol;
-                    if (symbol != null)
+                var argsMinusOne = a.Take(a.Length - 1)
+                    .Select(arg =>
                     {
-                        if (!symbol.Value.StartsWith("@"))
-                            return new Argument(symbol.Value, ArgumentType.Value);
-                        return new Argument(symbol.Value.Substring(1), ArgumentType.Expression);
-                    }
+                        var symbol = arg as Symbol;
+                        if (symbol != null)
+                        {
+                            if (!symbol.Value.StartsWith("@")) return new Argument(symbol.Value, ArgumentType.Value);
+                            return new Argument(symbol.Value.Substring(1), ArgumentType.Expression);
+                        }
 
-                    throw new NotSupportedException();
-                }).ToArray();
+                        throw new NotSupportedException();
+                    })
+                    .ToArray();
                 var body = a.Last();
 
-                PlasticMacro op = null;
-                op = async (callingContext, args) =>
+                async ValueTask<object?> Op(PlasticContext callingContext, Syntax[] args)
                 {
                     //full application
                     if (args.Length >= argsMinusOne.Length)
@@ -299,15 +403,16 @@ quote := func(@q) {
                     //partial application
                     var partialArgs = args.ToArray();
 
-                    PlasticMacro partial = (ctx, pargs) => op(ctx, partialArgs.Union(pargs).ToArray());
+                    PlasticMacro partial = (ctx, pargs) => Op(ctx, partialArgs.Union(pargs).ToArray());
 
                     return ValueTask.FromResult((object) partial);
-                };
-                return ValueTask.FromResult((object) op);
-            };
+                }
+
+                return ValueTask.FromResult((object) (PlasticMacro) Op);
+            }
 
 
-            PlasticMacro @class = (c, a) =>
+            static ValueTask<object?> Class(PlasticContext c, Syntax[] a)
             {
                 var body = a.Last();
                 PlasticMacro f = async (ctx, args) =>
@@ -328,99 +433,76 @@ quote := func(@q) {
                     return self;
                 };
                 return ValueTask.FromResult((object) f);
-            };
+            }
 
-            PlasticMacro mixin = (c, a) =>
-            {
-                var body = a.Last();
-                PlasticMacro f = async (ctx, args) =>
-                {
-                    var thisContext = ctx;
-
-                    for (var i = 0; i < a.Length - 1; i++)
-                    {
-                        var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
-                        thisContext.Declare(argName.Value, await args[i].Eval(ctx));
-                    }
-
-                    await body.Eval(thisContext);
-
-                    return null;
-                };
-                return ValueTask.FromResult((object) f);
-            };
-
-            PlasticMacro @using = (c, a) =>
+            static ValueTask<object?> Using(PlasticContext c, Syntax[] a)
             {
                 var path = a.First() as StringLiteral;
                 var type = Type.GetType(path.Value);
                 return ValueTask.FromResult((object) type);
-            };
+            }
 
-            PlasticMacro eval = async (c, a) =>
+            static async ValueTask<object?> Eval(PlasticContext c, Syntax[] a)
             {
                 var code = await a.First().Eval(c) as string;
                 var res = Run(code, c);
                 return res;
-            };
+            }
 
-            PlasticMacro assign = async (c, a) =>
+            static async ValueTask<object?> Assign(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 var value = await right.Eval(c);
 
-                var assignee = left as Symbol;
-
-                if (assignee != null) c[assignee.Value] = value;
-
-                var dot = left as ListValue;
-                if (dot != null)
+                switch (left)
                 {
-                    var obj = await dot.Rest.ElementAt(0).Eval(c) as PlasticObject;
-                    var memberId = dot.Rest.ElementAt(1) as Symbol;
-                    obj[memberId.Value] = value;
+                    case Symbol assignee:
+                        c[assignee.Value] = value;
+                        break;
+                    case ListValue dot:
+                    {
+                        var obj = await dot.Rest.ElementAt(0).Eval(c) as PlasticObject;
+                        var memberId = dot.Rest.ElementAt(1) as Symbol;
+                        obj[memberId.Value] = value;
+                        break;
+                    }
                 }
+
 
                 var tuple = left as TupleValue;
                 var arr = value as TupleInstance;
-                if (tuple != null)
+                if (tuple == null) return value;
+
+                bool Match(TupleValue t, TupleInstance values)
                 {
-                    Func<TupleValue, TupleInstance, bool> match = null;
-                    match = (t, values) =>
+                    if (values == null) return false;
+
+                    if (t.Items.Length != values.Items.Length) return false;
+
+                    for (var i = 0; i < values.Items.Length; i++)
                     {
-                        if (values == null)
-                            return false;
+                        var l = t.Items[i];
+                        var r = values.Items[i];
 
-                        if (t.Items.Length != values.Items.Length)
-                            return false;
-
-                        for (var i = 0; i < values.Items.Length; i++)
+                        switch (l)
                         {
-                            var l = t.Items[i];
-                            var r = values.Items[i];
-
-                            if (l is Symbol) //left is symbol, assign a value to it..
+                            //left is symbol, assign a value to it..
+                            case Symbol symbol:
+                                c[symbol.Value] = r;
+                                break;
+                            case TupleValue leftTuple when r is TupleInstance rightTuple:
                             {
-                                c[(l as Symbol).Value] = r;
+                                //right is a sub tuple, recursive match
+                                var subMatch = Match(leftTuple, rightTuple);
+                                if (!subMatch) return false;
+                                break;
                             }
-                            else if (l is TupleValue)
-                            {
-                                if (r is TupleInstance)
-                                {
-                                    //right is a sub tuple, recursive match
-                                    var subMatch = match(l as TupleValue, r as TupleInstance);
-                                    if (!subMatch)
-                                        return false;
-                                }
-                                else
-                                {
-                                    //left is tuple, right is not. just exit
-                                    return false;
-                                }
-                            }
-                            else
+                            case TupleValue leftTuple:
+                                //left is tuple, right is not. just exit
+                                return false;
+                            default:
                             {
                                 //left is a value, compare to right
                                 var lv = l.Eval(c);
@@ -432,209 +514,120 @@ quote := func(@q) {
                                 {
                                     return false;
                                 }
+
+                                break;
                             }
                         }
+                    }
 
-                        return true;
-                    };
-
-                    return match(tuple, arr);
+                    return true;
                 }
 
-                return value;
-            };
-
-            PlasticMacro def = async (c, a) =>
-            {
-                var left = a.ElementAt(0) as Symbol;
-                var right = a.ElementAt(1);
-
-                var value = await right.Eval(c);
-                context.Declare(left.Value, value);
-                return value;
-            };
-
-            PlasticMacro add = async (c, a) =>
+                return Match(tuple, arr);
+            }
+            
+            static async ValueTask<object?> Add(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) + (dynamic) await right.Eval(c);
-            };
+            }
 
-            PlasticMacro sub = async (c, a) =>
+            static async ValueTask<object?> Sub(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) - (dynamic) await right.Eval(c);
-            };
+            }
 
-            PlasticMacro mul = async (c, a) =>
+            static async ValueTask<object?> Mul(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) * (dynamic) await right.Eval(c);
-            };
+            }
 
-            PlasticMacro div = async (c, a) =>
+            static async ValueTask<object?> Div(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) / (dynamic) await right.Eval(c);
-            };
+            }
 
-            PlasticMacro eq = async (c, a) =>
+            static async ValueTask<object?> Eq(PlasticContext c, Syntax[] a)
             {
                 dynamic left = await a.ElementAt(0).Eval(c);
                 dynamic right = await a.ElementAt(1).Eval(c);
 
                 if (left == null)
                 {
-                    if (right != null)
-                        return false;
+                    if (right != null) return false;
                     return true;
                 }
 
-                if (right == null)
-                    return false;
+                if (right == null) return false;
 
-                if (left.GetType() != right.GetType())
-                    return false;
+                if (left.GetType() != right.GetType()) return false;
 
                 return left == right;
-            };
+            }
 
-            PlasticMacro neq = async (c, a) =>
+            static async ValueTask<object?> Neq(PlasticContext c, Syntax[] a)
             {
-                var res = await eq(c, a);
+                var res = await Eq(c, a);
                 return !(bool) res;
-            };
+            }
 
-            PlasticMacro gt = async (c, a) =>
+            static async ValueTask<object?> Gt(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) > (dynamic) await right.Eval(c);
-            };
+            }
 
-            PlasticMacro gteq = async (c, a) =>
+            static async ValueTask<object?> Gteq(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) >= (dynamic) await right.Eval(c);
-            };
+            }
 
-            PlasticMacro lt = async (c, a) =>
+            static async ValueTask<object?> Lt(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) < (dynamic) await right.Eval(c);
-            };
+            }
 
-            PlasticMacro lteq = async (c, a) =>
+            static async ValueTask<object?> Lteq(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) <= (dynamic) await right.Eval(c);
-            };
+            }
 
-            PlasticMacro booland = async (c, a) =>
+            static async ValueTask<object?> Booland(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) && (dynamic) await right.Eval(c);
-            };
+            }
 
-            PlasticMacro boolor = async (c, a) =>
+            static async ValueTask<object?> Boolor(PlasticContext c, Syntax[] a)
             {
                 var left = a.ElementAt(0);
                 var right = a.ElementAt(1);
 
                 return (dynamic) await left.Eval(c) || (dynamic) await right.Eval(c);
-            };
-
-            PlasticMacro not = async (c, a) =>
-            {
-                var exp = a.ElementAt(0);
-
-                return !(dynamic) await exp.Eval(c);
-            };
-
-            PlasticMacro dotop = async (c, a) =>
-            {
-                var left = a.ElementAt(0);
-                var right = a.ElementAt(1);
-
-                var l = await left.Eval(c);
-
-                var arr = l as object[];
-                if (arr != null)
-                {
-                    var arrayContext = new ArrayContext(arr, c);
-                    return await right.Eval(arrayContext);
-                }
-
-                var pobj = l as PlasticObject;
-                if (pobj != null) return await right.Eval(pobj.Context);
-
-                var type = l as Type;
-                if (type != null)
-                {
-                    var typeContext = new ClrTypeContext(type, c);
-                    return await right.Eval(typeContext);
-                }
-
-
-                var objContext = new ClrInstanceContext(l, c);
-                return await right.Eval(objContext);
-            };
-
-            context.Declare("print", print);
-            context.Declare("while", @while);
-            context.Declare("each", each);
-            context.Declare("if", @if);
-            context.Declare("elif", elif);
-            context.Declare("else", @else);
-            context.Declare("true", true);
-            context.Declare("false", false);
-            context.Declare("null", null);
-            context.Declare("exit", exit);
-            context.Declare("func", func);
-            context.Declare("mixin", mixin);
-            context.Declare("class", @class);
-            context.Declare("using", @using);
-            context.Declare("eval", eval);
-            context.Declare("assign", assign);
-            context.Declare("def", def);
-            context.Declare("_add", add);
-            context.Declare("_sub", sub);
-            context.Declare("_mul", mul);
-            context.Declare("_div", div);
-            context.Declare("_div", div);
-            context.Declare("_eq", eq);
-            context.Declare("_neq", neq);
-            context.Declare("_gt", gt);
-            context.Declare("_gteq", gteq);
-            context.Declare("_lt", lt);
-            context.Declare("_lteq", lteq);
-            context.Declare("_band", booland);
-            context.Declare("_bor", boolor);
-            context.Declare("_dot", dotop);
-            context.Declare("_not", not);
-            //context.Declare("ActorSystem", actorSystem);
-
-
-            BootstrapLib(context);
-
-            return context;
-        }
+            }
     }
 }
