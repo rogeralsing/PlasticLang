@@ -24,9 +24,9 @@ namespace PlasticLang.Contexts
             this[symbol.Identity] = value;
         }
 
-        public abstract ValueTask<dynamic> Number(NumberLiteral numberLiteral);
-        public abstract ValueTask<dynamic> QuotedString(StringLiteral stringLiteral);
-        public abstract ValueTask<dynamic?> Invoke(Syntax head, Syntax[] args);
+        public abstract ValueTask<object> Number(NumberLiteral numberLiteral);
+        public abstract ValueTask<object> QuotedString(StringLiteral stringLiteral);
+        public abstract ValueTask<object?> Invoke(Syntax head, Syntax[] args);
         public abstract bool HasProperty(string name);
         public abstract void Declare(string name, object value);
         public abstract Cell GetCell(string name);

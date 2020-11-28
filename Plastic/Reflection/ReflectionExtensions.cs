@@ -12,7 +12,7 @@ namespace PlasticLang.Reflection
             return prop;
         }
         
-        public static dynamic? GetPropertyValue(this object self, string name)
+        public static object? GetPropertyValue(this object self, string name)
         {
             var prop = self.GetType().GetProperty(name);
             if (prop is null) throw new NotSupportedException();

@@ -7,7 +7,7 @@ namespace PlasticLang.Contexts
 {
     public class ArrayContext : PlasticContext
     {
-        private readonly dynamic?[] _array;
+        private readonly object?[] _array;
 
         public ArrayContext(object[] array, PlasticContext owner) : base(owner)
         {
@@ -20,7 +20,7 @@ namespace PlasticLang.Contexts
             set => throw new NotImplementedException();
         }
 
-        public override ValueTask<dynamic?> Invoke(Syntax head, Syntax[] args)
+        public override ValueTask<object?> Invoke(Syntax head, Syntax[] args)
         {
             if (head is not NumberLiteral numberLiteral) throw new NotImplementedException();
             
@@ -47,14 +47,14 @@ namespace PlasticLang.Contexts
             throw new NotImplementedException();
         }
 
-        public override ValueTask<dynamic> Number(NumberLiteral numberLiteral)
+        public override ValueTask<object> Number(NumberLiteral numberLiteral)
         {
             var index = (int) numberLiteral.Value;
             var res = _array[index];
             return ValueTask.FromResult(res);
         }
 
-        public override ValueTask<dynamic> QuotedString(StringLiteral stringLiteral)
+        public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
         {
             var res = this[stringLiteral.Value]!;
             return ValueTask.FromResult(res);

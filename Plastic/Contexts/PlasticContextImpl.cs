@@ -105,14 +105,14 @@ namespace PlasticLang.Contexts
             _cells[name] = new Cell(value);
         }
 
-        private static async ValueTask<dynamic?> InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
+        private static async ValueTask<object?> InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
         {
             var value = await macro(context, args);
             context.Declare("last", value!);
             return value;
         }
 
-        public override async ValueTask<dynamic?> Invoke(Syntax head, Syntax[] args)
+        public override async ValueTask<object?> Invoke(Syntax head, Syntax[] args)
         {
             var target = await head.Eval(this);
 
@@ -132,13 +132,13 @@ namespace PlasticLang.Contexts
             }
         }
 
-        public override ValueTask<dynamic> Number(NumberLiteral numberLiteral)
+        public override ValueTask<object> Number(NumberLiteral numberLiteral)
         {
             var res = numberLiteral.Value;
             return ValueTask.FromResult((object) res);
         }
 
-        public override ValueTask<dynamic> QuotedString(StringLiteral stringLiteral)
+        public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
         {
             var res = stringLiteral.Value;
             return ValueTask.FromResult((object) res);

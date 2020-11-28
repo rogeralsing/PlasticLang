@@ -9,7 +9,7 @@ namespace PlasticLang.Visitors
     public static class Evaluator
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ValueTask<dynamic> Eval(this Syntax syn, PlasticContext context) =>
+        public static ValueTask<object> Eval(this Syntax syn, PlasticContext context) =>
             syn switch
             {
                 NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
@@ -22,7 +22,7 @@ namespace PlasticLang.Visitors
             };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static async ValueTask<dynamic> EvalTupleValue(PlasticContext context, TupleValue tupleValue)
+        private static async ValueTask<object> EvalTupleValue(PlasticContext context, TupleValue tupleValue)
         {
             var items = new object[tupleValue.Items.Length];
             for (var i = 0; i < tupleValue.Items.Length; i++)
@@ -36,41 +36,44 @@ namespace PlasticLang.Visitors
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static async ValueTask<dynamic> EvalStatements(PlasticContext context, Statements statements)
+        private static async ValueTask<object> EvalStatements(PlasticContext context, Statements statements)
         {
-            ValueTask<dynamic> result = default;
+            ValueTask<object> result = default;
             foreach (var statement in statements.Elements) result = Eval(statement, context);
             return await result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ValueTask<dynamic> EvalNumberLiteral(PlasticContext context, NumberLiteral numberLiteral)
+        private static ValueTask<object> EvalNumberLiteral(PlasticContext context, NumberLiteral numberLiteral)
         {
+            if (context is PlasticContextImpl)
+            {
+                return new ValueTask<object>(numberLiteral.Value);
+            }
             return context.Number(numberLiteral);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ValueTask<dynamic> EvalListValue(PlasticContext context, ListValue listValue)
+        private static ValueTask<object> EvalListValue(PlasticContext context, ListValue listValue)
         {
             return context!.Invoke(listValue.Head!, listValue.Rest!)!;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ValueTask<dynamic> EvalSymbol(PlasticContext context, Symbol symbol)
+        private static ValueTask<object> EvalSymbol(PlasticContext context, Symbol symbol)
         {
-          //  var v = context[symbol.Identity];
             var v = context.GetSymbol(symbol);
             return ValueTask.FromResult(v!);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ValueTask<dynamic> EvalStringLiteral(PlasticContext context, StringLiteral str)
+        private static ValueTask<object> EvalStringLiteral(PlasticContext context, StringLiteral str)
         {
             return context.QuotedString(str);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static async ValueTask<dynamic> EvalArray(PlasticContext context, ArrayValue arrayValue)
+        private static async ValueTask<object> EvalArray(PlasticContext context, ArrayValue arrayValue)
         {
             var items = new object[arrayValue.Items.Length];
             for (var i = 0; i < arrayValue.Items.Length; i++) items[i] = await arrayValue.Items[i].Eval(context);

@@ -4,5 +4,5 @@ using PlasticLang.Contexts;
 
 namespace PlasticLang
 {
-    public delegate ValueTask<dynamic?> PlasticMacro(PlasticContext context, Syntax[] args);
+    public delegate ValueTask<object?> PlasticMacro(PlasticContext context, Syntax[] args);
 }

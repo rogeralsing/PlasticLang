@@ -15,17 +15,17 @@ namespace PlasticLang
     {
         private static readonly object Exit = new();
 
-        public static ValueTask<dynamic> Run(string code)
+        public static ValueTask<object> Run(string code)
         {
             var context = SetupCoreSymbols();
             var userContext = new PlasticContextImpl(context);
             return Run(code, userContext);
         }
     
-        public static ValueTask<dynamic> Run(string code, PlasticContext context)
+        public static ValueTask<object> Run(string code, PlasticContext context)
         {
             var res = PlasticParser.Statements.Parse(code);
-            ValueTask<dynamic> result = default;
+            ValueTask<object> result = default;
             foreach (var statement in res.Elements) result = statement.Eval(context);
             return result;
         }
@@ -36,7 +36,7 @@ namespace PlasticLang
 
 
             var libCode = PlasticParser.Statements.Parse(lib);
-            ValueTask<dynamic> result = default;
+            ValueTask<object> result = default;
             foreach (var statement in libCode.Elements) result = statement.Eval(context);
             var temp = result;
         }
@@ -46,7 +46,7 @@ namespace PlasticLang
             var context = new PlasticContextImpl();
 
 
-            async ValueTask<dynamic?> Def(PlasticContext c, Syntax[] a)
+            async ValueTask<object?> Def(PlasticContext c, Syntax[] a)
             {
                 var left = a.Left() as Symbol;
                 var right = a.Right();
@@ -97,10 +97,10 @@ namespace PlasticLang
             return context;
         }
 
-        private static async ValueTask<dynamic?> Not(PlasticContext c, Syntax[] a) => 
-            !await (ValueTask<dynamic>) a.Left().Eval(c);
+        private static async ValueTask<object?> Not(PlasticContext c, Syntax[] a) => 
+            !(bool)await a.Left().Eval(c);
 
-        private static async ValueTask<dynamic?> Dotop(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> Dotop(PlasticContext c, Syntax[] a)
         {
             var left = a.Left();
             var right = a.Right();
@@ -129,11 +129,11 @@ namespace PlasticLang
             }
         }
 
-        private static ValueTask<dynamic?> Mixin(PlasticContext c, Syntax[] a)
+        private static ValueTask<object?> Mixin(PlasticContext c, Syntax[] a)
         {
             var body = a.Last();
 
-            async ValueTask<dynamic?> PlasticMacro(PlasticContext ctx, Syntax[] args)
+            async ValueTask<object?> PlasticMacro(PlasticContext ctx, Syntax[] args)
             {
                 var thisContext = ctx;
 
@@ -151,7 +151,7 @@ namespace PlasticLang
             return ValueTask.FromResult<object>( (PlasticMacro) PlasticMacro);
         }
 
-        private static async ValueTask<dynamic?> Print(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> Print(PlasticContext c, Syntax[] a)
         {
             var obj = await a.First().Eval(c);
             var source = a.Skip(1).ToArray();
@@ -169,23 +169,23 @@ namespace PlasticLang
             return obj;
         }
 
-        private static async ValueTask<dynamic?> While(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> While(PlasticContext c, Syntax[] a)
         {
             var result = Exit;
             var cond = a.Left();
             var body = a.Right();
 
-            while (await cond.Eval(c)) result = await body.Eval(c);
+            while ((bool)await cond.Eval(c)) result = await body.Eval(c);
 
             return result;
         }
 
-        private static async ValueTask<dynamic?> If(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> If(PlasticContext c, Syntax[] a)
         {
             var cond = a.Left();
             var body = a.Right();
 
-            if (await cond.Eval(c))
+            if ((bool)await cond.Eval(c))
             {
                 var res = await body.Eval(c);
                 if (res == Exit) return null;
@@ -195,7 +195,7 @@ namespace PlasticLang
             return Exit;
         }
 
-        private static async ValueTask<dynamic?> Elif(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> Elif(PlasticContext c, Syntax[] a)
         {
             var last = c["last"];
             if (last != Exit) return last;
@@ -203,7 +203,7 @@ namespace PlasticLang
             var cond = a.Left();
             var body = a.Right();
 
-            if (await cond.Eval(c))
+            if ((bool)await cond.Eval(c))
             {
                 var res = await body.Eval(c);
                 if (res == Exit) return null;
@@ -213,7 +213,7 @@ namespace PlasticLang
             return Exit;
         }
 
-        private static async ValueTask<dynamic?> Else(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> Else(PlasticContext c, Syntax[] a)
         {
             var last = c["last"];
             if (last != Exit) return last;
@@ -226,7 +226,7 @@ namespace PlasticLang
             return res;
         }
 
-        private static async ValueTask<dynamic?> Each(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> Each(PlasticContext c, Syntax[] a)
         {
             var v = a.Left() as Symbol;
             var body = a[2];
@@ -243,7 +243,7 @@ namespace PlasticLang
             return result;
         }
 
-        private static ValueTask<dynamic> Func(PlasticContext _, Syntax[] a)
+        private static ValueTask<object> Func(PlasticContext _, Syntax[] a)
         {
             var argsMinusOne = a.Take(a.Length - 1)
                 .Select(arg =>
@@ -260,7 +260,7 @@ namespace PlasticLang
                 .ToArray();
             var body = a.Last();
 
-            async ValueTask<dynamic?> Op(PlasticContext callingContext, Syntax[] args)
+            async ValueTask<object?> Op(PlasticContext callingContext, Syntax[] args)
             {
                 //full application
                 if (args.Length >= argsMinusOne.Length)
@@ -295,7 +295,7 @@ namespace PlasticLang
                 //partial application
                 var partialArgs = args.ToArray();
 
-                ValueTask<dynamic?> Partial(PlasticContext ctx, Syntax[] pargs) => Op(ctx, partialArgs.Union(pargs).ToArray());
+                ValueTask<object?> Partial(PlasticContext ctx, Syntax[] pargs) => Op(ctx, partialArgs.Union(pargs).ToArray());
 
                 return ValueTask.FromResult<object>( (PlasticMacro) Partial);
             }
@@ -304,11 +304,11 @@ namespace PlasticLang
         }
 
 
-        private static ValueTask<dynamic> Class(PlasticContext c, Syntax[] a)
+        private static ValueTask<object> Class(PlasticContext c, Syntax[] a)
         {
             var body = a.Last();
 
-            async ValueTask<dynamic> PlasticMacro(PlasticContext ctx, Syntax[] args)
+            async ValueTask<object> PlasticMacro(PlasticContext ctx, Syntax[] args)
             {
                 var thisContext = new PlasticContextImpl(c);
 
@@ -329,21 +329,21 @@ namespace PlasticLang
             return ValueTask.FromResult<object>((PlasticMacro) PlasticMacro!);
         }
 
-        private static ValueTask<dynamic> Using(PlasticContext c, Syntax[] a)
+        private static ValueTask<object> Using(PlasticContext c, Syntax[] a)
         {
             var path = a.First() as StringLiteral;
             var type = Type.GetType(path.Value);
             return ValueTask.FromResult<object>(type);
         }
 
-        private static async ValueTask<dynamic?> Eval(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> Eval(PlasticContext c, Syntax[] a)
         {
             var code = await a.First().Eval(c) as string;
             var res = await Run(code!, c);
             return res;
         }
 
-        private static async ValueTask<dynamic?> Assign(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> Assign(PlasticContext c, Syntax[] a)
         {
             var left = a.Left();
             var right = a.Right();
@@ -419,19 +419,19 @@ namespace PlasticLang
             }
         }
 
-        private static async ValueTask<dynamic?> Add(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) + await a.Right().Eval(c);
+        private static async ValueTask<object?> Add(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) + (dynamic)await a.Right().Eval(c);
 
-        private static async ValueTask<dynamic?> Sub(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) - await a.Right().Eval(c);
+        private static async ValueTask<object?> Sub(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) - (dynamic)await a.Right().Eval(c);
 
-        private static async ValueTask<dynamic?> Mul(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) * await a.Right().Eval(c);
+        private static async ValueTask<object?> Mul(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) * (dynamic)await a.Right().Eval(c);
 
-        private static async ValueTask<dynamic?> Div(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) / await a.Right().Eval(c);
+        private static async ValueTask<object?> Div(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) / (dynamic)await a.Right().Eval(c);
 
-        private static async ValueTask<dynamic?> Eq(PlasticContext c, Syntax[] a)
+        private static async ValueTask<object?> Eq(PlasticContext c, Syntax[] a)
         {
             var left = await a.Left().Eval(c);
             var right = await a.Right().Eval(c);
@@ -448,25 +448,25 @@ namespace PlasticLang
             return left == right;
         }
 
-        private static async ValueTask<dynamic?> Neq(PlasticContext c, Syntax[] a) => 
-            !(await Eq(c, a))!;
+        private static async ValueTask<object?> Neq(PlasticContext c, Syntax[] a) => 
+            !((bool)await Eq(c, a))!;
 
-        private static async ValueTask<dynamic?> Gt(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) > await a.Right().Eval(c);
+        private static async ValueTask<object?> Gt(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) > (dynamic)await a.Right().Eval(c);
 
-        private static async ValueTask<dynamic?> GtEq(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) >= await a.Right().Eval(c);
+        private static async ValueTask<object?> GtEq(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) >= (dynamic)await a.Right().Eval(c);
 
-        private static async ValueTask<dynamic?> Lt(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) < await a.Right().Eval(c);
+        private static async ValueTask<object?> Lt(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) < (dynamic)await a.Right().Eval(c);
 
-        private static async ValueTask<dynamic?> LtEq(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) <= await a.Right().Eval(c);
+        private static async ValueTask<object?> LtEq(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) <= (dynamic)await a.Right().Eval(c);
 
-        private static async ValueTask<dynamic?> LogicalAnd(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) && await a.Right().Eval(c);
+        private static async ValueTask<object?> LogicalAnd(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) && (dynamic)await a.Right().Eval(c);
 
-        private static async ValueTask<dynamic?> LogicalOr(PlasticContext c, Syntax[] a) => 
-            await a.Left().Eval(c) || await a.Right().Eval(c);
+        private static async ValueTask<object?> LogicalOr(PlasticContext c, Syntax[] a) => 
+            await (dynamic)a.Left().Eval(c) || (dynamic)await a.Right().Eval(c);
     }
 }
