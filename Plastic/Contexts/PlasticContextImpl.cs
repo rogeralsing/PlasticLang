@@ -100,16 +100,18 @@ namespace PlasticLang.Contexts
 
         public override void Declare(string name, object value)
         {
-            if (!_cells.ContainsKey(name))
-                _cells[name] = new Cell(value);
-            else
+            if (name == "guard")
+            {
+                Console.WriteLine(name);
+            }
+
+            if (_cells.ContainsKey(name))
                 _cells[name].Value = value;
+            else
+                _cells[name] = new Cell(value);
         }
 
-        public void Declare(string name, PlasticMacro value)
-        {
-            _cells[name] = new Cell(value);
-        }
+        public void Declare(string name, PlasticMacro value) => Declare(name, (object) value);
 
         private static object? InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
         {
