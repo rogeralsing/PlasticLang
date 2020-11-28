@@ -52,7 +52,7 @@ namespace PlasticLang
                 var right = a.Right();
 
                 var value = await right.Eval(c);
-                context.Declare(left.Value, value);
+                context.Declare(left.Identity, value);
                 return value;
             }
 
@@ -140,7 +140,7 @@ namespace PlasticLang
                 for (var i = 0; i < a.Length - 1; i++)
                 {
                     var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
-                    thisContext.Declare(argName.Value, await args[i].Eval(ctx));
+                    thisContext.Declare(argName.Identity, await args[i].Eval(ctx));
                 }
 
                 await body.Eval(thisContext);
@@ -175,7 +175,7 @@ namespace PlasticLang
             var cond = a.Left();
             var body = a.Right();
 
-            while (await cond.Eval<bool>(c)) result = await body.Eval(c);
+            while (await cond.Eval(c)) result = await body.Eval(c);
 
             return result;
         }
@@ -185,7 +185,7 @@ namespace PlasticLang
             var cond = a.Left();
             var body = a.Right();
 
-            if (await cond.Eval<bool>(c))
+            if (await cond.Eval(c))
             {
                 var res = await body.Eval(c);
                 if (res == Exit) return null;
@@ -203,7 +203,7 @@ namespace PlasticLang
             var cond = a.Left();
             var body = a.Right();
 
-            if (await cond.Eval<bool>(c))
+            if (await cond.Eval(c))
             {
                 var res = await body.Eval(c);
                 if (res == Exit) return null;
@@ -236,7 +236,7 @@ namespace PlasticLang
             object result = null!;
             foreach (var element in enumerable)
             {
-                c.Declare(v.Value, element);
+                c.Declare(v.Identity, element);
                 result = await body.Eval(c);
             }
 
@@ -251,8 +251,8 @@ namespace PlasticLang
                     var symbol = arg as Symbol;
                     if (symbol != null)
                     {
-                        if (!symbol.Value.StartsWith("@")) return new Argument(symbol.Value, ArgumentType.Value);
-                        return new Argument(symbol.Value.Substring(1), ArgumentType.Expression);
+                        if (!symbol.Identity.StartsWith("@")) return new Argument(symbol.Identity, ArgumentType.Value);
+                        return new Argument(symbol.Identity.Substring(1), ArgumentType.Expression);
                     }
 
                     throw new NotSupportedException();
@@ -316,7 +316,7 @@ namespace PlasticLang
                 {
                     var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
                     var arg = await args[i].Eval(ctx);
-                    thisContext.Declare(argName!.Value, arg);
+                    thisContext.Declare(argName!.Identity, arg);
                 }
 
                 var self = new PlasticObject(thisContext);
@@ -353,13 +353,13 @@ namespace PlasticLang
             switch (left)
             {
                 case Symbol assignee:
-                    c[assignee.Value] = value;
+                    c.SetSymbol(assignee,value);
                     break;
                 case ListValue dot:
                 {
                     var obj = await dot.Rest[0].Eval(c) as PlasticObject;
                     var memberId = dot.Rest[1] as Symbol;
-                    obj![memberId!.Value] = value;
+                    obj![memberId!.Identity] = value;
                     break;
                 }
             }
@@ -385,7 +385,7 @@ namespace PlasticLang
                     {
                         //left is symbol, assign a value to it..
                         case Symbol symbol:
-                            c[symbol.Value] = r;
+                            c[symbol.Identity] = r;
                             break;
                         case TupleValue leftTuple when r is TupleInstance rightTuple:
                         {

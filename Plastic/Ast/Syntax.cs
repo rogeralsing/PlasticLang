@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using PlasticLang.Contexts;
 
 namespace PlasticLang.Ast
 {
@@ -7,7 +8,10 @@ namespace PlasticLang.Ast
 
     public sealed record StringLiteral(string Value) : Syntax;
 
-    public sealed record Symbol(string Value) : Syntax;
+    public sealed record Symbol(string Identity) : Syntax
+    {
+        public Cell? Cell { get; set; }
+    }
 
     public sealed record Statements(IEnumerable<Syntax> Elements) : Syntax;
 

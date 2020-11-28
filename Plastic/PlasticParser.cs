@@ -187,7 +187,7 @@ namespace PlasticLang
                     select string.Concat(str.ToArray()).ToLiteral())
                 .Or(from colon in Parse.Char(':')
                     from id in Parse.Ref(() => Symbol)
-                    select (":" + id.Value).ToLiteral()
+                    select (":" + id.Identity).ToLiteral()
                 ).PlasticToken();
         }
 

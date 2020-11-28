@@ -29,7 +29,7 @@ namespace PlasticLang.Visitors
 
         private static string StringListValue(ListValue listValue) => $"{listValue.Head}({string.Join(",", listValue.Rest.Select(a => a.ToString()))})";
 
-        private static string StringSymbol(Symbol symbol) => symbol.Value;
+        private static string StringSymbol(Symbol symbol) => symbol.Identity;
 
         private static string StringStringLiteral(StringLiteral str) => $"\"{str.Value}\"";
 

@@ -17,6 +17,11 @@ namespace PlasticLang.Contexts
             _obj = obj;
         }
 
+        public override Cell GetCell(string name)
+        {
+            throw new NotImplementedException();
+        }
+
         public override object? this[string name]
         {
             get

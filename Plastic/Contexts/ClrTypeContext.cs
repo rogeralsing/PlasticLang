@@ -25,6 +25,11 @@ namespace PlasticLang.Contexts
             set => throw new NotSupportedException();
         }
 
+        public override Cell GetCell(string name)
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool HasProperty(string name)
         {
             throw new NotSupportedException();
@@ -37,7 +42,7 @@ namespace PlasticLang.Contexts
 
         public override async ValueTask<dynamic?> Invoke(Syntax head, Syntax[] args)
         {
-            var memberName = (head as Symbol)?.Value;
+            var memberName = (head as Symbol)?.Identity;
             var evaluatedArgs = args.Select(async a => await a.Eval(Parent)).ToArray();
             var members = _type.GetMethods().Where(m => m.Name == memberName);
             foreach (var member in members)

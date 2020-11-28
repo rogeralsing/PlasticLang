@@ -9,6 +9,9 @@ namespace PlasticLang.Contexts
 {
     public class Cell
     {
+        public Cell()
+        {
+        }
         public Cell(object? value)
         {
             Value = value;
@@ -28,22 +31,54 @@ namespace PlasticLang.Contexts
 
         public override object? this[string name]
         {
-            get =>
-                //if cell is not populated in this context, fetch from parent
-                !_cells.ContainsKey(name) ? Parent?[name] : _cells[name].Value;
+            get
+            {
+                object? res;
+                if (!_cells.ContainsKey(name))
+                    res = Parent?[name];
+                else
+                    res = _cells[name].Value;
+                return res;
+            }
             set
             {
-                if (!HasProperty(name))
+                if (!HasProperty(name) || Parent is null)
                 {
                     _cells[name] = new Cell(value);
                     return;
                 }
 
-                if (!_cells.ContainsKey(name) && Parent is not null)
-                    Parent[name] = value!;
-                else
-                    _cells[name] = new Cell(value!);
+                Parent[name] = value!;
             }
+        }
+
+        public override Cell GetCell(string name)
+        {
+            Cell res;
+            if (!_cells.ContainsKey(name))
+                res = Parent?.GetCell(name);
+            else
+                res = _cells[name];
+            return res;
+        }
+
+        public override object? GetSymbol(Symbol symbol)
+        {
+            var c = CellFromSymbol(symbol);
+            return c.Value;
+        }
+
+        private Cell CellFromSymbol(Symbol symbol)
+        {
+            var c = symbol.Cell ?? GetCell(symbol.Identity);
+            symbol.Cell = c;
+            return c;
+        }
+
+        public override void SetSymbol(Symbol symbol, object value)
+        {
+            var c = CellFromSymbol(symbol);
+            c.Value = value;
         }
 
         public override bool HasProperty(string name)
@@ -59,7 +94,10 @@ namespace PlasticLang.Contexts
 
         public override void Declare(string name, object value)
         {
-            _cells[name] = new Cell(value);
+            if (!_cells.ContainsKey(name))
+                _cells[name] = new Cell(value);
+            else
+                _cells[name].Value = value;
         }
         
         public void Declare(string name, PlasticMacro value)
@@ -90,7 +128,7 @@ namespace PlasticLang.Contexts
                     return array[index];
                 }
                 default:
-                    throw new NotImplementedException();
+                    throw new ArgumentNullException(nameof(target));
             }
         }
 
