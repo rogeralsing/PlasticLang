@@ -1,12 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
+using PlasticLang.Reflection;
 
 namespace PlasticLang.Contexts
 {
     public class ArrayContext : PlasticContext
     {
-        private readonly object[] _array;
+        private readonly dynamic?[] _array;
 
         public ArrayContext(object[] array, PlasticContext owner) : base(owner)
         {
@@ -15,22 +16,20 @@ namespace PlasticLang.Contexts
 
         public override object? this[string name]
         {
-            get
-            {
-                var prop = _array.GetType().GetProperty(name);
-                var res = prop.GetValue(_array);
-                return res;
-            }
+            get => _array.GetPropertyValue(name);
             set => throw new NotImplementedException();
         }
 
-        public override ValueTask<dynamic> Invoke(Syntax head, Syntax[] args)
+        public override ValueTask<dynamic?> Invoke(Syntax head, Syntax[] args)
         {
-            var index = (int) (head as NumberLiteral)!.Value;
+            if (head is not NumberLiteral numberLiteral) throw new NotImplementedException();
+            
+            var index = (int) numberLiteral.Value;
             //   var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
 
             var res = _array[index];
             return ValueTask.FromResult(res);
+
         }
 
         public override bool HasProperty(string name)
@@ -52,7 +51,7 @@ namespace PlasticLang.Contexts
 
         public override ValueTask<dynamic> QuotedString(StringLiteral stringLiteral)
         {
-            var res = this[stringLiteral.Value];
+            var res = this[stringLiteral.Value]!;
             return ValueTask.FromResult(res);
         }
     }
