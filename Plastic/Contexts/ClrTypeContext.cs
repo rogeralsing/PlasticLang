@@ -35,7 +35,7 @@ namespace PlasticLang.Contexts
             throw new NotSupportedException();
         }
 
-        public override async ValueTask<object> Invoke(Syntax head, Syntax[] args)
+        public override async ValueTask<dynamic> Invoke(Syntax head, Syntax[] args)
         {
             var memberName = (head as Symbol)?.Value;
             var evaluatedArgs = args.Select(async a => await a.Eval(Parent)).ToArray();
@@ -53,8 +53,8 @@ namespace PlasticLang.Contexts
             throw new Exception("No matching method found.");
         }
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral) => throw new NotImplementedException();
+        public override ValueTask<dynamic> Number(NumberLiteral numberLiteral) => throw new NotImplementedException();
 
-        public override ValueTask<object> QuotedString(StringLiteral stringLiteral) => throw new NotImplementedException();
+        public override ValueTask<dynamic> QuotedString(StringLiteral stringLiteral) => throw new NotImplementedException();
     }
 }

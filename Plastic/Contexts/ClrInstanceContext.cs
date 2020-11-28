@@ -27,7 +27,7 @@ namespace PlasticLang.Contexts
             set => throw new NotImplementedException();
         }
 
-        public override async ValueTask<object> Invoke(Syntax head, Syntax[] args)
+        public override async ValueTask<dynamic> Invoke(Syntax head, Syntax[] args)
         {
             var memberName = "";
             if (head is StringLiteral sl) memberName = sl.Value;
@@ -73,9 +73,9 @@ namespace PlasticLang.Contexts
 
         public override void Declare(string name, object value) => throw new NotImplementedException();
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral) => throw new NotImplementedException();
+        public override ValueTask<dynamic> Number(NumberLiteral numberLiteral) => throw new NotImplementedException();
 
-        public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
+        public override ValueTask<dynamic> QuotedString(StringLiteral stringLiteral)
         {
             var res = this[stringLiteral.Value];
             return ValueTask.FromResult(res);

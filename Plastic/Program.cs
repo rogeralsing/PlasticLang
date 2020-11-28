@@ -1,14 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace PlasticLang
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             var code = File.ReadAllText("sample.pla");
-            Plastic.Run(code);
+            await Plastic.Run(code);
             Console.ReadLine();
         }
     }

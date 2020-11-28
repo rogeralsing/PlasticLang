@@ -13,5 +13,15 @@ namespace PlasticLang.Ast
         public static ListValue ToListValue(this IEnumerable<Syntax> self) => new(self.ToArray());
 
         public static StringLiteral ToLiteral(this string self) => new(self);
+
+        public static Syntax Left(this Syntax[] self)
+        {
+            return self[0];
+        }
+        
+        public static Syntax Right(this Syntax[] self)
+        {
+            return self[1];
+        }
     }
 }

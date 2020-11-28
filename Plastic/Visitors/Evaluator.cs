@@ -7,12 +7,13 @@ namespace PlasticLang.Visitors
 {
     public static class Evaluator
     {
-        public static async ValueTask<T> Eval<T>(this Syntax syn, PlasticContext context)
-        {
-            var res = await syn.Eval(context);
-            return (T) res;
-        }
-        public static ValueTask<object> Eval(this Syntax syn, PlasticContext context) =>
+        public static ValueTask<dynamic> EvalDyn(this Syntax syn, PlasticContext context) => 
+            syn.Eval(context);
+
+        public static async ValueTask<T> Eval<T>(this Syntax syn, PlasticContext context) => 
+            (T) await syn.Eval(context);
+
+        public static ValueTask<dynamic> Eval(this Syntax syn, PlasticContext context) =>
             syn switch
             {
                 NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
@@ -22,10 +23,9 @@ namespace PlasticLang.Visitors
                 ArrayValue arrayValue       => EvalArray(context, arrayValue),
                 Statements statements       => EvalStatements(context, statements),
                 TupleValue tupleValue       => EvalTupleValue(context, tupleValue),
-                _                           => throw new ArgumentOutOfRangeException(nameof(syn))
             };
 
-        private static async ValueTask<object> EvalTupleValue(PlasticContext context, TupleValue tupleValue)
+        private static async ValueTask<dynamic> EvalTupleValue(PlasticContext context, TupleValue tupleValue)
         {
             var items = new object[tupleValue.Items.Length];
             for (var i = 0; i < tupleValue.Items.Length; i++)
@@ -38,34 +38,34 @@ namespace PlasticLang.Visitors
             return res;
         }
 
-        private static async ValueTask<object> EvalStatements(PlasticContext context, Statements statements)
+        private static async ValueTask<dynamic> EvalStatements(PlasticContext context, Statements statements)
         {
-            ValueTask<object> result = default;
+            ValueTask<dynamic> result = default;
             foreach (var statement in statements.Elements) result = Eval(statement, context);
             return await result;
         }
 
-        private static async ValueTask<object> EvalNumberLiteral(PlasticContext context, NumberLiteral numberLiteral)
+        private static async ValueTask<dynamic> EvalNumberLiteral(PlasticContext context, NumberLiteral numberLiteral)
         {
             return await context.Number(numberLiteral);
         }
 
-        private static async ValueTask<object> EvalListValue(PlasticContext context, ListValue listValue)
+        private static async ValueTask<dynamic> EvalListValue(PlasticContext context, ListValue listValue)
         {
             return await context.Invoke(listValue.Head, listValue.Rest);
         }
 
-        private static ValueTask<object> EvalSymbol(PlasticContext context, Symbol symbol)
+        private static ValueTask<dynamic> EvalSymbol(PlasticContext context, Symbol symbol)
         {
             return ValueTask.FromResult(context[symbol.Value]);
         }
 
-        private static ValueTask<object> EvalStringLiteral(PlasticContext context, StringLiteral str)
+        private static ValueTask<dynamic> EvalStringLiteral(PlasticContext context, StringLiteral str)
         {
             return context.QuotedString(str);
         }
 
-        private static async ValueTask<object> EvalArray(PlasticContext context, ArrayValue arrayValue)
+        private static async ValueTask<dynamic> EvalArray(PlasticContext context, ArrayValue arrayValue)
         {
             var items = new object[arrayValue.Items.Length];
             for (var i = 0; i < arrayValue.Items.Length; i++) items[i] = await arrayValue.Items[i].Eval(context);

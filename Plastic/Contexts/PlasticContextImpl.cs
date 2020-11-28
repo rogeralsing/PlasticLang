@@ -11,11 +11,8 @@ namespace PlasticLang.Contexts
     {
         private readonly Dictionary<string, object> _cells = new();
         
-        public PlasticContextImpl() : base(null)
-        {
-        }
 
-        public PlasticContextImpl(PlasticContext parentContext) : base(parentContext)
+        public PlasticContextImpl(PlasticContext? parentContext = null) : base(parentContext)
         {
         }
 
@@ -28,14 +25,14 @@ namespace PlasticLang.Contexts
             {
                 if (!HasProperty(name))
                 {
-                    _cells[name] = value;
+                    _cells[name] = value!;
                     return;
                 }
 
                 if (!_cells.ContainsKey(name) && Parent is not null)
-                    Parent[name] = value;
+                    Parent[name] = value!;
                 else
-                    _cells[name] = value;
+                    _cells[name] = value!;
             }
         }
 
@@ -60,39 +57,40 @@ namespace PlasticLang.Contexts
             _cells[name] = value;
         }
 
-        private static async ValueTask<object> InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
+        private static async ValueTask<dynamic> InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
         {
-            var res = await macro(context, args);
-            context.Declare("last", res);
-            return res;
+            var value = await macro(context, args);
+            context.Declare("last", value!);
+            return value;
         }
 
-        public override async ValueTask<object> Invoke(Syntax head, Syntax[] args)
+        public override async ValueTask<dynamic> Invoke(Syntax head, Syntax[] args)
         {
             var target = await head.Eval(this);
 
-
-
-            if (target is PlasticMacro macro) return await InvokeMacro(this, macro, args);
-
-            if (target is Syntax expression) return await expression.Eval(this);
-
-            if (target is object[] array)
+            switch (target)
             {
-                var index = (int) (decimal) await args.First().Eval(this);
-                return array[index];
+                case PlasticMacro macro:
+                    return await InvokeMacro(this, macro, args);
+                case Syntax expression:
+                    return await expression.Eval(this);
+                case object[] array:
+                {
+                    var index = (int) (decimal) await args.First().Eval(this);
+                    return array[index];
+                }
+                default:
+                    throw new NotImplementedException();
             }
-
-            throw new NotImplementedException();
         }
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral)
+        public override ValueTask<dynamic> Number(NumberLiteral numberLiteral)
         {
             var res = numberLiteral.Value;
             return ValueTask.FromResult((object) res);
         }
 
-        public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
+        public override ValueTask<dynamic> QuotedString(StringLiteral stringLiteral)
         {
             var res = stringLiteral.Value;
             return ValueTask.FromResult((object) res);
