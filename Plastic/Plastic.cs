@@ -203,7 +203,7 @@ quote := func(@q) {
         }
 
         private static async ValueTask<dynamic?> Not(PlasticContext c, Syntax[] a) => 
-            !await a.Left().EvalDyn(c);
+            !await (ValueTask<dynamic>) a.Left().Eval(c);
 
         private static async ValueTask<dynamic?> Dotop(PlasticContext c, Syntax[] a)
         {
@@ -525,21 +525,21 @@ quote := func(@q) {
         }
 
         private static async ValueTask<dynamic?> Add(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) + await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) + await a.Right().Eval(c);
 
         private static async ValueTask<dynamic?> Sub(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) - await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) - await a.Right().Eval(c);
 
         private static async ValueTask<dynamic?> Mul(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) * await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) * await a.Right().Eval(c);
 
         private static async ValueTask<dynamic?> Div(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) / await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) / await a.Right().Eval(c);
 
         private static async ValueTask<dynamic?> Eq(PlasticContext c, Syntax[] a)
         {
-            var left = await a.Left().EvalDyn(c);
-            var right = await a.Right().EvalDyn(c);
+            var left = await a.Left().Eval(c);
+            var right = await a.Right().Eval(c);
 
             if (left == null && right == null)
             {
@@ -557,21 +557,21 @@ quote := func(@q) {
             !(bool) (await Eq(c, a))!;
 
         private static async ValueTask<dynamic?> Gt(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) > await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) > await a.Right().Eval(c);
 
         private static async ValueTask<dynamic?> GtEq(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) >= await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) >= await a.Right().Eval(c);
 
         private static async ValueTask<dynamic?> Lt(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) < await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) < await a.Right().Eval(c);
 
         private static async ValueTask<dynamic?> LtEq(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) <= await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) <= await a.Right().Eval(c);
 
         private static async ValueTask<dynamic?> LogicalAnd(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) && await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) && await a.Right().Eval(c);
 
         private static async ValueTask<dynamic?> LogicalOr(PlasticContext c, Syntax[] a) => 
-            await a.Left().EvalDyn(c) || await a.Right().EvalDyn(c);
+            await a.Left().Eval(c) || await a.Right().Eval(c);
     }
 }

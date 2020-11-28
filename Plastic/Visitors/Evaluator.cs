@@ -7,9 +7,6 @@ namespace PlasticLang.Visitors
 {
     public static class Evaluator
     {
-        public static ValueTask<dynamic> EvalDyn(this Syntax syn, PlasticContext context) => 
-            syn.Eval(context);
-
         public static async ValueTask<T> Eval<T>(this Syntax syn, PlasticContext context) => 
             (T) await syn.Eval(context);
 
