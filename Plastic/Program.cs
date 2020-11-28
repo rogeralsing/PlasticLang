@@ -8,7 +8,7 @@ namespace PlasticLang
     {
         private static async Task Main(string[] args)
         {
-            var code = File.ReadAllText("sample.pla");
+            var code = File.ReadAllText("fun.pla");
             await Plastic.Run(code);
             Console.ReadLine();
         }

@@ -17,6 +17,10 @@
       <Content Include="sample.pla">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="fun.pla" />
+      <Content Include="fun.pla">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

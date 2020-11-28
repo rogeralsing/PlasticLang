@@ -21,8 +21,8 @@ print (arr.1)
 print ('arr length is ' + (arr.'Length' + 100) )
 print ('str length is ' + 'some string'.Length)
 
-closureprint := x => print(x + a)
-closureprint('foo')
+closurePrint := x => print(x + a)
+closurePrint('foo')
 
 each(element, arr)
 {

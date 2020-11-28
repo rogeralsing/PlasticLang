@@ -47,9 +47,9 @@ namespace PlasticLang.Visitors
             return await context.Number(numberLiteral);
         }
 
-        private static async ValueTask<dynamic> EvalListValue(PlasticContext context, ListValue listValue)
+        private static ValueTask<dynamic> EvalListValue(PlasticContext context, ListValue listValue)
         {
-            return await context.Invoke(listValue.Head, listValue.Rest);
+            return context!.Invoke(listValue.Head!, listValue.Rest!)!;
         }
 
         private static ValueTask<dynamic> EvalSymbol(PlasticContext context, Symbol symbol)
