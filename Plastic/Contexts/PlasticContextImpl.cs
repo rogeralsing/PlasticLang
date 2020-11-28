@@ -7,9 +7,19 @@ using PlasticLang.Visitors;
 
 namespace PlasticLang.Contexts
 {
+    public class Cell
+    {
+        public Cell(object? value)
+        {
+            Value = value;
+        }
+
+        public object? Value { get; set; }
+    }
+    
     public class PlasticContextImpl : PlasticContext
     {
-        private readonly Dictionary<string, object> _cells = new();
+        private readonly Dictionary<string, Cell> _cells = new();
         
 
         public PlasticContextImpl(PlasticContext? parentContext = null) : base(parentContext)
@@ -20,19 +30,19 @@ namespace PlasticLang.Contexts
         {
             get =>
                 //if cell is not populated in this context, fetch from parent
-                !_cells.ContainsKey(name) ? Parent?[name] : _cells[name];
+                !_cells.ContainsKey(name) ? Parent?[name] : _cells[name].Value;
             set
             {
                 if (!HasProperty(name))
                 {
-                    _cells[name] = value!;
+                    _cells[name] = new Cell(value);
                     return;
                 }
 
                 if (!_cells.ContainsKey(name) && Parent is not null)
                     Parent[name] = value!;
                 else
-                    _cells[name] = value!;
+                    _cells[name] = new Cell(value!);
             }
         }
 
@@ -49,12 +59,12 @@ namespace PlasticLang.Contexts
 
         public override void Declare(string name, object value)
         {
-            _cells[name] = value;
+            _cells[name] = new Cell(value);
         }
         
         public void Declare(string name, PlasticMacro value)
         {
-            _cells[name] = value;
+            _cells[name] = new Cell(value);
         }
 
         private static async ValueTask<dynamic?> InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
@@ -31,113 +32,7 @@ namespace PlasticLang
 
         public static void BootstrapLib(PlasticContext context)
         {
-            var lib = @"
-for := func (@init , @guard, @step, @body) {
-    init()
-    while(guard()) {
-        body()
-        step()
-    }
-}
-
-repeat := func (times, @body) {
-    while(times >= 0) {
-        body()
-        times--
-    }
-}
-
-LinkedList := class {
-    Node := class (value) { next = null; }
-
-    head := null;
-    tail := null;
-    add := func (value) {
-        node := Node(value);
-        if (head == null) {         
-            head = node;
-            tail = node;
-        }
-        else {
-            tail.next =  node;
-            tail = node;  
-        }        
-    }
-
-    each := func (lambda) {
-        current := head;
-        while(current != null) {
-            lambda(current.value);
-            current = current.next;
-        }
-    }
-}
-
-Stack := class {
-    Node := class (value,prev) { next = null; }
-
-    head := null;
-    tail := null;
-    push := func (value) {
-        node = Node(value,tail);
-        if (head == null) {         
-            head = node;
-            tail = node;
-        }
-        else {
-            tail.next =  node;
-            tail = node;  
-        }        
-    }
-
-    each := func (lambda) {
-        current = tail;
-        while(current != null) {
-            lambda(current.value);
-            current = current.prev;
-        }
-    }
-
-    peek := func() {
-        tail.value;
-    }
-
-    pop := func() {
-        res = tail.value;
-        tail = tail.prev;
-        if (tail != null) {
-            tail.next = null;
-        }
-        else {
-            head = null;
-        }
-        res
-    }
-}
-
-
-switch :=  func(exp, @body) {
-    matched := false;
-    case := func (value, @caseBody) {   
-        if (exp == value) {
-            caseBody();
-            matched = true;
-        }
-    }
-    default := func (@defaultBody) {
-        if (matched == false) {
-            defaultBody();
-        }
-    }
-    body();
-}
-
-quote := func(@q) {
-    q
-}
-
-
-";
+            var lib = File.ReadAllText("core.pla");
 
 
             var libCode = PlasticParser.Statements.Parse(lib);

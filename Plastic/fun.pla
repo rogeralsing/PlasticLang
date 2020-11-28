@@ -1,27 +1,3 @@
-BeepMixin := mixin
-{
-    beep := func ()
-    {
-        print ('beep')
-    }
+for(i := 0; i <1000000; i++) {
+    
 }
-
-Person := class (firstName,lastName)
-{
-    BeepMixin()
-    sayHello := func ()
-    {
-        print ('Hello {0} {1}',firstName,lastName)
-    }
-}
-
-john := Person('John','Doe')
-jane := Person('Jane','Doe')
-john.extra = Person('testing sub object','oh yes')
-john.firstName = 'Johnny'
-
-john.beep()
-
-john.sayHello()
-jane.sayHello()
-john.extra.sayHello()

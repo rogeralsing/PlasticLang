@@ -21,6 +21,10 @@
       <Content Include="fun.pla">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="core.pla" />
+      <Content Include="core.pla">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>
