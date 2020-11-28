@@ -449,7 +449,7 @@ namespace PlasticLang
         }
 
         private static async ValueTask<dynamic?> Neq(PlasticContext c, Syntax[] a) => 
-            !(bool) (await Eq(c, a))!;
+            !(await Eq(c, a))!;
 
         private static async ValueTask<dynamic?> Gt(PlasticContext c, Syntax[] a) => 
             await a.Left().Eval(c) > await a.Right().Eval(c);
