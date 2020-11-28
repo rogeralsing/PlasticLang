@@ -1,134 +1,127 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿
 using PlasticLang;
 using PlasticLang.Ast;
-using PlasticLangLabb1;
-using PlasticLangLabb1.Ast;
 using Sprache;
+using Xunit;
 
 namespace PlasticSpec
 {
-    [TestClass]
+
     public class UnitTest1
     {
-        [TestMethod]
+        [Fact]
         public void Can_parse_integer_number()
         {
             var number = PlasticParser.Expression.Parse("  123  ");
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_decimal_number()
         {
             var number = PlasticParser.Expression.Parse("  123.456  ");
-            Assert.IsTrue(number is Number);
+            Assert.True(number is NumberLiteral);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_identifier()
         {
             var identifier = PlasticParser.Expression.Parse("  abc  ");
-            Assert.IsTrue(identifier is Identifiers);
+            Assert.True(identifier is Symbol);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_identifiers()
         {
             var identifier = PlasticParser.Expression.Parse("  abc def ghi jkl ");
-            Assert.IsTrue(identifier is Identifiers);
+            Assert.True(identifier is ListValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_invocation()
         {
             var invocation = PlasticParser.Statement.Parse("  abc def ghi jkl ()  { print(x); } (x) ;  ");
-            Assert.IsTrue(invocation is Invocation);
+            Assert.True(invocation is ListValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_terminating_invocation()
         {
             var invocation = PlasticParser.Statement.Parse("  abc def ghi jkl ()  { print(x); } ");
-            Assert.IsTrue(invocation is Invocation);
+            Assert.True(invocation is ListValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_string()
         {
             var str = PlasticParser.Expression.Parse("  \"hej hopp 12334 !%¤%¤ \"  ");
-            Assert.IsTrue(str is QuotedString);
+            Assert.True(str is StringLiteral);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_addition()
         {
             var addition = PlasticParser.Expression.Parse("  a+b  ");
-            Assert.IsTrue(addition is BinaryExpression);
+            Assert.True(addition is ListValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_subtraction()
         {
             var subtraction = PlasticParser.Expression.Parse("  a-b  ");
-            Assert.IsTrue(subtraction is BinaryExpression);
+            Assert.True(subtraction is ListValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_multiplication()
         {
             var multiplication = PlasticParser.Expression.Parse("  a*b  ");
-            Assert.IsTrue(multiplication is BinaryExpression);
+            Assert.True(multiplication is ListValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_division()
         {
             var division = PlasticParser.Expression.Parse("  a/b  ");
-            Assert.IsTrue(division is BinaryExpression);
+            Assert.True(division is ListValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_assignment()
         {
-            var assignment = PlasticParser.Expression.Parse("  let a=2  ");
-            Assert.IsTrue(assignment is LetAssignment);
+            var assignment = PlasticParser.Expression.Parse("   a:=2  ");
+            Assert.True(assignment is ListValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_assignment_assignment()
         {
-            var assignment = PlasticParser.Expression.Parse("  let a=b=c  ");
-            Assert.IsTrue(assignment is LetAssignment);
+            var assignment = PlasticParser.Expression.Parse("  a:=b:=c  ");
+            Assert.True(assignment is ListValue);
         }
+        
 
-        [TestMethod]
-        public void Can_parse_multi_assignment()
-        {
-            var assignment = PlasticParser.Expression.Parse("  let a, b, c=2 ");
-            Assert.IsTrue(assignment is LetAssignment);
-        }
-
-        [TestMethod]
+        [Fact]
         public void Can_parse_assignment_lambda()
         {
-            var assignment = PlasticParser.Expression.Parse("  let a = () => b  ");
-            Assert.IsTrue(assignment is LetAssignment);
+            var assignment = PlasticParser.Expression.Parse("   a := x => b  ");
+            Assert.True(assignment is ListValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_lambda_declaration_()
         {
             var lambda1 = PlasticParser.Expression.Parse("  (x) => {y;} ");
             var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_body()
         {
             var lambda1 = PlasticParser.Body.Parse(" { x; }");
             //    var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
         }
 
-        [TestMethod]
+        [Fact]
         public void Can_parse_empty_body()
         {
             var statement = PlasticParser.Body.Parse(" {  }  ");

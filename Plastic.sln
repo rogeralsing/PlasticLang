@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plastic", "Plastic\Plastic.csproj", "{4074B938-D690-4BF9-A478-ECFE8FDE859B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlasticRepl", "PlasticRepl\PlasticRepl.csproj", "{4DC6C08B-EB44-4908-A329-C3275EFC0140}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plastic.Tests", "Plastic.Tests\Plastic.Tests.csproj", "{C4F3608A-EB93-4B18-AE7A-099D5FAD63F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{4074B938-D690-4BF9-A478-ECFE8FDE859B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4074B938-D690-4BF9-A478-ECFE8FDE859B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4074B938-D690-4BF9-A478-ECFE8FDE859B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4DC6C08B-EB44-4908-A329-C3275EFC0140}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4DC6C08B-EB44-4908-A329-C3275EFC0140}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4DC6C08B-EB44-4908-A329-C3275EFC0140}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4DC6C08B-EB44-4908-A329-C3275EFC0140}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4F3608A-EB93-4B18-AE7A-099D5FAD63F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4F3608A-EB93-4B18-AE7A-099D5FAD63F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4F3608A-EB93-4B18-AE7A-099D5FAD63F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4F3608A-EB93-4B18-AE7A-099D5FAD63F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
