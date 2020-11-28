@@ -7,13 +7,13 @@ namespace PlasticLang
 {
     internal class Program
     {
-        private static async Task Main(string[] args)
+        private static void Main(string[] args)
         {
             var code = File.ReadAllText("fun.pla");
             var sw = Stopwatch.StartNew();
-            await Plastic.Run(code);
+            Plastic.Run(code);
             Console.WriteLine(sw.Elapsed.TotalMilliseconds);
             Console.ReadLine();
         }
     }
-} 
+}

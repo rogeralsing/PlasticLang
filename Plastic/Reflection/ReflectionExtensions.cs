@@ -11,7 +11,7 @@ namespace PlasticLang.Reflection
             if (prop is null) throw new NotSupportedException();
             return prop;
         }
-        
+
         public static object? GetPropertyValue(this object self, string name)
         {
             var prop = self.GetType().GetProperty(name);

@@ -39,7 +39,9 @@ namespace PlasticLang.Ast
 
         public Syntax Head { get; }
 
-        public static ListValue CallFunction(string name, params Syntax[] args) =>
-            new Symbol(name).Union(args).ToListValue();
+        public static ListValue CallFunction(string name, params Syntax[] args)
+        {
+            return new Symbol(name).Union(args).ToListValue();
+        }
     }
 }

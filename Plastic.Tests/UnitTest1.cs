@@ -1,12 +1,10 @@
-﻿
-using PlasticLang;
+﻿using PlasticLang;
 using PlasticLang.Ast;
 using Sprache;
 using Xunit;
 
 namespace PlasticSpec
 {
-
     public class UnitTest1
     {
         [Fact]
@@ -98,7 +96,7 @@ namespace PlasticSpec
             var assignment = PlasticParser.Expression.Parse("  a:=b:=c  ");
             Assert.True(assignment is ListValue);
         }
-        
+
 
         [Fact]
         public void Can_parse_assignment_lambda()
@@ -129,8 +127,8 @@ namespace PlasticSpec
             var statement = PlasticParser.Body.Parse(" {  }  ");
             //    var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
         }
-        
-        
+
+
         [Fact]
         public void Can_parse_function()
         {
@@ -140,11 +138,11 @@ f := func(a,b,c)
     print('abc '+a+' '+b+' '+c)
 }
 ");
-            
+
             Assert.True(f is ListValue);
         }
     }
-    
+
     /*
 
 b := 3

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using PlasticLang.Ast;
+﻿using PlasticLang.Ast;
 
 namespace PlasticLang.Contexts
 {
@@ -19,14 +18,14 @@ namespace PlasticLang.Contexts
             return this[symbol.Identity];
         }
 
-        public virtual void SetSymbol(Symbol symbol,object value)
+        public virtual void SetSymbol(Symbol symbol, object value)
         {
             this[symbol.Identity] = value;
         }
 
-        public abstract ValueTask<object> Number(NumberLiteral numberLiteral);
-        public abstract ValueTask<object> QuotedString(StringLiteral stringLiteral);
-        public abstract ValueTask<object?> Invoke(Syntax head, Syntax[] args);
+        public abstract object Number(NumberLiteral numberLiteral);
+        public abstract object QuotedString(StringLiteral stringLiteral);
+        public abstract object? Invoke(Syntax head, Syntax[] args);
         public abstract bool HasProperty(string name);
         public abstract void Declare(string name, object value);
         public abstract Cell GetCell(string name);

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using PlasticLang.Ast;
 using PlasticLang.Reflection;
 using PlasticLang.Visitors;
@@ -17,18 +16,18 @@ namespace PlasticLang.Contexts
             _obj = obj;
         }
 
-        public override Cell GetCell(string name)
-        {
-            throw new NotImplementedException();
-        }
-
         public override object? this[string name]
         {
             get => _obj.GetPropertyValue(name);
             set => throw new NotImplementedException();
         }
 
-        public override async ValueTask<object?> Invoke(Syntax head, Syntax[] args)
+        public override Cell GetCell(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object? Invoke(Syntax head, Syntax[] args)
         {
             var memberName = "";
             if (head is StringLiteral sl) memberName = sl.Value;
@@ -40,7 +39,7 @@ namespace PlasticLang.Contexts
                 var args2 = new List<object>();
                 foreach (var a in args)
                 {
-                    var r = await a.Eval(Parent);
+                    var r = a.Eval(Parent);
                     args2.Add(r);
                 }
 
@@ -48,7 +47,7 @@ namespace PlasticLang.Contexts
                     try
                     {
                         var res = method.Invoke(_obj, args2.ToArray());
-                        return ValueTask.FromResult(res);
+                        return res;
                     }
                     catch
                     {
@@ -70,16 +69,25 @@ namespace PlasticLang.Contexts
             throw new Exception("No matching method found.");
         }
 
-        public override bool HasProperty(string name) => throw new NotImplementedException();
+        public override bool HasProperty(string name)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override void Declare(string name, object value) => throw new NotImplementedException();
+        public override void Declare(string name, object value)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral) => throw new NotImplementedException();
+        public override object Number(NumberLiteral numberLiteral)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
+        public override object QuotedString(StringLiteral stringLiteral)
         {
             var res = this[stringLiteral.Value];
-            return ValueTask.FromResult(res);
+            return res;
         }
     }
 }

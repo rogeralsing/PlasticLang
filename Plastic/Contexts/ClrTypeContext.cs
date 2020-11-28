@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using PlasticLang.Ast;
 using PlasticLang.Visitors;
 
@@ -40,10 +39,10 @@ namespace PlasticLang.Contexts
             throw new NotSupportedException();
         }
 
-        public override async ValueTask<object?> Invoke(Syntax head, Syntax[] args)
+        public override object? Invoke(Syntax head, Syntax[] args)
         {
             var memberName = (head as Symbol)?.Identity;
-            var evaluatedArgs = args.Select(async a => await a.Eval(Parent)).ToArray();
+            var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
             var members = _type.GetMethods().Where(m => m.Name == memberName);
             foreach (var member in members)
                 try
@@ -58,8 +57,14 @@ namespace PlasticLang.Contexts
             throw new Exception("No matching method found.");
         }
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral) => throw new NotImplementedException();
+        public override object Number(NumberLiteral numberLiteral)
+        {
+            throw new NotImplementedException();
+        }
 
-        public override ValueTask<object> QuotedString(StringLiteral stringLiteral) => throw new NotImplementedException();
+        public override object QuotedString(StringLiteral stringLiteral)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

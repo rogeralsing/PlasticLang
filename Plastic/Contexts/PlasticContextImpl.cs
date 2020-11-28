@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using PlasticLang.Ast;
 using PlasticLang.Visitors;
 
@@ -12,6 +11,7 @@ namespace PlasticLang.Contexts
         public Cell()
         {
         }
+
         public Cell(object? value)
         {
             Value = value;
@@ -19,11 +19,11 @@ namespace PlasticLang.Contexts
 
         public object? Value { get; set; }
     }
-    
+
     public class PlasticContextImpl : PlasticContext
     {
         private readonly Dictionary<string, Cell> _cells = new();
-        
+
 
         public PlasticContextImpl(PlasticContext? parentContext = null) : base(parentContext)
         {
@@ -54,12 +54,18 @@ namespace PlasticLang.Contexts
 
         public override Cell GetCell(string name)
         {
-            Cell res;
-            if (!_cells.ContainsKey(name))
-                res = Parent?.GetCell(name);
-            else
-                res = _cells[name];
-            return res;
+            if (_cells.ContainsKey(name)) return _cells[name];
+
+            Cell? c = null;
+            if (Parent is not null) c = Parent.GetCell(name);
+
+            if (c is not null) return c;
+            
+            c = new Cell();
+            _cells[name] = c;
+
+            return c;
+
         }
 
         public override object? GetSymbol(Symbol symbol)
@@ -99,32 +105,32 @@ namespace PlasticLang.Contexts
             else
                 _cells[name].Value = value;
         }
-        
+
         public void Declare(string name, PlasticMacro value)
         {
             _cells[name] = new Cell(value);
         }
 
-        private static async ValueTask<object?> InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
+        private static object? InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
         {
-            var value = await macro(context, args);
+            var value = macro(context, args);
             context.Declare("last", value!);
             return value;
         }
 
-        public override async ValueTask<object?> Invoke(Syntax head, Syntax[] args)
+        public override object? Invoke(Syntax head, Syntax[] args)
         {
-            var target = await head.Eval(this);
+            var target = head.Eval(this);
 
             switch (target)
             {
                 case PlasticMacro macro:
-                    return await InvokeMacro(this, macro, args);
+                    return InvokeMacro(this, macro, args);
                 case Syntax expression:
-                    return await expression.Eval(this);
+                    return expression.Eval(this);
                 case object[] array:
                 {
-                    var index = (int) (decimal) await args.First().Eval(this);
+                    var index = (int) (decimal) args.First().Eval(this);
                     return array[index];
                 }
                 default:
@@ -132,16 +138,16 @@ namespace PlasticLang.Contexts
             }
         }
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral)
+        public override object Number(NumberLiteral numberLiteral)
         {
             var res = numberLiteral.Value;
-            return ValueTask.FromResult((object) res);
+            return res;
         }
 
-        public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
+        public override object QuotedString(StringLiteral stringLiteral)
         {
             var res = stringLiteral.Value;
-            return ValueTask.FromResult((object) res);
+            return res;
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using PlasticLang.Ast;
 using PlasticLang.Reflection;
 
@@ -20,16 +19,15 @@ namespace PlasticLang.Contexts
             set => throw new NotImplementedException();
         }
 
-        public override ValueTask<object?> Invoke(Syntax head, Syntax[] args)
+        public override object? Invoke(Syntax head, Syntax[] args)
         {
             if (head is not NumberLiteral numberLiteral) throw new NotImplementedException();
-            
+
             var index = (int) numberLiteral.Value;
             //   var evaluatedArgs = args.Select(a => a.Eval(Parent)).ToArray();
 
             var res = _array[index];
-            return ValueTask.FromResult(res);
-
+            return res;
         }
 
         public override Cell GetCell(string name)
@@ -47,17 +45,17 @@ namespace PlasticLang.Contexts
             throw new NotImplementedException();
         }
 
-        public override ValueTask<object> Number(NumberLiteral numberLiteral)
+        public override object Number(NumberLiteral numberLiteral)
         {
             var index = (int) numberLiteral.Value;
             var res = _array[index];
-            return ValueTask.FromResult(res);
+            return res;
         }
 
-        public override ValueTask<object> QuotedString(StringLiteral stringLiteral)
+        public override object QuotedString(StringLiteral stringLiteral)
         {
             var res = this[stringLiteral.Value]!;
-            return ValueTask.FromResult(res);
+            return res;
         }
     }
 }

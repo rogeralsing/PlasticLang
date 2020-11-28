@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using PlasticLang.Ast;
 using PlasticLang.Contexts;
 using PlasticLang.Visitors;
@@ -15,17 +14,17 @@ namespace PlasticLang
     {
         private static readonly object Exit = new();
 
-        public static ValueTask<object> Run(string code)
+        public static object Run(string code)
         {
             var context = SetupCoreSymbols();
             var userContext = new PlasticContextImpl(context);
             return Run(code, userContext);
         }
-    
-        public static ValueTask<object> Run(string code, PlasticContext context)
+
+        public static object Run(string code, PlasticContext context)
         {
             var res = PlasticParser.Statements.Parse(code);
-            ValueTask<object> result = default;
+            object result = default;
             foreach (var statement in res.Elements) result = statement.Eval(context);
             return result;
         }
@@ -36,7 +35,7 @@ namespace PlasticLang
 
 
             var libCode = PlasticParser.Statements.Parse(lib);
-            ValueTask<object> result = default;
+            object result = default;
             foreach (var statement in libCode.Elements) result = statement.Eval(context);
             var temp = result;
         }
@@ -46,12 +45,12 @@ namespace PlasticLang
             var context = new PlasticContextImpl();
 
 
-            async ValueTask<object?> Def(PlasticContext c, Syntax[] a)
+            object? Def(PlasticContext c, Syntax[] a)
             {
                 var left = a.Left() as Symbol;
                 var right = a.Right();
 
-                var value = await right.Eval(c);
+                var value = right.Eval(c);
                 context.Declare(left.Identity, value);
                 return value;
             }
@@ -97,68 +96,70 @@ namespace PlasticLang
             return context;
         }
 
-        private static async ValueTask<object?> Not(PlasticContext c, Syntax[] a) => 
-            !(bool)await a.Left().Eval(c);
+        private static object? Not(PlasticContext c, Syntax[] a)
+        {
+            return !(bool) a.Left().Eval(c);
+        }
 
-        private static async ValueTask<object?> Dotop(PlasticContext c, Syntax[] a)
+        private static object? Dotop(PlasticContext c, Syntax[] a)
         {
             var left = a.Left();
             var right = a.Right();
 
-            var l = await left.Eval(c);
+            var l = left.Eval(c);
 
             switch (l)
             {
                 case object[] arr:
                 {
                     var arrayContext = new ArrayContext(arr, c);
-                    return await right.Eval(arrayContext);
+                    return right.Eval(arrayContext);
                 }
                 case PlasticObject pobj:
-                    return await right.Eval(pobj.Context);
+                    return right.Eval(pobj.Context);
                 case Type type:
                 {
                     var typeContext = new ClrTypeContext(type, c);
-                    return await right.Eval(typeContext);
+                    return right.Eval(typeContext);
                 }
                 default:
                 {
                     var objContext = new ClrInstanceContext(l, c);
-                    return await right.Eval(objContext);
+                    return right.Eval(objContext);
                 }
             }
         }
 
-        private static ValueTask<object?> Mixin(PlasticContext c, Syntax[] a)
+        private static object? Mixin(PlasticContext c, Syntax[] a)
         {
             var body = a.Last();
 
-            async ValueTask<object?> PlasticMacro(PlasticContext ctx, Syntax[] args)
+            object? PlasticMacro(PlasticContext ctx, Syntax[] args)
             {
                 var thisContext = ctx;
 
                 for (var i = 0; i < a.Length - 1; i++)
                 {
                     var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
-                    thisContext.Declare(argName.Identity, await args[i].Eval(ctx));
+                    thisContext.Declare(argName.Identity, args[i].Eval(ctx));
                 }
 
-                await body.Eval(thisContext);
+                body.Eval(thisContext);
 
                 return null;
             }
 
-            return ValueTask.FromResult<object>( (PlasticMacro) PlasticMacro);
+            return (PlasticMacro) PlasticMacro;
         }
 
-        private static async ValueTask<object?> Print(PlasticContext c, Syntax[] a)
+        private static object? Print(PlasticContext c, Syntax[] a)
         {
-            var obj = await a.First().Eval(c);
+            var obj = a.First().Eval(c);
             var source = a.Skip(1).ToArray();
             var args = new object[source.Length];
             for (var i = 0; i < source.Length; i++)
             {
-                var v = await source[i].Eval(c);
+                var v = source[i].Eval(c);
                 args[i] = v;
             }
 
@@ -169,25 +170,25 @@ namespace PlasticLang
             return obj;
         }
 
-        private static async ValueTask<object?> While(PlasticContext c, Syntax[] a)
+        private static object? While(PlasticContext c, Syntax[] a)
         {
             var result = Exit;
             var cond = a.Left();
             var body = a.Right();
 
-            while ((bool)await cond.Eval(c)) result = await body.Eval(c);
+            while ((bool) cond.Eval(c)) result = body.Eval(c);
 
             return result;
         }
 
-        private static async ValueTask<object?> If(PlasticContext c, Syntax[] a)
+        private static object? If(PlasticContext c, Syntax[] a)
         {
             var cond = a.Left();
             var body = a.Right();
 
-            if ((bool)await cond.Eval(c))
+            if ((bool) cond.Eval(c))
             {
-                var res = await body.Eval(c);
+                var res = body.Eval(c);
                 if (res == Exit) return null;
                 return res;
             }
@@ -195,7 +196,7 @@ namespace PlasticLang
             return Exit;
         }
 
-        private static async ValueTask<object?> Elif(PlasticContext c, Syntax[] a)
+        private static object? Elif(PlasticContext c, Syntax[] a)
         {
             var last = c["last"];
             if (last != Exit) return last;
@@ -203,9 +204,9 @@ namespace PlasticLang
             var cond = a.Left();
             var body = a.Right();
 
-            if ((bool)await cond.Eval(c))
+            if ((bool) cond.Eval(c))
             {
-                var res = await body.Eval(c);
+                var res = body.Eval(c);
                 if (res == Exit) return null;
                 return res;
             }
@@ -213,37 +214,37 @@ namespace PlasticLang
             return Exit;
         }
 
-        private static async ValueTask<object?> Else(PlasticContext c, Syntax[] a)
+        private static object? Else(PlasticContext c, Syntax[] a)
         {
             var last = c["last"];
             if (last != Exit) return last;
 
             var body = a.Left();
 
-            var res = await body.Eval(c);
+            var res = body.Eval(c);
             if (res == Exit) return null;
 
             return res;
         }
 
-        private static async ValueTask<object?> Each(PlasticContext c, Syntax[] a)
+        private static object? Each(PlasticContext c, Syntax[] a)
         {
             var v = a.Left() as Symbol;
             var body = a[2];
 
-            if (!(await a.Right().Eval(c) is IEnumerable enumerable)) return Exit;
+            if (!(a.Right().Eval(c) is IEnumerable enumerable)) return Exit;
 
             object result = null!;
             foreach (var element in enumerable)
             {
                 c.Declare(v.Identity, element);
-                result = await body.Eval(c);
+                result = body.Eval(c);
             }
 
             return result;
         }
 
-        private static ValueTask<object> Func(PlasticContext _, Syntax[] a)
+        private static object Func(PlasticContext _, Syntax[] a)
         {
             var argsMinusOne = a.Take(a.Length - 1)
                 .Select(arg =>
@@ -260,7 +261,7 @@ namespace PlasticLang
                 .ToArray();
             var body = a.Last();
 
-            async ValueTask<object?> Op(PlasticContext callingContext, Syntax[] args)
+            object? Op(PlasticContext callingContext, Syntax[] args)
             {
                 //full application
                 if (args.Length >= argsMinusOne.Length)
@@ -280,7 +281,7 @@ namespace PlasticLang
                         }
                         else if (arg.Type == ArgumentType.Value)
                         {
-                            var value = await args[i].Eval(callingContext);
+                            var value = args[i].Eval(callingContext);
                             invocationScope.Declare(arg.Name, value);
                             arguments.Add(value);
                         }
@@ -288,89 +289,91 @@ namespace PlasticLang
                         invocationScope.Declare("args", arguments.ToArray());
                     }
 
-                    var m = await body.Eval(invocationScope);
+                    var m = body.Eval(invocationScope);
                     return m;
                 }
 
                 //partial application
                 var partialArgs = args.ToArray();
 
-                ValueTask<object?> Partial(PlasticContext ctx, Syntax[] pargs) => Op(ctx, partialArgs.Union(pargs).ToArray());
+                object? Partial(PlasticContext ctx, Syntax[] pargs)
+                {
+                    return Op(ctx, partialArgs.Union(pargs).ToArray());
+                }
 
-                return ValueTask.FromResult<object>( (PlasticMacro) Partial);
+                return (PlasticMacro) Partial;
             }
 
-            return ValueTask.FromResult<object>( (PlasticMacro) Op);
+            return (PlasticMacro) Op;
         }
 
 
-        private static ValueTask<object> Class(PlasticContext c, Syntax[] a)
+        private static object Class(PlasticContext c, Syntax[] a)
         {
             var body = a.Last();
 
-            async ValueTask<object> PlasticMacro(PlasticContext ctx, Syntax[] args)
+            object PlasticMacro(PlasticContext ctx, Syntax[] args)
             {
                 var thisContext = new PlasticContextImpl(c);
 
                 for (var i = 0; i < a.Length - 1; i++)
                 {
                     var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
-                    var arg = await args[i].Eval(ctx);
+                    var arg = args[i].Eval(ctx);
                     thisContext.Declare(argName!.Identity, arg);
                 }
 
                 var self = new PlasticObject(thisContext);
                 thisContext.Declare("this", self);
-                await body.Eval(thisContext);
+                body.Eval(thisContext);
 
                 return self;
             }
 
-            return ValueTask.FromResult<object>((PlasticMacro) PlasticMacro!);
+            return (PlasticMacro) PlasticMacro!;
         }
 
-        private static ValueTask<object> Using(PlasticContext c, Syntax[] a)
+        private static object? Using(PlasticContext c, Syntax[] a)
         {
             var path = a.First() as StringLiteral;
             var type = Type.GetType(path.Value);
-            return ValueTask.FromResult<object>(type);
+            return type;
         }
 
-        private static async ValueTask<object?> Eval(PlasticContext c, Syntax[] a)
+        private static object? Eval(PlasticContext c, Syntax[] a)
         {
-            var code = await a.First().Eval(c) as string;
-            var res = await Run(code!, c);
+            var code = a.First().Eval(c) as string;
+            var res = Run(code!, c);
             return res;
         }
 
-        private static async ValueTask<object?> Assign(PlasticContext c, Syntax[] a)
+        private static object? Assign(PlasticContext c, Syntax[] a)
         {
             var left = a.Left();
             var right = a.Right();
 
-            var value = await right.Eval(c);
+            var value = right.Eval(c);
 
             switch (left)
             {
                 case Symbol assignee:
-                    c.SetSymbol(assignee,value);
+                    c.SetSymbol(assignee, value);
                     break;
                 case ListValue dot:
                 {
-                    var obj = await dot.Rest[0].Eval(c) as PlasticObject;
+                    var obj = dot.Rest[0].Eval(c) as PlasticObject;
                     var memberId = dot.Rest[1] as Symbol;
                     obj![memberId!.Identity] = value;
                     break;
                 }
             }
 
-            
 
             if (left is not TupleValue tuple) return value;
             var arr = value as TupleInstance;
-            return await Match(tuple, arr!);
-            
-            async ValueTask<bool> Match(TupleValue t, TupleInstance values)
+            return Match(tuple, arr!);
+
+            bool Match(TupleValue t, TupleInstance values)
             {
                 if (values == null) return false;
 
@@ -390,7 +393,7 @@ namespace PlasticLang
                         case TupleValue leftTuple when r is TupleInstance rightTuple:
                         {
                             //right is a sub tuple, recursive match
-                            var subMatch = await Match(leftTuple, rightTuple);
+                            var subMatch = Match(leftTuple, rightTuple);
                             if (!subMatch) return false;
                             break;
                         }
@@ -400,7 +403,7 @@ namespace PlasticLang
                         default:
                         {
                             //left is a value, compare to right
-                            var lv = await l.Eval(c);
+                            var lv = l.Eval(c);
                             if (lv is null)
                             {
                                 if (r is not null) return false;
@@ -419,27 +422,32 @@ namespace PlasticLang
             }
         }
 
-        private static async ValueTask<object?> Add(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) + (dynamic)await a.Right().Eval(c);
-
-        private static async ValueTask<object?> Sub(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) - (dynamic)await a.Right().Eval(c);
-
-        private static async ValueTask<object?> Mul(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) * (dynamic)await a.Right().Eval(c);
-
-        private static async ValueTask<object?> Div(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) / (dynamic)await a.Right().Eval(c);
-
-        private static async ValueTask<object?> Eq(PlasticContext c, Syntax[] a)
+        private static object? Add(PlasticContext c, Syntax[] a)
         {
-            var left = await a.Left().Eval(c);
-            var right = await a.Right().Eval(c);
+            return (dynamic) a.Left().Eval(c) + (dynamic) a.Right().Eval(c);
+        }
 
-            if (left == null && right == null)
-            {
-                return true;
-            }
+        private static object? Sub(PlasticContext c, Syntax[] a)
+        {
+            return (dynamic) a.Left().Eval(c) - (dynamic) a.Right().Eval(c);
+        }
+
+        private static object? Mul(PlasticContext c, Syntax[] a)
+        {
+            return (dynamic) a.Left().Eval(c) * (dynamic) a.Right().Eval(c);
+        }
+
+        private static object? Div(PlasticContext c, Syntax[] a)
+        {
+            return (dynamic) a.Left().Eval(c) / (dynamic) a.Right().Eval(c);
+        }
+
+        private static object? Eq(PlasticContext c, Syntax[] a)
+        {
+            var left = a.Left().Eval(c);
+            var right = a.Right().Eval(c);
+
+            if (left == null && right == null) return true;
 
             if (left == null || right == null) return false;
 
@@ -448,25 +456,39 @@ namespace PlasticLang
             return left == right;
         }
 
-        private static async ValueTask<object?> Neq(PlasticContext c, Syntax[] a) => 
-            !((bool)await Eq(c, a))!;
+        private static object? Neq(PlasticContext c, Syntax[] a)
+        {
+            return !((bool) Eq(c, a))!;
+        }
 
-        private static async ValueTask<object?> Gt(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) > (dynamic)await a.Right().Eval(c);
+        private static object? Gt(PlasticContext c, Syntax[] a)
+        {
+            return (dynamic) a.Left().Eval(c) > (dynamic) a.Right().Eval(c);
+        }
 
-        private static async ValueTask<object?> GtEq(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) >= (dynamic)await a.Right().Eval(c);
+        private static object? GtEq(PlasticContext c, Syntax[] a)
+        {
+            return (dynamic) a.Left().Eval(c) >= (dynamic) a.Right().Eval(c);
+        }
 
-        private static async ValueTask<object?> Lt(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) < (dynamic)await a.Right().Eval(c);
+        private static object? Lt(PlasticContext c, Syntax[] a)
+        {
+            return (dynamic) a.Left().Eval(c) < (dynamic) a.Right().Eval(c);
+        }
 
-        private static async ValueTask<object?> LtEq(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) <= (dynamic)await a.Right().Eval(c);
+        private static object? LtEq(PlasticContext c, Syntax[] a)
+        {
+            return (dynamic) a.Left().Eval(c) <= (dynamic) a.Right().Eval(c);
+        }
 
-        private static async ValueTask<object?> LogicalAnd(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) && (dynamic)await a.Right().Eval(c);
+        private static object? LogicalAnd(PlasticContext c, Syntax[] a)
+        {
+            return (dynamic) a.Left().Eval(c) && (dynamic) a.Right().Eval(c);
+        }
 
-        private static async ValueTask<object?> LogicalOr(PlasticContext c, Syntax[] a) => 
-            await (dynamic)a.Left().Eval(c) || (dynamic)await a.Right().Eval(c);
+        private static object? LogicalOr(PlasticContext c, Syntax[] a)
+        {
+            return (dynamic) a.Left().Eval(c) || (dynamic) a.Right().Eval(c);
+        }
     }
 }
