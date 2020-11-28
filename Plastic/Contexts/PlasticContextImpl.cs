@@ -57,14 +57,14 @@ namespace PlasticLang.Contexts
             _cells[name] = value;
         }
 
-        private static async ValueTask<dynamic> InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
+        private static async ValueTask<dynamic?> InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
         {
             var value = await macro(context, args);
             context.Declare("last", value!);
             return value;
         }
 
-        public override async ValueTask<dynamic> Invoke(Syntax head, Syntax[] args)
+        public override async ValueTask<dynamic?> Invoke(Syntax head, Syntax[] args)
         {
             var target = await head.Eval(this);
 
