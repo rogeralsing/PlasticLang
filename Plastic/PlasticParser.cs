@@ -138,7 +138,7 @@ namespace PlasticLang
             from args in LambdaArgs
             from arrow in Parse.String("=>").PlasticToken()
             from body in Parse.Ref(() => LambdaBody).Once()
-            select ListValue.CallFunction("func", args.Union(body).ToArray());
+            select ListValue.CallFunction("func", (args ?? Array.Empty<Syntax>()).Concat(body).ToArray());
 
         public static readonly Parser<Syntax> TupleOrParenValue =
             Parse.Ref(() => Expression)
@@ -146,8 +146,13 @@ namespace PlasticLang
                 .Contained(Parse.Char('(').PlasticToken(), Parse.Char(')').PlasticToken())
                 .Select(o =>
                 {
-                    var args = o.ToArray(); //if a single value, return the value itself. tuples are at least 2 or m
-                    return args.Length == 1 ? args.First() : new TupleValue(args.ToArray());
+                    var args = o.ToArray(); //if a single value, return the value itself. tuples are at least 2 or m'
+                    return args.Length switch
+                           {
+                               0 => throw new NotSupportedException(),
+                               1 => args.First(),
+                               _ => new TupleValue(args.ToArray())
+                           };
                 });
 
         public static readonly Parser<Syntax[]> InvocationArgs =

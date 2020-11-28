@@ -110,8 +110,10 @@ namespace PlasticSpec
         [Fact]
         public void Can_parse_lambda_declaration_()
         {
-            var lambda1 = PlasticParser.Expression.Parse("  (x) => {y;} ");
-            var lambda2 = PlasticParser.Expression.Parse("  x => y  ");
+            PlasticParser.Expression.Parse("  () => {y;} ");
+            PlasticParser.Expression.Parse("  x => y  ");
+            PlasticParser.Expression.Parse("  (x) => {y;} ");
+            PlasticParser.Expression.Parse("  (a,b) => y  ");
         }
 
         [Fact]
