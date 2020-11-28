@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PlasticLang.Ast;
+using PlasticLang.Reflection;
 using PlasticLang.Visitors;
 
 namespace PlasticLang.Contexts
@@ -20,14 +21,14 @@ namespace PlasticLang.Contexts
         {
             get
             {
-                var prop = _obj.GetType().GetProperty(name);
+                var prop = _obj.GetPropertyValue(name);
                 var res = prop.GetValue(_obj);
                 return res;
             }
             set => throw new NotImplementedException();
         }
 
-        public override async ValueTask<dynamic> Invoke(Syntax head, Syntax[] args)
+        public override async ValueTask<dynamic?> Invoke(Syntax head, Syntax[] args)
         {
             var memberName = "";
             if (head is StringLiteral sl) memberName = sl.Value;
