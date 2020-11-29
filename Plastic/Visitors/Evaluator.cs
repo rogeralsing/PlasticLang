@@ -47,10 +47,7 @@ namespace PlasticLang.Visitors
         private static object EvalNumberLiteral(PlasticContext context, NumberLiteral numberLiteral)
         {
             //fast path for literal values
-            if (context is PlasticContextImpl)
-            {
-                return numberLiteral.Value;
-            }
+            if (context is PlasticContextImpl) return numberLiteral.Value;
             return context.Number(numberLiteral);
         }
 

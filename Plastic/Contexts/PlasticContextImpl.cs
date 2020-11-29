@@ -7,22 +7,21 @@ namespace PlasticLang.Contexts
 {
     public struct Cell
     {
-        public object Value { get; private set; }
-        public bool Hasvalue { get; set; }
+        public object? Value { get; private set; }
+        public bool HasValue { get; private set; }
 
-        public void SetValue(object value)
+        public void SetValue(object? value)
         {
             Value = value;
-            Hasvalue = true;
+            HasValue = true;
         }
     }
-    public class PlasticContextImpl : PlasticContext
+
+    public sealed class PlasticContextImpl : PlasticContext
     {
-        private Cell[] _cells = new Cell[100];
+        private readonly Cell[] _cells = new Cell[100];
 
-
-
-        public PlasticContextImpl(PlasticContextImpl parentContext = null) : base(parentContext)
+        public PlasticContextImpl(PlasticContextImpl? parentContext = null) : base(parentContext)
         {
         }
 
@@ -30,13 +29,13 @@ namespace PlasticLang.Contexts
         {
             get
             {
-                if (_cells[name.IdNum].Hasvalue) return _cells[name.IdNum].Value;
+                if (_cells[name.IdNum].HasValue) return _cells[name.IdNum].Value;
 
                 return Parent?[name];
             }
             set
             {
-                if (_cells[name.IdNum].Hasvalue)
+                if (_cells[name.IdNum].HasValue)
                 {
                     _cells[name.IdNum].SetValue(value);
                     return;
@@ -54,9 +53,9 @@ namespace PlasticLang.Contexts
         }
 
 
-        public  bool HasProperty(Symbol name)
+        public bool HasProperty(Symbol name)
         {
-            if (_cells[name.IdNum].Hasvalue)
+            if (_cells[name.IdNum].HasValue)
                 return true;
 
             if (Parent != null)
@@ -67,11 +66,14 @@ namespace PlasticLang.Contexts
 
         public override void Declare(string name, object value)
         {
-            Symbol s = new Symbol(name);
+            Symbol s = new(name);
             _cells[s.IdNum].SetValue(value);
         }
 
-        public void Declare(string name, PlasticMacro value) => Declare(name, (object) value);
+        public void Declare(string name, PlasticMacro value)
+        {
+            Declare(name, (object) value);
+        }
 
         private static object? InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
         {

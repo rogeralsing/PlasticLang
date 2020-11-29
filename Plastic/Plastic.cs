@@ -14,7 +14,8 @@ namespace PlasticLang
     {
         private static readonly object Exit = new();
 
-        private static PlasticContextImpl RootContext = SetupCoreSymbols();
+        private static readonly PlasticContextImpl RootContext = SetupCoreSymbols();
+
         public static object Run(string code)
         {
             var userContext = new PlasticContextImpl(RootContext);
@@ -112,19 +113,19 @@ namespace PlasticLang
             {
                 case object[] arr:
                 {
-                    var arrayContext = new ArrayContext(arr, (PlasticContextImpl)c);
+                    var arrayContext = new ArrayContext(arr, (PlasticContextImpl) c);
                     return right.Eval(arrayContext);
                 }
                 case PlasticObject pobj:
                     return right.Eval(pobj.Context);
                 case Type type:
                 {
-                    var typeContext = new ClrTypeContext(type, (PlasticContextImpl)c);
+                    var typeContext = new ClrTypeContext(type, (PlasticContextImpl) c);
                     return right.Eval(typeContext);
                 }
                 default:
                 {
-                    var objContext = new ClrInstanceContext(l, (PlasticContextImpl)c);
+                    var objContext = new ClrInstanceContext(l, (PlasticContextImpl) c);
                     return right.Eval(objContext);
                 }
             }
@@ -198,7 +199,7 @@ namespace PlasticLang
 
         private static object? Elif(PlasticContext c, Syntax[] a)
         {
-            var last = c[new Symbol("last")];
+            var last = c[Symbol.Last];
             if (last != Exit) return last;
 
             var cond = a.Left();
@@ -216,7 +217,7 @@ namespace PlasticLang
 
         private static object? Else(PlasticContext c, Syntax[] a)
         {
-            var last = c[new Symbol("last")];
+            var last = c[Symbol.Last];
             if (last != Exit) return last;
 
             var body = a.Left();
@@ -267,7 +268,7 @@ namespace PlasticLang
                 if (args.Length >= argsMinusOne.Length)
                 {
                     //create context for this invocation
-                    var invocationScope = new PlasticContextImpl((PlasticContextImpl)callingContext);
+                    var invocationScope = new PlasticContextImpl((PlasticContextImpl) callingContext);
                     var arguments = new List<object>();
                     for (var i = 0; i < args.Length; i++)
                     {
@@ -314,7 +315,7 @@ namespace PlasticLang
 
             object PlasticMacro(PlasticContext ctx, Syntax[] args)
             {
-                var thisContext = new PlasticContextImpl((PlasticContextImpl)c);
+                var thisContext = new PlasticContextImpl((PlasticContextImpl) c);
 
                 for (var i = 0; i < a.Length - 1; i++)
                 {
