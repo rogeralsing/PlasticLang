@@ -63,12 +63,7 @@ namespace PlasticLang.Contexts
 
             throw new Exception("No matching method found.");
         }
-
-        public override void Declare(string name, object value)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override object Number(NumberLiteral numberLiteral)
         {
             throw new NotImplementedException();

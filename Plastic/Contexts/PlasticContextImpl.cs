@@ -19,7 +19,7 @@ namespace PlasticLang.Contexts
 
     public sealed class PlasticContextImpl : PlasticContext
     {
-        private readonly Cell[] _cells = new Cell[100];
+        private Cell[] Cells { get; } = new Cell[100];
 
         public PlasticContextImpl(PlasticContextImpl? parentContext = null) : base(parentContext)
         {
@@ -29,45 +29,41 @@ namespace PlasticLang.Contexts
         {
             get
             {
-                if (_cells[name.IdNum].HasValue) return _cells[name.IdNum].Value;
+                var current = this;
+                while (current != null)
+                {
+                    if (current.Cells[name.IdNum].HasValue) return current.Cells[name.IdNum].Value;
+                    current = current.Parent;
+                }
 
-                return Parent?[name];
+                return null;
             }
             set
             {
-                if (_cells[name.IdNum].HasValue)
+                var current = this;
+                while (current != null)
                 {
-                    _cells[name.IdNum].SetValue(value);
-                    return;
+                    if (current.Cells[name.IdNum].HasValue)
+                    {
+                        current.Cells[name.IdNum].SetValue(value);
+                        return;
+                    }
+
+                    current = current.Parent;
                 }
 
-                if (Parent is not null && Parent.HasProperty(name))
-                {
-                    Parent[name] = value!;
-                    return;
-                }
-
-                //name was not found in self or any parent, declare a new instance right here in this context
-                _cells[name.IdNum].SetValue(value);
+                Cells[name.IdNum].SetValue(value);
             }
         }
 
-
-        public bool HasProperty(Symbol name)
+        public void Declare(string name, object value)
         {
-            if (_cells[name.IdNum].HasValue)
-                return true;
-
-            if (Parent != null)
-                return Parent.HasProperty(name);
-
-            return false;
+            Declare(new Symbol(name),value);
         }
-
-        public override void Declare(string name, object value)
+        
+        public void Declare(Symbol s, object value)
         {
-            Symbol s = new(name);
-            _cells[s.IdNum].SetValue(value);
+            Cells[s.IdNum].SetValue(value);
         }
 
         public void Declare(string name, PlasticMacro value)
@@ -78,7 +74,7 @@ namespace PlasticLang.Contexts
         private static object? InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
         {
             var value = macro(context, args);
-            context.Declare("last", value!);
+            ((PlasticContextImpl)context).Declare(Symbol.Last, value!);
             return value;
         }
 

@@ -24,11 +24,6 @@ namespace PlasticLang.Contexts
             set => throw new NotSupportedException();
         }
 
-        public override void Declare(string name, object value)
-        {
-            throw new NotSupportedException();
-        }
-
         public override object? Invoke(Syntax head, Syntax[] args)
         {
             var memberName = (head as Symbol)?.Identity;

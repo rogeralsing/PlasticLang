@@ -12,7 +12,6 @@ namespace PlasticLang
             var sw = Stopwatch.StartNew();
             Plastic.Run(code);
             Console.WriteLine(sw.Elapsed.TotalMilliseconds);
-            Console.ReadLine();
         }
     }
 }

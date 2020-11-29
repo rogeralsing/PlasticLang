@@ -30,11 +30,6 @@ namespace PlasticLang.Contexts
             return res;
         }
 
-        public override void Declare(string name, object value)
-        {
-            throw new NotImplementedException();
-        }
-
         public override object Number(NumberLiteral numberLiteral)
         {
             var index = (int) numberLiteral.Value;

@@ -4,12 +4,12 @@ namespace PlasticLang
 {
     public class PlasticObject
     {
-        public PlasticObject(PlasticContext context)
+        public PlasticObject(PlasticContextImpl context)
         {
             Context = context;
         }
 
-        public PlasticContext Context { get; }
+        public PlasticContextImpl Context { get; }
 
         public object this[string property]
         {

@@ -16,7 +16,5 @@ namespace PlasticLang.Contexts
         public abstract object Number(NumberLiteral numberLiteral);
         public abstract object QuotedString(StringLiteral stringLiteral);
         public abstract object? Invoke(Syntax head, Syntax[] args);
-
-        public abstract void Declare(string name, object value);
     }
 }

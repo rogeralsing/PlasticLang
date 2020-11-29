@@ -142,7 +142,7 @@ namespace PlasticLang
                 for (var i = 0; i < a.Length - 1; i++)
                 {
                     var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
-                    thisContext.Declare(argName.Identity, args[i].Eval(ctx));
+                    ((PlasticContextImpl)thisContext).Declare(argName, args[i].Eval(ctx));
                 }
 
                 body.Eval(thisContext);
@@ -238,7 +238,7 @@ namespace PlasticLang
             object result = null!;
             foreach (var element in enumerable)
             {
-                c.Declare(v.Identity, element);
+                ((PlasticContextImpl)c).Declare(v, element);
                 result = body.Eval(c);
             }
 
