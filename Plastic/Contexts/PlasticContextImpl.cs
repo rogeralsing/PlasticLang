@@ -19,8 +19,7 @@ namespace PlasticLang.Contexts
         {
             get
             {
-                if (_cells.TryGetValue(name, out var existing))
-                    return existing;
+                if (_cells.TryGetValue(name, out var existing)) return existing;
                 
                 return Parent?[name];
             }

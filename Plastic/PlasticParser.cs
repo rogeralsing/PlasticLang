@@ -116,7 +116,7 @@ namespace PlasticLang
 
         public static readonly Parser<Statements> Statements =
             from statements in Statement.Many()
-            select new Statements(statements);
+            select new Statements(statements.ToArray());
 
         public static readonly Parser<Statements> Body =
             from lbrace in Parse.Char('{').PlasticToken()
