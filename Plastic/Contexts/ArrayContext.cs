@@ -8,7 +8,7 @@ namespace PlasticLang.Contexts
     {
         private readonly object?[] _array;
 
-        public ArrayContext(object[] array, PlasticContext owner) : base(owner)
+        public ArrayContext(object[] array, PlasticContextImpl owner) : base(owner)
         {
             _array = array;
         }

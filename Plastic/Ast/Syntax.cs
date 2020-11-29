@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using PlasticLang.Contexts;
 
 namespace PlasticLang.Ast
@@ -8,7 +10,20 @@ namespace PlasticLang.Ast
 
     public sealed record StringLiteral(string Value) : Syntax;
 
-    public sealed record Symbol(string Identity) : Syntax;
+    
+    public sealed record Symbol : Syntax
+    {
+        private static int idCounter;
+        private static ConcurrentDictionary<string, int> id = new();
+        public Symbol(string identity)
+        {
+            Identity = identity;
+            IdNum = id.GetOrAdd(identity, i => Interlocked.Increment(ref idCounter));
+        }
+
+        public string Identity { get; }
+        public int IdNum { get; }
+    }
     public sealed record Statements(Syntax[] Elements) : Syntax;
 
     public sealed record ArrayValue(Syntax[] Items) : Syntax;

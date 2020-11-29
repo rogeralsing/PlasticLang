@@ -9,7 +9,7 @@ namespace PlasticLang.Contexts
     {
         private readonly Type _type;
 
-        public ClrTypeContext(Type type, PlasticContext owner) : base(owner)
+        public ClrTypeContext(Type type, PlasticContextImpl owner) : base(owner)
         {
             _type = type;
         }

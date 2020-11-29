@@ -4,12 +4,12 @@ namespace PlasticLang.Contexts
 {
     public abstract class PlasticContext
     {
-        protected PlasticContext(PlasticContext? parent)
+        protected PlasticContext(PlasticContextImpl parent)
         {
             Parent = parent;
         }
 
-        protected PlasticContext? Parent { get; }
+        protected PlasticContextImpl Parent { get; }
 
         public abstract object? this[string name] { get; set; }
         

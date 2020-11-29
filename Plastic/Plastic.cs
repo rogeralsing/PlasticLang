@@ -14,10 +14,10 @@ namespace PlasticLang
     {
         private static readonly object Exit = new();
 
+        private static PlasticContextImpl RootContext = SetupCoreSymbols();
         public static object Run(string code)
         {
-            var context = SetupCoreSymbols();
-            var userContext = new PlasticContextImpl(context);
+            var userContext = new PlasticContextImpl(RootContext);
             return Run(code, userContext);
         }
 
@@ -40,7 +40,7 @@ namespace PlasticLang
             var temp = result;
         }
 
-        private static PlasticContext SetupCoreSymbols()
+        private static PlasticContextImpl SetupCoreSymbols()
         {
             var context = new PlasticContextImpl();
 
@@ -112,19 +112,19 @@ namespace PlasticLang
             {
                 case object[] arr:
                 {
-                    var arrayContext = new ArrayContext(arr, c);
+                    var arrayContext = new ArrayContext(arr, (PlasticContextImpl)c);
                     return right.Eval(arrayContext);
                 }
                 case PlasticObject pobj:
                     return right.Eval(pobj.Context);
                 case Type type:
                 {
-                    var typeContext = new ClrTypeContext(type, c);
+                    var typeContext = new ClrTypeContext(type, (PlasticContextImpl)c);
                     return right.Eval(typeContext);
                 }
                 default:
                 {
-                    var objContext = new ClrInstanceContext(l, c);
+                    var objContext = new ClrInstanceContext(l, (PlasticContextImpl)c);
                     return right.Eval(objContext);
                 }
             }
@@ -267,7 +267,7 @@ namespace PlasticLang
                 if (args.Length >= argsMinusOne.Length)
                 {
                     //create context for this invocation
-                    var invocationScope = new PlasticContextImpl(callingContext);
+                    var invocationScope = new PlasticContextImpl((PlasticContextImpl)callingContext);
                     var arguments = new List<object>();
                     for (var i = 0; i < args.Length; i++)
                     {
@@ -314,7 +314,7 @@ namespace PlasticLang
 
             object PlasticMacro(PlasticContext ctx, Syntax[] args)
             {
-                var thisContext = new PlasticContextImpl(c);
+                var thisContext = new PlasticContextImpl((PlasticContextImpl)c);
 
                 for (var i = 0; i < a.Length - 1; i++)
                 {

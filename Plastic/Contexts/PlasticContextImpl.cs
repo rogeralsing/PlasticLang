@@ -11,7 +11,7 @@ namespace PlasticLang.Contexts
         private readonly Dictionary<string, object> _cells = new();
 
 
-        public PlasticContextImpl(PlasticContext? parentContext = null) : base(parentContext)
+        public PlasticContextImpl(PlasticContextImpl parentContext = null) : base(parentContext)
         {
         }
 

@@ -11,7 +11,7 @@ namespace PlasticLang.Contexts
     {
         private readonly object _obj;
 
-        public ClrInstanceContext(object obj, PlasticContext owner) : base(owner)
+        public ClrInstanceContext(object obj, PlasticContextImpl owner) : base(owner)
         {
             _obj = obj;
         }
