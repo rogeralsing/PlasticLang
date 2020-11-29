@@ -24,11 +24,6 @@ namespace PlasticLang.Contexts
             set => throw new NotSupportedException();
         }
 
-        public override Cell GetCell(string name)
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool HasProperty(string name)
         {
             throw new NotSupportedException();

@@ -8,11 +8,7 @@ namespace PlasticLang.Ast
 
     public sealed record StringLiteral(string Value) : Syntax;
 
-    public sealed record Symbol(string Identity) : Syntax
-    {
-        public Cell? Cell { get; set; }
-    }
-
+    public sealed record Symbol(string Identity) : Syntax;
     public sealed record Statements(IEnumerable<Syntax> Elements) : Syntax;
 
     public sealed record ArrayValue(Syntax[] Items) : Syntax;

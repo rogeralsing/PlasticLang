@@ -29,11 +29,7 @@ namespace PlasticLang.Contexts
             var res = _array[index];
             return res;
         }
-
-        public override Cell GetCell(string name)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public override bool HasProperty(string name)
         {

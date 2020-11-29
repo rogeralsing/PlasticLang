@@ -22,11 +22,6 @@ namespace PlasticLang.Contexts
             set => throw new NotImplementedException();
         }
 
-        public override Cell GetCell(string name)
-        {
-            throw new NotImplementedException();
-        }
-
         public override object? Invoke(Syntax head, Syntax[] args)
         {
             var memberName = "";

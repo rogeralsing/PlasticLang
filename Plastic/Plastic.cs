@@ -357,7 +357,7 @@ namespace PlasticLang
             switch (left)
             {
                 case Symbol assignee:
-                    c.SetSymbol(assignee, value);
+                    c[assignee.Identity] = value;
                     break;
                 case ListValue dot:
                 {

@@ -6,23 +6,9 @@ using PlasticLang.Visitors;
 
 namespace PlasticLang.Contexts
 {
-    public class Cell
-    {
-        public Cell()
-        {
-        }
-
-        public Cell(object? value)
-        {
-            Value = value;
-        }
-
-        public object? Value { get; set; }
-    }
-
     public class PlasticContextImpl : PlasticContext
     {
-        private readonly Dictionary<string, Cell> _cells = new();
+        private readonly Dictionary<string, object> _cells = new();
 
 
         public PlasticContextImpl(PlasticContext? parentContext = null) : base(parentContext)
@@ -34,58 +20,24 @@ namespace PlasticLang.Contexts
             get
             {
                 object? res;
-                if (!_cells.ContainsKey(name))
-                    res = Parent?[name];
-                else
-                    res = _cells[name].Value;
-                return res;
+                if (_cells.TryGetValue(name, out var existing))
+                    return existing;
+                
+                return Parent?[name];
             }
             set
             {
-                if (!HasProperty(name) || Parent is null)
+                if (HasProperty(name) && Parent is not null)
                 {
-                    _cells[name] = new Cell(value);
-                    return;
+                    Parent[name] = value!;
                 }
-
-                Parent[name] = value!;
+                else
+                {
+                    _cells[name] = value;
+                }
             }
         }
 
-        public override Cell GetCell(string name)
-        {
-            if (_cells.ContainsKey(name)) return _cells[name];
-
-            Cell? c = null;
-            if (Parent is not null) c = Parent.GetCell(name);
-
-            if (c is not null) return c;
-            
-            c = new Cell();
-            _cells[name] = c;
-
-            return c;
-
-        }
-
-        public override object? GetSymbol(Symbol symbol)
-        {
-            var c = CellFromSymbol(symbol);
-            return c.Value;
-        }
-
-        private Cell CellFromSymbol(Symbol symbol)
-        {
-            var c = symbol.Cell ?? GetCell(symbol.Identity);
-            symbol.Cell = c;
-            return c;
-        }
-
-        public override void SetSymbol(Symbol symbol, object value)
-        {
-            var c = CellFromSymbol(symbol);
-            c.Value = value;
-        }
 
         public override bool HasProperty(string name)
         {
@@ -100,15 +52,7 @@ namespace PlasticLang.Contexts
 
         public override void Declare(string name, object value)
         {
-            if (name == "guard")
-            {
-                Console.WriteLine(name);
-            }
-
-            if (_cells.ContainsKey(name))
-                _cells[name].Value = value;
-            else
-                _cells[name] = new Cell(value);
+            _cells[name] = value;
         }
 
         public void Declare(string name, PlasticMacro value) => Declare(name, (object) value);
