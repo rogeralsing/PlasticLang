@@ -19,7 +19,6 @@ namespace PlasticLang.Contexts
         {
             get
             {
-                object? res;
                 if (_cells.TryGetValue(name, out var existing))
                     return existing;
                 
@@ -27,14 +26,20 @@ namespace PlasticLang.Contexts
             }
             set
             {
-                if (HasProperty(name) && Parent is not null)
-                {
-                    Parent[name] = value!;
-                }
-                else
+                if (_cells.ContainsKey(name))
                 {
                     _cells[name] = value;
+                    return;
                 }
+
+                if (Parent is not null && Parent.HasProperty(name))
+                {
+                    Parent[name] = value!;
+                    return;
+                }
+
+                //name was not found in self or any parent, declare a new instance right here in this context
+                _cells[name] = value;
             }
         }
 
