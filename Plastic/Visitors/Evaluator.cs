@@ -7,19 +7,17 @@ namespace PlasticLang.Visitors
     public static class Evaluator
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object Eval(this Syntax syn, PlasticContext context)
-        {
-            return syn switch
-                   {
-                       NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
-                       StringLiteral str           => EvalStringLiteral(context, str),
-                       Symbol symbol               => EvalSymbol(context, symbol),
-                       ListValue listValue         => EvalListValue(context, listValue),
-                       ArrayValue arrayValue       => EvalArray(context, arrayValue),
-                       Statements statements       => EvalStatements(context, statements),
-                       TupleValue tupleValue       => EvalTupleValue(context, tupleValue)
-                   };
-        }
+        public static object Eval(this Syntax syn, PlasticContext context) =>
+            syn switch
+            {
+                NumberLiteral numberLiteral => EvalNumberLiteral(context, numberLiteral),
+                StringLiteral str           => EvalStringLiteral(context, str),
+                Symbol symbol               => EvalSymbol(context, symbol),
+                ListValue listValue         => EvalListValue(context, listValue),
+                ArrayValue arrayValue       => EvalArray(context, arrayValue),
+                Statements statements       => EvalStatements(context, statements),
+                TupleValue tupleValue       => EvalTupleValue(context, tupleValue)
+            };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static object EvalTupleValue(PlasticContext context, TupleValue tupleValue)

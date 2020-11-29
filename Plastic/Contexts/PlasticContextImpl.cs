@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using PlasticLang.Ast;
 using PlasticLang.Visitors;
 
@@ -71,6 +73,7 @@ namespace PlasticLang.Contexts
             Declare(name, (object) value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static object? InvokeMacro(PlasticContext context, PlasticMacro macro, Syntax[] args)
         {
             var value = macro(context, args);
@@ -78,6 +81,7 @@ namespace PlasticLang.Contexts
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override object? Invoke(Syntax head, Syntax[] args)
         {
             var target = head.Eval(this);

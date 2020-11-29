@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using PlasticLang.Ast;
 using PlasticLang.Contexts;
 using PlasticLang.Visitors;
@@ -171,6 +172,7 @@ namespace PlasticLang
             return obj;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static object? While(PlasticContext c, Syntax[] a)
         {
             var result = Exit;
