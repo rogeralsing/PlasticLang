@@ -198,7 +198,7 @@ namespace PlasticLang
 
         private static object? Elif(PlasticContext c, Syntax[] a)
         {
-            var last = c["last"];
+            var last = c[new Symbol("last")];
             if (last != Exit) return last;
 
             var cond = a.Left();
@@ -216,7 +216,7 @@ namespace PlasticLang
 
         private static object? Else(PlasticContext c, Syntax[] a)
         {
-            var last = c["last"];
+            var last = c[new Symbol("last")];
             if (last != Exit) return last;
 
             var body = a.Left();
@@ -357,7 +357,7 @@ namespace PlasticLang
             switch (left)
             {
                 case Symbol assignee:
-                    c[assignee.Identity] = value;
+                    c[assignee] = value;
                     break;
                 case ListValue dot:
                 {
@@ -388,7 +388,7 @@ namespace PlasticLang
                     {
                         //left is symbol, assign a value to it..
                         case Symbol symbol:
-                            c[symbol.Identity] = r;
+                            c[symbol] = r;
                             break;
                         case TupleValue leftTuple when r is TupleInstance rightTuple:
                         {

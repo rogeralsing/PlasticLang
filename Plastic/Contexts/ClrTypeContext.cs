@@ -14,19 +14,14 @@ namespace PlasticLang.Contexts
             _type = type;
         }
 
-        public override object? this[string name]
+        public override object? this[Symbol name]
         {
             get
             {
-                var prop = typeof(Type).GetProperty(name);
+                var prop = typeof(Type).GetProperty(name.Identity);
                 return prop.GetValue(_type);
             }
             set => throw new NotSupportedException();
-        }
-
-        public override bool HasProperty(string name)
-        {
-            throw new NotSupportedException();
         }
 
         public override void Declare(string name, object value)

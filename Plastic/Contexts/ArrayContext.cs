@@ -13,9 +13,9 @@ namespace PlasticLang.Contexts
             _array = array;
         }
 
-        public override object? this[string name]
+        public override object? this[Symbol name]
         {
-            get => _array.GetPropertyValue(name);
+            get => _array.GetPropertyValue(name.Identity);
             set => throw new NotImplementedException();
         }
 
@@ -28,12 +28,6 @@ namespace PlasticLang.Contexts
 
             var res = _array[index];
             return res;
-        }
-        
-
-        public override bool HasProperty(string name)
-        {
-            throw new NotImplementedException();
         }
 
         public override void Declare(string name, object value)
@@ -50,7 +44,7 @@ namespace PlasticLang.Contexts
 
         public override object QuotedString(StringLiteral stringLiteral)
         {
-            var res = this[stringLiteral.Value]!;
+            var res = this[new Symbol(stringLiteral.Value)]!;
             return res;
         }
     }

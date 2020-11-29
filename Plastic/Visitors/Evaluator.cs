@@ -63,7 +63,7 @@ namespace PlasticLang.Visitors
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static object EvalSymbol(PlasticContext context, Symbol symbol)
         {
-            return context[symbol.Identity]!;
+            return context[symbol]!;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

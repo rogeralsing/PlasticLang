@@ -16,9 +16,9 @@ namespace PlasticLang.Contexts
             _obj = obj;
         }
 
-        public override object? this[string name]
+        public override object? this[Symbol name]
         {
-            get => _obj.GetPropertyValue(name);
+            get => _obj.GetPropertyValue(name.Identity);
             set => throw new NotImplementedException();
         }
 
@@ -64,11 +64,6 @@ namespace PlasticLang.Contexts
             throw new Exception("No matching method found.");
         }
 
-        public override bool HasProperty(string name)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Declare(string name, object value)
         {
             throw new NotImplementedException();
@@ -81,7 +76,7 @@ namespace PlasticLang.Contexts
 
         public override object QuotedString(StringLiteral stringLiteral)
         {
-            var res = this[stringLiteral.Value];
+            var res = this[new Symbol(stringLiteral.Value)];
             return res;
         }
     }

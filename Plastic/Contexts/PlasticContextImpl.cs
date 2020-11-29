@@ -1,33 +1,44 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using PlasticLang.Ast;
 using PlasticLang.Visitors;
 
 namespace PlasticLang.Contexts
 {
+    public struct Cell
+    {
+        public object Value { get; private set; }
+        public bool Hasvalue { get; set; }
+
+        public void SetValue(object value)
+        {
+            Value = value;
+            Hasvalue = true;
+        }
+    }
     public class PlasticContextImpl : PlasticContext
     {
-        private readonly Dictionary<string, object> _cells = new();
+        private Cell[] _cells = new Cell[100];
+
 
 
         public PlasticContextImpl(PlasticContextImpl parentContext = null) : base(parentContext)
         {
         }
 
-        public override object? this[string name]
+        public override object? this[Symbol name]
         {
             get
             {
-                if (_cells.TryGetValue(name, out var existing)) return existing;
-                
+                if (_cells[name.IdNum].Hasvalue) return _cells[name.IdNum].Value;
+
                 return Parent?[name];
             }
             set
             {
-                if (_cells.ContainsKey(name))
+                if (_cells[name.IdNum].Hasvalue)
                 {
-                    _cells[name] = value;
+                    _cells[name.IdNum].SetValue(value);
                     return;
                 }
 
@@ -38,14 +49,14 @@ namespace PlasticLang.Contexts
                 }
 
                 //name was not found in self or any parent, declare a new instance right here in this context
-                _cells[name] = value;
+                _cells[name.IdNum].SetValue(value);
             }
         }
 
 
-        public override bool HasProperty(string name)
+        public  bool HasProperty(Symbol name)
         {
-            if (_cells.ContainsKey(name))
+            if (_cells[name.IdNum].Hasvalue)
                 return true;
 
             if (Parent != null)
@@ -56,7 +67,8 @@ namespace PlasticLang.Contexts
 
         public override void Declare(string name, object value)
         {
-            _cells[name] = value;
+            Symbol s = new Symbol(name);
+            _cells[s.IdNum].SetValue(value);
         }
 
         public void Declare(string name, PlasticMacro value) => Declare(name, (object) value);
