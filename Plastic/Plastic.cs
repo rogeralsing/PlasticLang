@@ -52,7 +52,7 @@ namespace PlasticLang
                 var right = a.Right();
 
                 var value = right.Eval(c);
-                context.Declare(left.Identity, value);
+                context.Declare(left, value);
                 return value;
             }
 
@@ -321,7 +321,7 @@ namespace PlasticLang
                 {
                     var argName = a[i] as Symbol; //TODO: add support for expressions and partial appl
                     var arg = args[i].Eval(ctx);
-                    thisContext.Declare(argName!.Identity, arg);
+                    thisContext.Declare(argName!, arg);
                 }
 
                 var self = new PlasticObject(thisContext);
