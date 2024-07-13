@@ -89,7 +89,7 @@ john.sayHello();
 
 ### Mixins
 
-```
+```javascript
 BeepMixin := mixin
 {
     beep := func ()
